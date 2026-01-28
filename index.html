@@ -3,18 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مرافق | Morafik</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;800&display=swap" rel="stylesheet">
+    <title>مرافق | Morafik - مرافقة طفلك بأمان</title>
+    
+    <!-- الخطوط والأيقونات -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- مكتبة التنبيهات -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
+        /* --- المتغيرات والتأسيس --- */
         :root {
             --primary-color: #2c3e50;
             --secondary-color: #3498db;
             --accent-color: #e74c3c;
             --light-bg: #f8f9fa;
-            --radius: 16px;
+            --glass: rgba(255, 255, 255, 0.95);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; outline: none; }
@@ -26,13 +30,13 @@
             min-height: 100vh; 
         }
 
-        /* --- الخلفية الثابتة مع الزوم --- */
+        /* --- الخلفية الثابتة مع حركة الزوم --- */
         .fixed-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            /* صورة الأخصائية النفسية المبتسمة */
             background: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
-            z-index: -2;
-            /* حركة الزوم الناعمة */
-            animation: bgZoom 20s infinite alternate;
+            z-index: -10;
+            animation: bgZoom 20s infinite alternate; /* حركة الزوم */
         }
 
         @keyframes bgZoom {
@@ -42,510 +46,584 @@
 
         .bg-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); /* تعتيم لضمان وضوح الكتابة */
-            z-index: -1;
+            background: rgba(0, 0, 0, 0.5); /* تعتيم الخلفية لإبراز النص */
+            z-index: -9;
         }
 
-        /* --- الهيدر --- */
+        /* --- الهيدر (القائمة العلوية) --- */
         header { 
-            background: rgba(255,255,255,0.95); 
+            background: rgba(255, 255, 255, 0.95); 
             backdrop-filter: blur(10px); 
             padding: 15px 5%; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            position: fixed; 
-            width: 100%; 
-            top: 0; 
-            z-index: 1000; 
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05); 
+            display: flex; justify-content: space-between; align-items: center; 
+            position: fixed; width: 100%; top: 0; z-index: 2000; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .logo { font-size: 20px; font-weight: 900; color: var(--secondary-color); display: flex; align-items: center; gap: 8px; }
-        .nav-links { display: flex; align-items: center; gap: 10px; }
-        .nav-links button { background: transparent; border: none; font-size: 15px; cursor: pointer; color: #2c3e50; font-weight: 600; transition: 0.3s; }
+        .logo { font-size: 22px; font-weight: 900; color: var(--secondary-color); display: flex; align-items: center; gap: 8px; }
+        .nav-links { display: flex; gap: 15px; align-items: center; }
+        .nav-links button { background: none; border: none; font-size: 16px; font-weight: 600; cursor: pointer; color: #333; transition: 0.3s; }
         .nav-links button:hover { color: var(--secondary-color); }
-        .lang-btn { border: 1px solid var(--secondary-color) !important; padding: 4px 12px; border-radius: 20px; font-size: 13px; }
-
-        /* --- Sections Logic --- */
-        /* إخفاء الأقسام غير النشطة */
-        section { 
-            display: none; 
-            width: 100%; 
-            min-height: 100vh;
-        }
+        .lang-btn { border: 2px solid var(--secondary-color) !important; border-radius: 20px; padding: 4px 15px; font-size: 14px; }
 
         /* --- الصفحة الرئيسية (Hero) --- */
         .hero-section {
-            display: flex; /* استخدمنا فليكس */
+            height: 100vh;
+            width: 100%;
+            display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             color: white;
-            position: absolute; /* لتتحرك بسهولة */
+            padding: 0 20px;
+            padding-top: 80px; /* مسافة علوية لمنع النص من الاختفاء خلف الهيدر */
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .big-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            line-height: 1.2;
+        }
+
+        .hero-sub {
+            font-size: 1.4rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .btn-hero {
+            padding: 15px 60px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.4);
+            transition: transform 0.3s;
+        }
+        .btn-hero:hover { transform: scale(1.05); background: #2980b9; }
+
+        /* تعديلات للموبايل */
+        @media (max-width: 768px) {
+            .big-title { font-size: 2.2rem; }
+            .hero-sub { font-size: 1.1rem; }
+            .hero-section { padding-top: 100px; justify-content: flex-start; } /* رفع المحتوى قليلاً */
+        }
+
+        /* --- حاوية الصفحات المنبثقة (Sweep Up) --- */
+        .page-container {
+            position: fixed;
             top: 0;
             left: 0;
+            width: 100%;
             height: 100vh;
-            padding: 0 20px;
-            /* حل مشكلة النص في الأعلى */
-            padding-top: 60px; 
-            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
-        }
-        
-        /* هذا الكلاس يضاف عند تفعيل الصفحة الرئيسية */
-        .hero-section.active {
+            background: #f8f9fa;
+            z-index: 1500; /* فوق الهيرو */
             display: flex;
+            justify-content: center;
+            align-items: center; /* توسيط عمودي */
+            padding-top: 80px;
+            padding-bottom: 20px;
+            
+            /* إعدادات الحركة */
+            transform: translateY(100%); /* مخفية في الأسفل */
+            transition: transform 0.6s cubic-bezier(0.7, 0, 0.3, 1);
+            overflow-y: auto;
+        }
+
+        /* الكلاس الذي يفعل ظهور الصفحة */
+        .page-container.active {
             transform: translateY(0);
         }
 
-        /* هذا الكلاس عند الخروج للأعلى */
-        .hero-section.move-up {
-            transform: translateY(-100vh);
+        /* --- تصميم النماذج (Forms) --- */
+        .form-box {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            margin: auto; /* لضمان التوسيط */
         }
 
-        .big-title { 
-            font-size: 3.5rem; 
-            margin-bottom: 20px; 
-            font-weight: 900; 
-            text-shadow: 0 4px 15px rgba(0,0,0,0.6); 
-            line-height: 1.2; 
-        }
+        .form-box h2 { margin-bottom: 25px; color: var(--primary-color); }
 
-        /* تعديلات الموبايل للنص */
-        @media (max-width: 768px) {
-            .big-title { 
-                font-size: 2.2rem; /* تصغير الخط */
-                margin-top: 40px; /* دفع النص للأسفل قليلاً */
-            }
-            .hero-sub { font-size: 1.1rem; }
+        input, select {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            background: #fff;
+            font-size: 1rem;
         }
-
-        /* --- صفحات الدخول والتسجيل (تأتي من الأسفل) --- */
-        .auth-section {
-            position: fixed;
-            top: 0; 
-            left: 0;
-            height: 100vh;
-            background: rgba(255,255,255,0.95); /* خلفية شبه شفافة */
+        
+        .role-switch {
             display: flex;
-            justify-content: center;
+            background: #f0f2f5;
+            padding: 5px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .role-switch button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: bold;
+            color: #666;
+            transition: 0.3s;
+        }
+        .role-switch button.active {
+            background: white;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* --- تنسيقات لوحة التحكم --- */
+        .dashboard-content {
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .req-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            border-right: 5px solid var(--secondary-color);
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            z-index: 500;
-            overflow-y: auto;
-            padding: 80px 20px 40px 20px;
-            
-            /* الحالة الافتراضية: مخفية في الأسفل */
-            transform: translateY(100vh);
-            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+            flex-wrap: wrap;
+            gap: 15px;
         }
-
-        /* عند التفعيل، تصعد للوسط */
-        .auth-section.active {
-            transform: translateY(0) !important;
-            display: flex;
-        }
-
-        /* --- Dashboard Styles --- */
-        .dashboard-section {
-            padding-top: 100px;
-            padding-bottom: 50px;
-            background: #f8f9fa;
-        }
-        .dashboard-section.active { display: block; }
-
-        /* Elements Styling */
-        .modal-content { background-color: #fff; padding: 30px; width: 100%; max-width: 450px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; border: 1px solid #eee; }
-        
-        input, textarea { width: 100%; padding: 14px 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 0.95rem; margin-bottom: 15px; background: #fff; transition: 0.3s; }
-        input:focus { border-color: var(--secondary-color); outline: none; }
-        
-        .btn { padding: 14px 40px; background: var(--secondary-color); color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3); }
-        .btn:hover { background: #2980b9; transform: translateY(-2px); }
-        .btn-full { width: 100%; border-radius: 12px; }
-        .btn-red { background: var(--accent-color); padding: 8px 15px; font-size: 13px; border-radius: 8px; }
-
-        /* Custom Select */
-        select { display: none; } 
-        .custom-select-wrapper { position: relative; user-select: none; width: 100%; margin-bottom: 15px; }
-        .custom-select { position: relative; display: flex; flex-direction: column; }
-        .custom-select__trigger { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; font-size: 0.95rem; font-weight: 500; color: #333; height: 48px; background: #fff; border: 1px solid #ddd; border-radius: 12px; cursor: pointer; }
-        .custom-options { position: absolute; display: block; top: 110%; left: 0; right: 0; background: #fff; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(-15px); transition: all 0.3s; z-index: 1000; max-height: 250px; overflow-y: auto; }
-        .custom-select.open .custom-options { opacity: 1; visibility: visible; pointer-events: all; transform: translateY(0); }
-        .custom-option { position: relative; display: block; padding: 10px 15px; font-size: 0.9rem; cursor: pointer; border-bottom: 1px solid #f9f9f9; text-align: right; }
-        .custom-option:hover { background-color: #f0f9ff; color: var(--secondary-color); }
 
         /* Loader */
-        #loadingScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #eee; border-top: 4px solid var(--secondary-color); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        #loadingScreen { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #eee; border-top-color: var(--secondary-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Dashboard Internal Styles */
-        .profile-card { background: white; padding: 20px; border-radius: 16px; display: flex; align-items: center; gap: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .req-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-right: 4px solid var(--secondary-color); box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:10px; }
     </style>
 </head>
 <body>
 
+    <!-- الخلفية الثابتة -->
     <div class="fixed-bg"></div>
     <div class="bg-overlay"></div>
     
+    <!-- شاشة التحميل -->
     <div id="loadingScreen"><div class="spinner"></div></div>
 
+    <!-- الهيدر -->
     <header>
-        <div class="logo"><i class="fas fa-hands-helping"></i> <span data-i18n="logo">مرافق</span></div>
+        <div class="logo">
+            <i class="fas fa-hands-helping"></i> 
+            <span>مرافق | Morafik</span>
+        </div>
         <div class="nav-links">
-            <button onclick="changeLang()" class="lang-btn">FR / AR</button>
-            <div id="notifWrapper" style="display:none; position:relative; margin:0 10px;">
-                <i class="fas fa-bell" style="font-size:20px; color:#555;"></i>
-                <span id="notifBadge" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; font-size:10px; padding:2px 5px; display:none;">0</span>
-            </div>
+            <button class="lang-btn" onclick="alert('تغيير اللغة قريباً')">FR / AR</button>
             
             <!-- روابط الزوار -->
-            <div id="guestLinks" style="display: flex; gap: 10px;">
-                <button onclick="goHome()" data-i18n="home">الرئيسية</button>
-                <button onclick="showAuth('login')" data-i18n="login">دخول</button>
-                <button onclick="showAuth('register')" data-i18n="register">حساب جديد</button>
+            <div id="guestNav">
+                <button onclick="goHome()">الرئيسية</button>
+                <button onclick="openPage('loginSection')">دخول</button>
             </div>
 
-            <!-- روابط المستخدم -->
-            <button id="logoutBtn" onclick="logout()" class="btn-red" style="display:none;" data-i18n="logout">خروج</button>
+            <!-- روابط المستخدم المسجل -->
+            <div id="userNav" style="display:none;">
+                <button onclick="logout()" style="color: var(--accent-color);">خروج</button>
+            </div>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section id="hero" class="hero-section active">
-        <h1 class="big-title" data-i18n="heroTitle">مرافقة طفلك بأمان</h1>
-        <p data-i18n="heroSub" class="hero-sub" style="font-size: 1.3rem; margin-bottom: 30px; opacity: 0.9; max-width:600px;">نربطك بأفضل المرافقين والأخصائيين النفسيين لضمان راحة وسلامة طفلك.</p>
-        <!-- الزر يفتح صفحة التسجيل بحركة انزلاق -->
-        <button class="btn" onclick="showAuth('register')" data-i18n="startNow">ابدأ الآن</button>
+    <!-- 1. الصفحة الرئيسية (Hero) -->
+    <section id="heroSection" class="hero-section">
+        <h1 class="big-title">مرافقة طفلك بأمان</h1>
+        <p class="hero-sub">
+            نربطك بأفضل المرافقين والأخصائيين النفسيين المؤهلين لضمان راحة وسلامة طفلك في المدرسة والحياة اليومية.
+        </p>
+        <button class="btn-hero" onclick="openPage('registerSection')">ابدأ الآن</button>
     </section>
 
-    <!-- Register Section -->
-    <section id="register" class="auth-section">
-        <div class="modal-content">
-            <h2 style="margin-bottom: 20px; color: var(--primary-color);" data-i18n="regTitle">إنشاء حساب</h2>
+    <!-- 2. صفحة التسجيل (منبثقة من الأسفل) -->
+    <div id="registerSection" class="page-container">
+        <div class="form-box">
+            <h2>إنشاء حساب جديد</h2>
             
-            <div style="display:flex; gap:10px; margin-bottom:20px; background:#f1f1f1; padding:5px; border-radius:12px;">
-                <button class="btn btn-full" style="background:white; color:#333; box-shadow:0 2px 5px rgba(0,0,0,0.05);" id="roleParent" onclick="setRole('parent')" data-i18n="roleParent">ولي</button>
-                <button class="btn btn-full" style="background:transparent; color:#666; box-shadow:none;" id="roleComp" onclick="setRole('companion')" data-i18n="roleComp">مرافق</button>
+            <div class="role-switch">
+                <button class="active" id="btnRoleParent" onclick="setRole('parent')">ولي أمر</button>
+                <button id="btnRoleComp" onclick="setRole('companion')">مرافق</button>
             </div>
-            
+
             <input type="text" id="regName" placeholder="الاسم الكامل">
             <input type="email" id="regEmail" placeholder="البريد الإلكتروني">
             <input type="tel" id="regPhone" placeholder="رقم الهاتف">
-            <select id="regWilaya"></select>
+            
+            <!-- سيتم ملء الولايات بالجافاسكربت -->
+            <select id="regWilaya">
+                <option value="" disabled selected>اختر الولاية</option>
+            </select>
 
-            <div id="compFields" style="display: none;">
+            <div id="compFields" style="display:none;">
                 <select id="regSpec">
-                    <option value="مرافق طفل التوحد" data-i18n="spec1">مرافق طفل التوحد</option>
-                    <option value="أخصائي نفساني" data-i18n="spec2">أخصائي نفساني</option>
+                    <option value="مرافق طفل التوحد">مرافق طفل التوحد</option>
+                    <option value="أخصائي نفساني">أخصائي نفساني</option>
                 </select>
-                <div style="border:1px dashed #ccc; padding:10px; border-radius:8px; margin-bottom:15px; cursor:pointer;">
-                    <label data-i18n="certLabel">ارفع الشهادة (PDF)</label>
-                    <input type="file" id="regDoc" accept="application/pdf" style="margin-top:5px;">
+                <div style="border: 2px dashed #ddd; padding: 15px; border-radius: 12px; margin-bottom: 15px; cursor: pointer;">
+                    <label>ارفع الشهادة (PDF)</label>
+                    <input type="file" id="regDoc" accept="application/pdf" style="margin-bottom:0; padding:5px;">
                 </div>
             </div>
 
             <input type="password" id="regPass" placeholder="كلمة المرور">
             <input type="password" id="regConfPass" placeholder="تأكيد كلمة المرور">
+
+            <button class="submit-btn" onclick="handleRegister()">تسجيل</button>
             
-            <button class="btn btn-full" onclick="handleRegister()" data-i18n="regBtn">تسجيل</button>
-            <div style="margin-top: 20px; font-size:0.9rem;">
-                <span data-i18n="haveAccount">لديك حساب؟</span> <a href="#" onclick="showAuth('login')" style="color: var(--secondary-color); font-weight: bold;" data-i18n="loginBtn">دخول</a>
+            <div style="margin-top: 20px; font-size: 0.9rem;">
+                لديك حساب بالفعل؟ <a href="#" onclick="openPage('loginSection')" style="color:var(--secondary-color); font-weight:bold;">دخول</a>
             </div>
-        </div>
-    </section>
-
-    <!-- Login Section -->
-    <section id="login" class="auth-section">
-        <div class="modal-content">
-            <h2 style="margin-bottom: 20px; color: var(--primary-color);" data-i18n="loginTitle">تسجيل الدخول</h2>
-            <input type="text" id="loginEmail" placeholder="البريد الإلكتروني">
-            <input type="password" id="loginPass" placeholder="كلمة المرور">
-            <button class="btn btn-full" onclick="handleLogin()" data-i18n="loginBtn">دخول</button>
-            <div style="margin-top: 20px; font-size:0.9rem;">
-                <span data-i18n="noAccount">ليس لديك حساب؟</span> <a href="#" onclick="showAuth('register')" style="color: var(--secondary-color); font-weight: bold;" data-i18n="createOne">إنشاء حساب</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Parent Dashboard -->
-    <section id="parentDash" class="dashboard-section">
-        <div class="dashboard-content" style="background:transparent;">
-            <div class="profile-card">
-                <div>
-                    <h2 id="pName">User</h2>
-                    <p data-i18n="roleParent" style="color:#666;">ولي أمر</p>
-                </div>
-                <img id="pImg" src="https://via.placeholder.com/80" style="border-radius:50%; width:80px; height:80px; object-fit:cover;">
-            </div>
-
-            <div style="background:white; padding:20px; border-radius:16px; margin-bottom:30px;">
-                <h3 style="margin-bottom:15px;" data-i18n="searchTitle">بحث عن مرافق</h3>
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <div style="flex:1"><select id="searchSpec"><option value="مرافق طفل التوحد" data-i18n="spec1">مرافق طفل التوحد</option><option value="أخصائي نفساني" data-i18n="spec2">أخصائي نفساني</option></select></div>
-                    <div style="flex:1"><select id="searchWilaya"></select></div>
-                    <button class="btn" style="border-radius:12px;" onclick="searchCompanions()" data-i18n="searchBtn">بحث</button>
-                </div>
-            </div>
-            <div id="searchResults"></div>
-            <h3 style="margin:20px 0;" data-i18n="myRequests">طلباتي</h3>
-            <div id="parentReqs"></div>
-        </div>
-    </section>
-
-    <!-- Companion Dashboard -->
-    <section id="companionDash" class="dashboard-section">
-        <div class="dashboard-content" style="background:transparent;">
-            <div class="profile-card">
-                <div>
-                    <h2 id="cName">User</h2>
-                    <p id="cSpec" style="color:var(--secondary-color); font-weight:bold;"></p>
-                    <div style="margin-top:10px;">
-                        <input type="checkbox" id="availToggle" onchange="toggleAvail()"> <label for="availToggle" data-i18n="available" style="font-weight:bold;">متاح للعمل</label>
-                    </div>
-                </div>
-            </div>
-            <h3 data-i18n="incomingReq" style="margin-bottom:15px;">الطلبات الواردة</h3>
-            <div id="compReqs"></div>
-        </div>
-    </section>
-
-    <!-- Admin Section -->
-    <section id="adminDash" class="dashboard-section">
-        <div class="dashboard-content" style="background:transparent;">
-            <h2>لوحة الأدمن</h2>
-            <div id="adminStats" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:20px 0;">
-                <div class="stat-box"><h3>مستخدمين</h3><span id="adUsers">0</span></div>
-                <div class="stat-box"><h3>طلبات</h3><span id="adReqsTotal">0</span></div>
-            </div>
-            <div id="adminMessagesList"></div>
-        </div>
-    </section>
-
-    <!-- Modal: Booking -->
-    <div id="bookingModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('bookingModal')">&times;</span>
-            <h3 style="margin-bottom:15px;" data-i18n="bookTitle">حجز</h3>
-            <input type="hidden" id="bookCompId">
-            <input type="text" id="bkChildName" placeholder="اسم الطفل">
-            <input type="number" id="bkChildAge" placeholder="السن">
-            <select id="bkLevel"><option value="ابتدائي">ابتدائي</option><option value="متوسط">متوسط</option></select>
-            <select id="bkStatus"><option value="عادي">عادي</option><option value="طفل التوحد">طفل توحد</option></select>
-            <select id="bkType"><option value="مرافقة مستمرة">مرافقة مستمرة</option><option value="حصص فقط">حصص فقط</option></select>
-            <button class="btn btn-full" onclick="submitBooking()" data-i18n="confirmBook">تأكيد</button>
         </div>
     </div>
 
+    <!-- 3. صفحة الدخول (منبثقة من الأسفل) -->
+    <div id="loginSection" class="page-container">
+        <div class="form-box">
+            <h2>تسجيل الدخول</h2>
+            <input type="text" id="loginEmail" placeholder="البريد الإلكتروني">
+            <input type="password" id="loginPass" placeholder="كلمة المرور">
+            <button class="submit-btn" onclick="handleLogin()">دخول</button>
+            <div style="margin-top: 20px; font-size: 0.9rem;">
+                ليس لديك حساب؟ <a href="#" onclick="openPage('registerSection')" style="color:var(--secondary-color); font-weight:bold;">إنشاء حساب</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. لوحات التحكم (Dashboards) -->
+    
+    <!-- لوحة الولي -->
+    <div id="parentDash" class="page-container" style="align-items: flex-start;">
+        <div class="dashboard-content">
+            <div style="background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <h2 style="color: var(--primary-color);">مرحباً، <span id="pName"></span></h2>
+                <p>ابحث عن المرافق المناسب لطفلك</p>
+                <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
+                    <select id="searchSpec" style="margin:0; flex:1; min-width: 200px;">
+                        <option value="مرافق طفل التوحد">مرافق طفل التوحد</option>
+                        <option value="أخصائي نفساني">أخصائي نفساني</option>
+                    </select>
+                    <select id="searchWilaya" style="margin:0; flex:1; min-width: 200px;">
+                        <option value="" disabled selected>الولاية</option>
+                    </select>
+                    <button class="submit-btn" style="width: auto; padding: 0 30px; margin:0;" onclick="searchCompanions()">بحث</button>
+                </div>
+            </div>
+            <div id="searchResults"></div>
+            <h3 style="margin: 20px 0;">طلباتي</h3>
+            <div id="parentReqs"></div>
+        </div>
+    </div>
+
+    <!-- لوحة المرافق -->
+    <div id="companionDash" class="page-container" style="align-items: flex-start;">
+        <div class="dashboard-content">
+            <div style="background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                <h2 style="color: var(--primary-color);">لوحة المرافق</h2>
+                <p>مرحباً، <span id="cName"></span></p>
+                <div style="margin-top: 10px;">
+                    <input type="checkbox" id="availToggle" onchange="toggleAvail()" style="width: auto; margin: 0;">
+                    <label>متاح للعمل حالياً</label>
+                </div>
+            </div>
+            <h3>الطلبات الواردة</h3>
+            <div id="compReqs" style="margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <!-- Javascript Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, setDoc, doc, getDoc, getDocs, query, where, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
+        // إعدادات الفايربيس
         const firebaseConfig = { apiKey: "AIzaSyC5dRvQZE1kMSsYojrMiyuQurnQwEleo3o", authDomain: "mourafik-e9161.firebaseapp.com", projectId: "mourafik-e9161", storageBucket: "mourafik-e9161.firebasestorage.app", messagingSenderId: "133465287328", appId: "1:133465287328:web:9de5b3bd709099d885b7c5", measurementId: "G-MDJXPZ7G5L" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- UI Logic ---
-        
+        // متغيرات عامة
         let selectedRole = 'parent';
-        let curLang = 'ar';
         let currentUser = null;
-
-        // دالة التنقل الرئيسية بين الواجهات
-        window.goHome = () => {
-            // إخفاء جميع الأقسام
-            document.querySelectorAll('section').forEach(s => {
-                s.classList.remove('active');
-                s.style.display = 'none';
-            });
-            
-            // إظهار الصفحة الرئيسية وإعادتها لمكانها
-            const hero = document.getElementById('hero');
-            hero.style.display = 'flex';
-            setTimeout(() => {
-                hero.classList.remove('move-up');
-                hero.classList.add('active');
-            }, 10);
-
-            // إخفاء صفحات الدخول والتسجيل للأسفل
-            document.querySelectorAll('.auth-section').forEach(s => {
-                s.classList.remove('active');
-            });
-        };
-
-        // دالة إظهار صفحات الدخول/التسجيل (Sweep Up)
-        window.showAuth = (id) => {
-            // تحريك الهيرو للأعلى
-            document.getElementById('hero').classList.add('move-up');
-            
-            // إخفاء أي فورم مفتوح حالياً
-            document.querySelectorAll('.auth-section').forEach(s => s.classList.remove('active'));
-
-            // إظهار الفورم المطلوب
-            const target = document.getElementById(id);
-            setTimeout(() => target.classList.add('active'), 50); // تأخير بسيط للحركة
-        };
-
-        // دالة الدخول للوحة التحكم
-        window.enterDashboard = (type) => {
-            document.getElementById('hero').style.display = 'none';
-            document.querySelectorAll('.auth-section').forEach(s => s.classList.remove('active'));
-            
-            const dashId = type === 'parent' ? 'parentDash' : type === 'companion' ? 'companionDash' : 'adminDash';
-            document.getElementById(dashId).classList.add('active');
-            document.getElementById(dashId).style.display = 'block';
-        };
-
-        // --- Custom Select & Init ---
-        const wilayasAr = ["01 أدرار","02 الشلف","03 الأغواط","04 أم البواقي","05 باتنة","06 بجاية","07 بسكرة","08 بشار","09 البليدة","10 البويرة","11 تمنراست","12 تبسة","13 تلمسان","14 تيارت","15 تيزي وزو","16 الجزائر","17 الجلفة","18 جيجل","19 سطيف","20 سعيدة","21 سكيكدة","22 سيدي بلعباس","23 عنابة","24 قالمة","25 قسنطينة","26 المدية","27 مستغانم","28 المسيلة","29 معسكر","30 ورقلة","31 وهران","32 البيض","33 إليزي","34 برج بوعريريج","35 بومرداس","36 الطارف","37 تندوف","38 تيسمسيلت","39 الوادي","40 خنشلة","41 سوق أهراس","42 تيبازة","43 ميلة","44 عين الدفلى","45 النعامة","46 عين تموشنت","47 غرداية","48 غليزان","49 تيميمون","50 برج باجي مختار","51 أولاد جلال","52 بني عباس","53 عين صالح","54 عين قزام","55 تقرت","56 جانت","57 المغير","58 المنيعة"];
         
-        function populateSelects() {
-            ['regWilaya', 'searchWilaya'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) { el.innerHTML = ''; wilayasAr.forEach(w => el.innerHTML += `<option value="${w}">${w}</option>`); }
-            });
-            renderCustomSelects();
-        }
+        // قائمة الولايات
+        const wilayas = ["01 Adrar","02 Chlef","03 Laghouat","04 Oum El Bouaghi","05 Batna","06 Béjaïa","07 Biskra","08 Béchar","09 Blida","10 Bouira","11 Tamanrasset","12 Tébessa","13 Tlemcen","14 Tiaret","15 Tizi Ouzou","16 Alger","17 Djelfa","18 Jijel","19 Sétif","20 Saïda","21 Skikda","22 Sidi Bel Abbès","23 Annaba","24 Guelma","25 Constantine","26 Médéa","27 Mostaganem","28 M'Sila","29 Mascara","30 Ouargla","31 Oran","32 El Bayadh","33 Illizi","34 Bordj Bou Arréridj","35 Boumerdès","36 El Tarf","37 Tindouf","38 Tissemsilt","39 El Oued","40 Khenchela","41 Souk Ahras","42 Tipaza","43 Mila","44 Aïn Defla","45 Naâma","46 Aïn Témouchent","47 Ghardaïa","48 Relizane","49 Timimoun","50 Bordj Badji Mokhtar","51 Ouled Djellal","52 Béni Abbès","53 In Salah","54 In Guezzam","55 Touggourt","56 Djanet","57 El M'Ghair","58 El Meniaa"];
 
-        function renderCustomSelects() {
-            document.querySelectorAll('select').forEach(select => {
-                if (select.nextElementSibling && select.nextElementSibling.classList.contains('custom-select')) select.nextElementSibling.remove();
-                const wrapper = document.createElement('div'); wrapper.classList.add('custom-select');
-                const trigger = document.createElement('div'); trigger.classList.add('custom-select__trigger');
-                trigger.innerHTML = `<span>${select.options[select.selectedIndex] ? select.options[select.selectedIndex].text : 'Select'}</span> <i class="fas fa-chevron-down"></i>`;
-                const options = document.createElement('div'); options.classList.add('custom-options');
-                Array.from(select.options).forEach(opt => {
-                    const option = document.createElement('div'); option.classList.add('custom-option');
-                    option.textContent = opt.text; 
-                    option.addEventListener('click', () => {
-                        select.value = opt.value; trigger.querySelector('span').textContent = opt.text;
-                        wrapper.classList.remove('open'); select.dispatchEvent(new Event('change'));
-                    });
-                    options.appendChild(option);
-                });
-                trigger.addEventListener('click', (e) => { e.stopPropagation(); document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('open')); wrapper.classList.toggle('open'); });
-                wrapper.appendChild(trigger); wrapper.appendChild(options); select.parentNode.insertBefore(wrapper, select.nextSibling);
-            });
+        // --- دوال التهيئة ---
+        function initSelects() {
+            const opts = wilayas.map(w => `<option value="${w}">${w}</option>`).join('');
+            if(document.getElementById('regWilaya')) document.getElementById('regWilaya').innerHTML += opts;
+            if(document.getElementById('searchWilaya')) document.getElementById('searchWilaya').innerHTML += opts;
         }
-        window.addEventListener('click', () => document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('open')));
+        initSelects();
 
-        // --- Auth Logic ---
+        // --- دوال التنقل والحركة (Core Navigation) ---
+        
+        // فتح صفحة (حركة Sweep Up)
+        window.openPage = (pageId) => {
+            // إغلاق أي صفحة مفتوحة حالياً
+            document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active'));
+            
+            // فتح الصفحة المطلوبة بعد تأخير بسيط
+            setTimeout(() => {
+                const target = document.getElementById(pageId);
+                if(target) target.classList.add('active');
+            }, 10);
+        };
+
+        // العودة للرئيسية
+        window.goHome = () => {
+            // إخفاء جميع الصفحات (تعود للأسفل)
+            document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active'));
+        };
+
+        // تبديل الدور (ولي / مرافق)
+        window.setRole = (role) => {
+            selectedRole = role;
+            const isParent = role === 'parent';
+            document.getElementById('btnRoleParent').className = isParent ? 'active' : '';
+            document.getElementById('btnRoleComp').className = isParent ? '' : 'active';
+            document.getElementById('compFields').style.display = isParent ? 'none' : 'block';
+        };
+
+        // --- منطق الفايربيس (Firebase Logic) ---
+
+        // التسجيل
+        window.handleRegister = async () => {
+            const email = document.getElementById('regEmail').value;
+            const pass = document.getElementById('regPass').value;
+            const name = document.getElementById('regName').value;
+            const phone = document.getElementById('regPhone').value;
+            const wilaya = document.getElementById('regWilaya').value;
+
+            if(!email || !pass || !name) return Swal.fire('تنبيه', 'يرجى ملء الحقول الأساسية', 'warning');
+
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                const uid = cred.user.uid;
+                
+                const userData = {
+                    uid: uid,
+                    fullName: name,
+                    email: email,
+                    phone: phone,
+                    wilaya: wilaya,
+                    role: selectedRole,
+                    createdAt: serverTimestamp()
+                };
+
+                if (selectedRole === 'companion') {
+                    userData.specialty = document.getElementById('regSpec').value;
+                    userData.isAvailable = true;
+                }
+
+                await setDoc(doc(db, "users", uid), userData);
+                Swal.fire('نجاح', 'تم إنشاء الحساب بنجاح', 'success');
+                
+            } catch (err) {
+                Swal.fire('خطأ', err.message, 'error');
+            }
+        };
+
+        // الدخول
+        window.handleLogin = async () => {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (err) {
+                Swal.fire('خطأ', 'بيانات الدخول غير صحيحة', 'error');
+            }
+        };
+
+        // الخروج
+        window.logout = () => signOut(auth).then(() => window.location.reload());
+
+        // مراقب حالة المستخدم
         onAuthStateChanged(auth, async (user) => {
+            document.getElementById('loadingScreen').style.display = 'none';
+            
             if (user) {
+                // مستخدم مسجل
+                document.getElementById('guestNav').style.display = 'none';
+                document.getElementById('userNav').style.display = 'block';
+                
                 const snap = await getDoc(doc(db, "users", user.uid));
-                if (snap.exists()) {
+                if(snap.exists()) {
                     currentUser = snap.data();
-                    document.getElementById('guestLinks').style.display = 'none';
-                    document.getElementById('logoutBtn').style.display = 'block';
-                    document.getElementById('notifWrapper').style.display = 'block';
                     
-                    if (currentUser.role === 'admin' || currentUser.email === 'admin@morafik.dz') enterDashboard('admin');
-                    else enterDashboard(currentUser.role);
-                    
-                    if(currentUser.role==='parent') initParent();
-                    if(currentUser.role==='companion') initComp();
+                    // توجيه للوحة التحكم المناسبة
+                    if(currentUser.role === 'parent') {
+                        document.getElementById('pName').innerText = currentUser.fullName;
+                        loadParentReqs();
+                        openPage('parentDash');
+                    } else if(currentUser.role === 'companion') {
+                        document.getElementById('cName').innerText = currentUser.fullName;
+                        loadCompReqs();
+                        openPage('companionDash');
+                    }
                 }
             } else {
-                currentUser = null;
-                document.getElementById('guestLinks').style.display = 'flex';
-                document.getElementById('logoutBtn').style.display = 'none';
-                document.getElementById('notifWrapper').style.display = 'none';
-                goHome(); // الرجوع للصفحة الرئيسية عند الخروج
+                // زائر
+                document.getElementById('guestNav').style.display = 'block';
+                document.getElementById('userNav').style.display = 'none';
+                goHome();
             }
-            document.getElementById('loadingScreen').style.display = 'none';
         });
 
-        window.setRole = (r) => {
-            selectedRole = r;
-            document.getElementById('roleParent').style.background = r === 'parent' ? 'white' : 'transparent';
-            document.getElementById('roleParent').style.boxShadow = r === 'parent' ? '0 2px 5px rgba(0,0,0,0.05)' : 'none';
-            document.getElementById('roleComp').style.background = r === 'companion' ? 'white' : 'transparent';
-            document.getElementById('roleComp').style.boxShadow = r === 'companion' ? '0 2px 5px rgba(0,0,0,0.05)' : 'none';
-            document.getElementById('compFields').style.display = r === 'companion' ? 'block' : 'none';
-        };
+        // --- وظائف لوحة التحكم ---
 
-        window.handleRegister = async () => {
-            const e = document.getElementById('regEmail').value, p = document.getElementById('regPass').value;
-            try {
-                const cred = await createUserWithEmailAndPassword(auth, e, p);
-                const data = { uid: cred.user.uid, fullName: document.getElementById('regName').value, email: e, phone: document.getElementById('regPhone').value, wilaya: document.getElementById('regWilaya').value, role: selectedRole, isBlocked: false, createdAt: serverTimestamp() };
-                if(selectedRole === 'companion') { data.specialty = document.getElementById('regSpec').value; data.isAvailable = true; }
-                await setDoc(doc(db, "users", cred.user.uid), data);
-                Swal.fire('تم', 'تم إنشاء الحساب بنجاح', 'success');
-            } catch(err) { Swal.fire('خطأ', err.message, 'error'); }
-        };
-
-        window.handleLogin = async () => {
-            const e = document.getElementById('loginEmail').value, p = document.getElementById('loginPass').value;
-            if(e === 'admin' && p === 'abobob123') { 
-                // Admin bypass for demo (Better to use real auth in prod)
-                currentUser = { role: 'admin', fullName: 'Admin' };
-                enterDashboard('admin');
-                return;
-            }
-            try { await signInWithEmailAndPassword(auth, e, p); } catch { Swal.fire('خطأ', 'بيانات الدخول غير صحيحة', 'error'); }
-        };
-
-        window.logout = () => signOut(auth).then(() => location.reload());
-
-        // --- Dashboard Logic (Simplified for brevity but functional) ---
-        function initParent() {
-            document.getElementById('pName').innerText = currentUser.fullName;
-            loadParentReqs();
-        }
-        function initComp() {
-            document.getElementById('cName').innerText = currentUser.fullName;
-            document.getElementById('cSpec').innerText = currentUser.specialty;
-            loadCompReqs();
-        }
-
+        // بحث الولي
         window.searchCompanions = async () => {
-            const s = document.getElementById('searchSpec').value, w = document.getElementById('searchWilaya').value;
-            const res = document.getElementById('searchResults');
-            res.innerHTML = '<p>جاري البحث...</p>';
-            const q = query(collection(db, "users"), where("role", "==", "companion"), where("specialty", "==", s), where("wilaya", "==", w));
+            const spec = document.getElementById('searchSpec').value;
+            const wilaya = document.getElementById('searchWilaya').value;
+            const resDiv = document.getElementById('searchResults');
+            
+            resDiv.innerHTML = '<p style="text-align:center; color:#666;">جاري البحث...</p>';
+            
+            const q = query(collection(db, "users"), 
+                where("role", "==", "companion"), 
+                where("specialty", "==", spec),
+                where("wilaya", "==", wilaya)
+            );
+            
+            const snap = await getDocs(q);
+            if(snap.empty) {
+                resDiv.innerHTML = '<p style="text-align:center; color:#999;">لا يوجد مرافقين متاحين في هذه المنطقة حالياً.</p>';
+            } else {
+                let html = '';
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `
+                    <div class="req-card">
+                        <div>
+                            <strong>${d.fullName}</strong><br>
+                            <span style="font-size:0.9rem; color:#666;">${d.specialty}</span>
+                        </div>
+                        <button class="submit-btn" style="width:auto; padding:8px 20px; font-size:0.9rem;" onclick="bookCompanion('${d.uid}')">حجز</button>
+                    </div>`;
+                });
+                resDiv.innerHTML = html;
+            }
+        };
+
+        // إرسال طلب حجز (يجب تعريفه في window ليعمل مع onclick في HTML)
+        window.bookCompanion = async (compId) => {
+            if(!currentUser) return;
+            const { value: childName } = await Swal.fire({
+                title: 'ادخل اسم الطفل',
+                input: 'text',
+                showCancelButton: true,
+                confirmButtonText: 'إرسال الطلب',
+                cancelButtonText: 'إلغاء'
+            });
+
+            if (childName) {
+                await addDoc(collection(db, "requests"), {
+                    parentId: currentUser.uid,
+                    parentName: currentUser.fullName,
+                    companionId: compId,
+                    childName: childName,
+                    status: 'pending',
+                    timestamp: serverTimestamp()
+                });
+                Swal.fire('تم', 'تم إرسال طلب الحجز بنجاح', 'success');
+                loadParentReqs();
+            }
+        };
+
+        // تحميل طلبات الولي
+        async function loadParentReqs() {
+            const q = query(collection(db, "requests"), where("parentId", "==", currentUser.uid));
             const snap = await getDocs(q);
             let html = '';
-            snap.forEach(d => {
-                const u = d.data();
-                html += `<div class="req-card"><div><strong>${u.fullName}</strong><br><small>${u.specialty}</small></div><button class="btn" style="padding:5px 15px; font-size:12px;" onclick="openBookModal('${u.uid}')">حجز</button></div>`;
+            snap.forEach(doc => {
+                const r = doc.data();
+                let statusColor = r.status === 'pending' ? 'orange' : r.status === 'accepted' ? 'green' : 'red';
+                let statusText = r.status === 'pending' ? 'قيد الانتظار' : r.status === 'accepted' ? 'تم القبول' : 'مرفوض';
+                
+                html += `
+                <div class="req-card" style="border-right-color: ${statusColor};">
+                    <div><strong>الطفل:</strong> ${r.childName}</div>
+                    <div style="font-weight:bold; color:${statusColor}">${statusText}</div>
+                </div>`;
             });
-            res.innerHTML = html || '<p>لا توجد نتائج</p>';
-        };
-
-        window.openBookModal = (id) => { document.getElementById('bookCompId').value = id; document.getElementById('bookingModal').classList.add('open'); };
-        window.closeModal = (id) => document.getElementById(id).classList.remove('open');
-
-        window.submitBooking = async () => {
-            const cid = document.getElementById('bookCompId').value;
-            await addDoc(collection(db, "requests"), { parentId: currentUser.uid, parentName: currentUser.fullName, companionId: cid, childName: document.getElementById('bkChildName').value, status: 'pending', timestamp: serverTimestamp() });
-            closeModal('bookingModal');
-            Swal.fire('تم', 'تم إرسال الطلب', 'success');
-            loadParentReqs();
-        };
-
-        async function loadParentReqs() {
-            const snap = await getDocs(query(collection(db, "requests"), where("parentId", "==", currentUser.uid)));
-            let html = '';
-            snap.forEach(d => { const r = d.data(); html += `<div class="req-card"><div>${r.childName}</div><div>${r.status}</div></div>`; });
-            document.getElementById('parentReqs').innerHTML = html;
+            document.getElementById('parentReqs').innerHTML = html || '<p style="text-align:center; color:#999">لا توجد طلبات</p>';
         }
 
+        // تحميل طلبات المرافق
         async function loadCompReqs() {
-            const snap = await getDocs(query(collection(db, "requests"), where("companionId", "==", currentUser.uid)));
+            const q = query(collection(db, "requests"), where("companionId", "==", currentUser.uid));
+            const snap = await getDocs(q);
             let html = '';
-            snap.forEach(d => { 
-                const r = d.data(); 
-                html += `<div class="req-card"><div>طلب من: ${r.parentName}<br>الطفل: ${r.childName}</div><div>${r.status}</div></div>`; 
+            snap.forEach(doc => {
+                const r = doc.data();
+                html += `
+                <div class="req-card">
+                    <div>
+                        <strong>من:</strong> ${r.parentName}<br>
+                        <strong>الطفل:</strong> ${r.childName}
+                    </div>
+                    <div>
+                        ${r.status === 'pending' ? 
+                        `<button onclick="updateReq('${doc.id}', 'accepted')" style="background:green; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; margin-left:5px;">قبول</button>
+                         <button onclick="updateReq('${doc.id}', 'rejected')" style="background:red; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">رفض</button>` 
+                        : `<span style="font-weight:bold">${r.status}</span>`}
+                    </div>
+                </div>`;
             });
-            document.getElementById('compReqs').innerHTML = html;
+            document.getElementById('compReqs').innerHTML = html || '<p style="text-align:center; color:#999">لا توجد طلبات واردة</p>';
         }
 
-        // Init
-        populateSelects();
+        window.updateReq = async (id, status) => {
+            await updateDoc(doc(db, "requests", id), { status: status });
+            loadCompReqs();
+        };
+
+        window.toggleAvail = async () => {
+            if(!currentUser) return;
+            const val = document.getElementById('availToggle').checked;
+            await updateDoc(doc(db, "users", currentUser.uid), { isAvailable: val });
+        };
+
     </script>
 </body>
 </html>
