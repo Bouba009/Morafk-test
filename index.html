@@ -1,833 +1,659 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مرافق | Morafik</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Loader -->
+<div id="loadingScreen">
+    <div class="spinner"></div>
+</div>
+
+<!-- Header -->
+<header>
+    <div class="logo"><i class="fas fa-hands-helping"></i> <span data-i18n="logo">مرافق | Morafik</span></div>
+    <div class="nav-links">
+        <button onclick="changeLang()" class="lang-btn">FR / AR</button>
+        <div id="notifWrapper" class="notif-icon" onclick="openNotifModal()" style="display:none;">
+            <i class="fas fa-bell"></i>
+            <span id="notifBadge" class="notif-badge" style="display:none;">0</span>
+        </div>
+        <button onclick="router('hero')" data-i18n="home">الرئيسية</button>
+        <button onclick="router('login')" id="navLogin" data-i18n="login">دخول</button>
+        <button onclick="router('register')" id="navReg" data-i18n="register">حساب جديد</button>
+        <button onclick="logout()" id="navLogout" class="btn-red" style="display:none; font-size:14px;" data-i18n="logout">خروج</button>
+    </div>
+</header>
+
+<!-- Hero -->
+<section id="hero" class="hero-section active">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <h1 data-i18n="heroTitle" style="font-size:3rem; margin-bottom:20px;">مرافقة طفلك بأمان</h1>
+        <p data-i18n="heroSub" style="font-size: 1.4rem; margin-bottom: 30px; opacity: 0.9;">نربطك بأفضل المرافقين والأخصائيين النفسيين</p>
+        <button class="btn" style="padding: 15px 40px; font-size: 1.1rem;" onclick="router('register')" data-i18n="startNow">ابدأ الآن</button>
+    </div>
+</section>
+
+<!-- Login -->
+<section id="login" style="position: relative; overflow: hidden;">
+    <!-- Background Removed for Clarity -->
     
-    <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-            --light-bg: #f8f9fa;
-            --glass: rgba(255, 255, 255, 0.98);
-            --shadow: 0 10px 30px rgba(0,0,0,0.08);
-            --radius: 16px;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; outline: none; }
-        
-        body { 
-            background-color: var(--light-bg); 
-            color: #333; 
-            overflow-x: hidden; 
-            min-height: 100vh; 
-            transition: all 0.3s ease;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--secondary-color); }
-
-        /* Loader */
-        #loadingScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #eee; border-top: 5px solid var(--secondary-color); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        /* Animations */
-        .fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
-        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
-
-        /* Inputs */
-        input, textarea { 
-            width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 0.95rem; margin-bottom: 15px; background: #fff; transition: 0.3s; 
-            text-transform: none; /* Cancel auto caps */
-        }
-        input:focus, textarea:focus { border-color: var(--secondary-color); box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1); }
-        
-        .btn { padding: 12px 25px; background: var(--secondary-color); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3); }
-        .btn:hover { background: #2980b9; transform: translateY(-2px); }
-        .btn-red { background: var(--accent-color); box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3); }
-        .btn-red:hover { background: #c0392b; }
-
-        /* Modern Custom Select */
-        select { display: none; } 
-        
-        .custom-select-wrapper { position: relative; user-select: none; width: 100%; margin-bottom: 15px; }
-        .custom-select { position: relative; display: flex; flex-direction: column; }
-        .custom-select__trigger {
-            position: relative; display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 15px; font-size: 0.95rem; font-weight: 500; color: #333; height: 48px;
-            background: #fff; border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer; transition: all 0.3s;
-        }
-        .custom-select__trigger:hover { border-color: #ccc; }
-        .custom-select.open .custom-select__trigger { border-color: var(--secondary-color); box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1); }
-        .custom-options {
-            position: absolute; display: block; top: 110%; left: 0; right: 0;
-            background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(-15px);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 1000; max-height: 250px; overflow-y: auto;
-        }
-        .custom-select.open .custom-options { opacity: 1; visibility: visible; pointer-events: all; transform: translateY(0); }
-        .custom-option {
-            position: relative; display: block; padding: 10px 15px; font-size: 0.9rem; font-weight: 500; color: #333;
-            cursor: pointer; transition: all 0.2s; border-bottom: 1px solid #f5f5f5;
-        }
-        .custom-option:last-child { border-bottom: none; }
-        .custom-option:hover { background-color: var(--secondary-color); color: #fff; }
-        .custom-option.selected { background-color: #f0f9ff; color: var(--secondary-color); }
-
-        /* Star Rating */
-        .star-rating { display: flex; flex-direction: row-reverse; justify-content: center; gap: 10px; margin: 20px 0; }
-        .star-rating input { display: none; }
-        .star-rating label { font-size: 30px; color: #ddd; cursor: pointer; transition: color 0.2s; }
-        .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: gold; }
-
-        /* Header */
-        header { background: var(--glass); backdrop-filter: blur(10px); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
-        .logo { font-size: 24px; font-weight: 900; color: var(--secondary-color); display: flex; align-items: center; gap: 10px; }
-        .nav-links { display: flex; align-items: center; gap: 15px; }
-        .nav-links button { background: transparent; border: none; font-size: 16px; cursor: pointer; color: #2c3e50; font-weight: 500; transition: 0.3s; }
-        .nav-links button:hover { color: var(--secondary-color); }
-        .lang-btn { border: 2px solid var(--secondary-color) !important; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
-        
-        .notif-icon { position: relative; font-size: 22px; cursor: pointer; margin: 0 10px; color: var(--primary-color); }
-        .notif-badge { position: absolute; top: -5px; right: -5px; background: var(--accent-color); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; justify-content: center; align-items: center; border: 2px solid white; }
-
-        /* Sections */
-        section { padding-top: 100px; min-height: 100vh; display: none; padding-bottom: 50px; }
-        section.active { display: block; }
-
-        .hero-section { 
-            position: relative; display: flex; align-items: center; justify-content: center; text-align: center; color: white; overflow: hidden;
-        }
-        .hero-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* Fixed Image Link - Woman (Teacher/Companion) */
-            background: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
-            z-index: -1;
-            /* Zoom Animation */
-            animation: heroZoom 20s infinite alternate;
-        }
-        @keyframes heroZoom {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.15); }
-        }
-
-        .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 0; }
-        .hero-content { position: relative; z-index: 2; padding: 20px; max-width: 800px; }
-        
-        .dashboard-content { padding: 0 5%; max-width: 1200px; margin: 0 auto; }
-        .profile-card { background: white; padding: 30px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); margin-bottom: 30px; flex-wrap: wrap; gap: 20px; border: 1px solid #fff; }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px; }
-        .stat-box { background: white; padding: 25px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow); border: 1px solid #eee; }
-        .stat-box h3 { font-size: 2.5rem; color: var(--secondary-color); margin: 0; font-weight: 800; }
-        
-        .req-card { background: white; padding: 25px; border-radius: var(--radius); box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-right: 5px solid var(--secondary-color); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; animation: fadeIn 0.5s ease; }
-        .req-details p { margin: 8px 0; font-size: 0.95rem; color: #555; display: flex; gap: 5px; }
-        .req-details strong { color: var(--primary-color); min-width: 80px; }
-
-        /* Modals */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); overflow-y: auto; backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.3s; }
-        .modal.open { display: block; opacity: 1; }
-        .modal-content { background-color: #fff; margin: 5% auto; padding: 30px; width: 90%; max-width: 600px; border-radius: 24px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s; }
-        .modal.open .modal-content { transform: scale(1); }
-        .close { float: left; font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa; transition: 0.3s; }
-        .close:hover { color: var(--accent-color); }
-
-        .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .full-width { grid-column: span 2; }
-        .file-upload-wrapper { border: 2px dashed #ddd; padding: 20px; text-align: center; border-radius: 12px; cursor: pointer; transition: 0.3s; }
-        .file-upload-wrapper:hover { border-color: var(--secondary-color); background: #f9fbfd; }
-
-        /* Admin Table */
-        .admin-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        .admin-table th { padding: 15px; background: #f8f9fa; color: #555; text-align: start; }
-        .admin-table td { padding: 15px; background: white; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
-        .admin-table td:first-child { border-radius: 0 10px 10px 0; border-right: 1px solid #eee; }
-        .admin-table td:last-child { border-radius: 10px 0 0 10px; border-left: 1px solid #eee; }
-        .msg-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: 4px solid var(--secondary-color); }
-
-        footer { background: var(--primary-color); color: white; padding: 60px 5%; margin-top: 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; }
-        footer li { margin-bottom: 12px; opacity: 0.8; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
-        footer li a { color: white; text-decoration: none; }
-        footer li:hover { opacity: 1; padding-right: 5px; color: var(--secondary-color); }
-        .phone-link { color: var(--secondary-color); font-weight: bold; text-decoration: none; border-bottom: 1px dashed var(--secondary-color); }
-
-        @media (max-width: 768px) {
-            header { flex-direction: column; gap: 15px; padding: 15px; }
-            .stats-grid, .edit-grid { grid-template-columns: 1fr; }
-            .full-width { grid-column: span 1; }
-            .req-card { flex-direction: column; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Loader -->
-    <div id="loadingScreen">
-        <div class="spinner"></div>
-    </div>
-
-    <!-- Header -->
-    <header>
-        <div class="logo"><i class="fas fa-hands-helping"></i> <span data-i18n="logo">مرافق | Morafik</span></div>
-        <div class="nav-links">
-            <button onclick="changeLang()" class="lang-btn">FR / AR</button>
-            <div id="notifWrapper" class="notif-icon" onclick="openNotifModal()" style="display:none;">
-                <i class="fas fa-bell"></i>
-                <span id="notifBadge" class="notif-badge" style="display:none;">0</span>
-            </div>
-            <button onclick="router('hero')" data-i18n="home">الرئيسية</button>
-            <button onclick="router('login')" id="navLogin" data-i18n="login">دخول</button>
-            <button onclick="router('register')" id="navReg" data-i18n="register">حساب جديد</button>
-            <button onclick="logout()" id="navLogout" class="btn-red" style="display:none; font-size:14px;" data-i18n="logout">خروج</button>
-        </div>
-    </header>
-
-    <!-- Hero -->
-    <section id="hero" class="hero-section active">
-        <div class="hero-bg"></div>
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <h1 data-i18n="heroTitle" style="font-size:3rem; margin-bottom:20px;">مرافقة لطفل في المدرسة</h1>
-            <p data-i18n="heroSub" style="font-size: 1.4rem; margin-bottom: 30px; opacity: 0.9;">نربطك بأفضل المرافقين والأخصائيين النفسيين</p>
-            <button class="btn" style="padding: 15px 40px; font-size: 1.1rem;" onclick="router('register')" data-i18n="startNow">ابدأ الآن</button>
-        </div>
-    </section>
-
-    <!-- Login -->
-    <section id="login" style="position: relative; overflow: hidden;">
-        <!-- Background added here -->
-        <div class="hero-bg"></div>
-        <div class="hero-overlay"></div>
-        
-        <div class="modal-content" style="max-width: 400px; margin-top: 80px; position: relative; z-index: 2;">
-            <h2 style="text-align: center; margin-bottom: 30px;" data-i18n="loginTitle">تسجيل الدخول</h2>
-            <input type="text" id="loginEmail" data-i18n-ph="emailPh" placeholder="البريد الإلكتروني" autocapitalize="off">
-            <input type="password" id="loginPass" data-i18n-ph="passPh" placeholder="كلمة المرور">
-            <button class="btn" style="width: 100%;" onclick="handleLogin()" data-i18n="loginBtn">دخول</button>
-            <div style="text-align: center; margin-top: 20px;">
-                <span data-i18n="noAccount">ليس لديك حساب؟</span> <a href="#" onclick="router('register')" style="color: var(--secondary-color); font-weight: bold;" data-i18n="createOne">إنشاء حساب</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Register -->
-    <section id="register" style="position: relative; overflow: hidden;">
-        <!-- Background added here -->
-        <div class="hero-bg"></div>
-        <div class="hero-overlay"></div>
-
-        <div class="modal-content" style="margin-top: 40px; position: relative; z-index: 2;">
-            <h2 style="text-align: center; margin-bottom: 25px;" data-i18n="regTitle">إنشاء حساب</h2>
-            <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <button class="btn" style="flex:1; background:#eee; color:#333;" id="roleParent" onclick="setRole('parent')" data-i18n="roleParent">ولي</button>
-                <button class="btn" style="flex:1; background:#eee; color:#333;" id="roleComp" onclick="setRole('companion')" data-i18n="roleComp">مرافق</button>
-            </div>
-            
-            <input type="text" id="regName" data-i18n-ph="namePh" placeholder="الاسم الكامل" autocapitalize="off">
-            <input type="email" id="regEmail" data-i18n-ph="emailPh" placeholder="البريد الإلكتروني" autocapitalize="off">
-            <input type="tel" id="regPhone" data-i18n-ph="phonePh" placeholder="رقم الهاتف">
-            <select id="regWilaya"></select>
-
-            <div id="compFields" style="display: none;">
-                <select id="regSpec">
-                    <option value="مرافق طفل التوحد" data-i18n="spec1">مرافق طفل التوحد</option>
-                    <option value="أخصائي نفساني" data-i18n="spec2">أخصائي نفساني</option>
-                </select>
-                <div class="file-upload-wrapper">
-                    <label data-i18n="certLabel">ارفع الشهادة (PDF)</label>
-                    <input type="file" id="regDoc" accept="application/pdf" style="margin-top:10px;">
-                </div>
-            </div>
-
-            <input type="password" id="regPass" data-i18n-ph="passPh" placeholder="كلمة المرور">
-            <input type="password" id="regConfPass" data-i18n-ph="confPassPh" placeholder="تأكيد كلمة المرور">
-            
-            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="handleRegister()" data-i18n="regBtn">تسجيل</button>
-            <div style="text-align: center; margin-top: 20px;">
-                <span data-i18n="haveAccount">لديك حساب بالفعل؟</span> <a href="#" onclick="router('login')" style="color: var(--secondary-color); font-weight: bold;" data-i18n="loginBtn">دخول</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Parent Dashboard -->
-    <section id="parentDash">
-        <div class="dashboard-content">
-            <div class="profile-card">
-                <div>
-                    <h2 id="pName">User</h2>
-                    <p data-i18n="roleParent" style="color:#666; margin-top:5px;">ولي طفل</p>
-                    <button class="btn" style="margin-top:15px; font-size:0.9rem; padding: 8px 20px;" onclick="openEditModal()" data-i18n="editProfile">تعديل الملف</button>
-                </div>
-                <img id="pImg" src="https://via.placeholder.com/100" style="border-radius:50%; width:100px; height:100px; object-fit:cover; border:3px solid var(--secondary-color);">
-            </div>
-
-            <div style="background:white; padding:30px; border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:40px;">
-                <h3 style="margin-bottom:20px; color:var(--primary-color);" data-i18n="searchTitle">بحث عن مرافق</h3>
-                <div style="display:flex; gap:15px; flex-wrap:wrap;">
-                    <div style="flex:1"><select id="searchSpec"><option value="مرافق طفل التوحد" data-i18n="spec1">مرافق طفل التوحد</option><option value="أخصائي نفساني" data-i18n="spec2">أخصائي نفساني</option></select></div>
-                    <div style="flex:1"><select id="searchWilaya"></select></div>
-                    <button class="btn" onclick="searchCompanions()" data-i18n="searchBtn">بحث</button>
-                </div>
-            </div>
-
-            <div id="searchResults"></div>
-            <h3 style="margin: 40px 0 20px;" data-i18n="myRequests">طلباتي</h3>
-            <div id="parentReqs"></div>
-        </div>
-    </section>
-
-    <!-- Companion Dashboard -->
-    <section id="companionDash">
-        <div class="dashboard-content">
-            <div class="profile-card">
-                <div>
-                    <h2 id="cName">User</h2>
-                    <p id="cSpec" style="color:var(--secondary-color); font-weight:bold; margin-top:5px;"></p>
-                    <div style="margin-top:15px;">
-                        <input type="checkbox" id="availToggle" onchange="toggleAvail()"> <label for="availToggle" data-i18n="available" style="font-weight:bold;">متاح للعمل</label>
-                    </div>
-                    <button class="btn" style="margin-top:15px; font-size:0.9rem; padding: 8px 20px;" onclick="openEditModal()" data-i18n="editProfile">تعديل الملف</button>
-                </div>
-                <img id="cImg" src="https://via.placeholder.com/100" style="border-radius:50%; width:100px; height:100px; object-fit:cover; border:3px solid var(--secondary-color);">
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-box"><h3 id="stTotal">0</h3><p data-i18n="totalReq">الطلبات</p></div>
-                <div class="stat-box"><h3 id="stNew">0</h3><p data-i18n="newReq">جديدة</p></div>
-                <div class="stat-box"><h3 id="stAcc">0</h3><p data-i18n="accReq">مقبولة</p></div>
-                <div class="stat-box"><h3><i class="fas fa-star" style="color:#f1c40f"></i></h3><p data-i18n="ratingScore">التقييم</p></div>
-            </div>
-
-            <h3 data-i18n="incomingReq" style="margin-bottom:20px;">الطلبات الواردة</h3>
-            <div id="compReqs"></div>
-        </div>
-    </section>
-
-    <!-- Admin Dashboard -->
-    <section id="adminDash">
-        <div class="dashboard-content">
-            <h2 style="margin-bottom:30px;">لوحة تحكم الأدمن</h2>
-            
-            <div class="stats-grid">
-                <div class="stat-box"><h3 id="adUsers">0</h3><p>المستخدمين</p></div>
-                <div class="stat-box"><h3 id="adReqsTotal">0</h3><p>الطلبات</p></div>
-                <div class="stat-box"><h3 id="adReqsAcc" style="color:green">0</h3><p>مقبولة</p></div>
-                <div class="stat-box"><h3 id="adMsgs">0</h3><p>رسائل</p></div>
-            </div>
-
-            <div style="background:white; padding:20px; border-radius:12px; box-shadow:var(--shadow); margin-bottom:30px;">
-                <h4 style="margin-bottom:15px;">إرسال إشعار</h4>
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <input type="text" id="adminNotifText" placeholder="نص الإشعار..." style="flex:2; margin:0;">
-                    <div style="flex:1"><select id="adminNotifTarget"><option value="all">الكل</option><option value="parent">أولياء</option><option value="companion">مرافقين</option></select></div>
-                    <button class="btn" onclick="sendAdminNotif()">إرسال</button>
-                </div>
-            </div>
-
-            <h3 style="margin-bottom:15px;">الرسائل والإبلاغات</h3>
-            <div id="adminMessagesList" style="max-height:400px; overflow-y:auto; margin-bottom:30px;"></div>
-
-            <h3 style="margin-bottom:15px;">المستخدمين</h3>
-            <div style="position:relative; margin-bottom:15px;">
-                <input type="text" id="userSearchInput" placeholder="بحث..." onkeyup="filterUsersTable()" style="padding-right:40px;">
-                <i class="fas fa-search" style="position:absolute; top:50%; right:15px; transform:translateY(-50%); color:#aaa;"></i>
-            </div>
-            <div style="overflow-x:auto;">
-                <table class="admin-table" id="admTable">
-                    <thead><tr><th>الاسم</th><th>الدور</th><th>كلمة المرور</th><th>الحالة</th><th>إجراء</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </section>
-
-    <!-- Booking Modal -->
-    <div id="bookingModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('bookingModal')">&times;</span>
-            <h3 style="margin-bottom:20px;" data-i18n="bookTitle">حجز مرافق</h3>
-            <input type="hidden" id="bookCompId">
-            <div class="edit-grid">
-                <div><label data-i18n="childName">اسم الطفل</label><input type="text" id="bkChildName" autocapitalize="off"></div>
-                <div><label data-i18n="childAge">السن</label><input type="number" id="bkChildAge"></div>
-                <div class="full-width"><label data-i18n="eduLevel">المستوى الدراسي</label><select id="bkLevel"><option value="ابتدائي" data-i18n="prim">ابتدائي</option><option value="متوسط" data-i18n="mid">متوسط</option><option value="ثانوي" data-i18n="sec">ثانوي</option><option value="مركز" data-i18n="center">مركز</option><option value="لا يدرس" data-i18n="none">لا يدرس</option></select></div>
-                <div><label data-i18n="childStatus">حالة الطفل</label><select id="bkStatus"><option value="عادي" data-i18n="norm">عادي</option><option value="طفل التوحد" data-i18n="aut">طفل التوحد</option></select></div>
-                <div><label data-i18n="followType">نوع المتابعة</label><select id="bkType"><option value="مرافقة مستمرة" data-i18n="cont">مرافقة مستمرة</option><option value="حصص فقط" data-i18n="sess">حصص فقط</option></select></div>
-            </div>
-            <button class="btn" style="width:100%; margin-top:10px;" onclick="submitBooking()" data-i18n="confirmBook">تأكيد الحجز</button>
+    <div class="modal-content" style="max-width: 400px; margin-top: 80px; position: relative; z-index: 2;">
+        <h2 style="text-align: center; margin-bottom: 30px;" data-i18n="loginTitle">تسجيل الدخول</h2>
+        <input type="text" id="loginEmail" data-i18n-ph="emailPh" placeholder="البريد الإلكتروني" autocapitalize="off">
+        <input type="password" id="loginPass" data-i18n-ph="passPh" placeholder="كلمة المرور">
+        <button class="btn" style="width: 100%;" onclick="handleLogin()" data-i18n="loginBtn">دخول</button>
+        <div style="text-align: center; margin-top: 20px;">
+            <span data-i18n="noAccount">ليس لديك حساب؟</span> <a href="#" onclick="router('register')" style="color: var(--secondary-color); font-weight: bold;" data-i18n="createOne">إنشاء حساب</a>
         </div>
     </div>
+</section>
 
-    <!-- Edit Profile Modal -->
-    <div id="editModal" class="modal">
-        <div class="modal-content" style="max-width: 700px;">
-            <span class="close" onclick="closeModal('editModal')">&times;</span>
-            <h3 style="margin-bottom:25px;" data-i18n="editTitle">تعديل الملف الشخصي</h3>
-            <div class="edit-grid">
-                <div class="full-width"><div style="border-bottom:1px solid #eee; padding-bottom:5px; margin-bottom:10px;">المعلومات الشخصية</div></div>
-                <div><label data-i18n="fullName">الاسم</label><input type="text" id="edName" autocapitalize="off"></div>
-                <div><label data-i18n="phone">الهاتف</label><input type="tel" id="edPhone"></div>
-                <div class="full-width"><label data-i18n="wilaya">الولاية</label><select id="edWilaya"></select></div>
-                <div class="full-width"><div style="border-bottom:1px solid #eee; padding-bottom:5px; margin-bottom:10px;">الوثائق</div></div>
-                <div class="file-upload-wrapper">
-                    <label data-i18n="profilePic">تحديث الصورة</label>
-                    <input type="file" id="edImg" accept="image/*" style="display:block; margin-top:5px;">
-                </div>
-                <div id="compEditFields" class="file-upload-wrapper" style="display:none;">
-                    <label data-i18n="updateCert">تحديث الشهادة</label>
-                    <input type="file" id="edCert" accept="application/pdf" style="display:block; margin-top:5px;">
-                </div>
-                <div class="full-width"><label data-i18n="newPass">كلمة مرور جديدة (اختياري)</label><input type="password" id="edPass"></div>
+<!-- Register -->
+<section id="register" style="position: relative; overflow: hidden;">
+    <!-- Background Removed for Clarity -->
+
+    <div class="modal-content" style="margin-top: 40px; position: relative; z-index: 2;">
+        <h2 style="text-align: center; margin-bottom: 25px;" data-i18n="regTitle">إنشاء حساب</h2>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <button class="btn" style="flex:1; background:#eee; color:#333;" id="roleParent" onclick="setRole('parent')" data-i18n="roleParent">ولي</button>
+            <button class="btn" style="flex:1; background:#eee; color:#333;" id="roleComp" onclick="setRole('companion')" data-i18n="roleComp">مرافق</button>
+        </div>
+        
+        <input type="text" id="regName" data-i18n-ph="namePh" placeholder="الاسم الكامل" autocapitalize="off">
+        <input type="email" id="regEmail" data-i18n-ph="emailPh" placeholder="البريد الإلكتروني" autocapitalize="off">
+        <input type="tel" id="regPhone" data-i18n-ph="phonePh" placeholder="رقم الهاتف">
+        <select id="regWilaya"></select>
+
+        <div id="compFields" style="display: none;">
+            <select id="regSpec">
+                <option value="مرافق طفل التوحد" data-i18n="spec1">مرافق طفل التوحد</option>
+                <option value="أخصائي نفساني" data-i18n="spec2">أخصائي نفساني</option>
+            </select>
+            <div class="file-upload-wrapper">
+                <label data-i18n="certLabel">ارفع الشهادة (PDF)</label>
+                <input type="file" id="regDoc" accept="application/pdf" style="margin-top:10px;">
             </div>
-            <button class="btn" style="width:100%; margin-top:20px;" onclick="saveProfile()" data-i18n="saveChanges">حفظ التغييرات</button>
+        </div>
+
+        <input type="password" id="regPass" data-i18n-ph="passPh" placeholder="كلمة المرور">
+        <input type="password" id="regConfPass" data-i18n-ph="confPassPh" placeholder="تأكيد كلمة المرور">
+        
+        <button class="btn" style="width: 100%; margin-top: 10px;" onclick="handleRegister()" data-i18n="regBtn">تسجيل</button>
+        <div style="text-align: center; margin-top: 20px;">
+            <span data-i18n="haveAccount">لديك حساب بالفعل؟</span> <a href="#" onclick="router('login')" style="color: var(--secondary-color); font-weight: bold;" data-i18n="loginBtn">دخول</a>
         </div>
     </div>
+</section>
 
-    <!-- Rating Modal (Interactive Stars) -->
-    <div id="ratingModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('ratingModal')">&times;</span>
-            <h3 style="margin-bottom:20px;" data-i18n="rateTitle">تقييم</h3>
-            <input type="hidden" id="rateReqId">
-            <div class="star-rating">
-                <input type="radio" id="star5" name="rating" value="5"><label for="star5" title="5 stars">★</label>
-                <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">★</label>
-                <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">★</label>
-                <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">★</label>
-                <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">★</label>
+<!-- Parent Dashboard -->
+<section id="parentDash">
+    <div class="dashboard-content">
+        <div class="profile-card">
+            <div>
+                <h2 id="pName">User</h2>
+                <p data-i18n="roleParent" style="color:#666; margin-top:5px;">ولي طفل</p>
+                <button class="btn" style="margin-top:15px; font-size:0.9rem; padding: 8px 20px;" onclick="openEditModal()" data-i18n="editProfile">تعديل الملف</button>
             </div>
-            <textarea id="rtReview" rows="3" placeholder="رأيك..."></textarea>
-            <button class="btn" style="width:100%" onclick="submitRating()" data-i18n="submitRate">ارسال</button>
+            <img id="pImg" src="https://via.placeholder.com/100" style="border-radius:50%; width:100px; height:100px; object-fit:cover; border:3px solid var(--secondary-color);">
+        </div>
+
+        <div style="background:white; padding:30px; border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:40px;">
+            <h3 style="margin-bottom:20px; color:var(--primary-color);" data-i18n="searchTitle">بحث عن مرافق</h3>
+            <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                <div style="flex:1"><select id="searchSpec"><option value="مرافق طفل التوحد" data-i18n="spec1">مرافق طفل التوحد</option><option value="أخصائي نفساني" data-i18n="spec2">أخصائي نفساني</option></select></div>
+                <div style="flex:1"><select id="searchWilaya"></select></div>
+                <button class="btn" onclick="searchCompanions()" data-i18n="searchBtn">بحث</button>
+            </div>
+        </div>
+
+        <div id="searchResults"></div>
+        <h3 style="margin: 40px 0 20px;" data-i18n="myRequests">طلباتي</h3>
+        <div id="parentReqs"></div>
+    </div>
+</section>
+
+<!-- Companion Dashboard -->
+<section id="companionDash">
+    <div class="dashboard-content">
+        <div class="profile-card">
+            <div>
+                <h2 id="cName">User</h2>
+                <p id="cSpec" style="color:var(--secondary-color); font-weight:bold; margin-top:5px;"></p>
+                <div style="margin-top:15px;">
+                    <input type="checkbox" id="availToggle" onchange="toggleAvail()"> <label for="availToggle" data-i18n="available" style="font-weight:bold;">متاح للعمل</label>
+                </div>
+                <button class="btn" style="margin-top:15px; font-size:0.9rem; padding: 8px 20px;" onclick="openEditModal()" data-i18n="editProfile">تعديل الملف</button>
+            </div>
+            <img id="cImg" src="https://via.placeholder.com/100" style="border-radius:50%; width:100px; height:100px; object-fit:cover; border:3px solid var(--secondary-color);">
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box"><h3 id="stTotal">0</h3><p data-i18n="totalReq">الطلبات</p></div>
+            <div class="stat-box"><h3 id="stNew">0</h3><p data-i18n="newReq">جديدة</p></div>
+            <div class="stat-box"><h3 id="stAcc">0</h3><p data-i18n="accReq">مقبولة</p></div>
+            <div class="stat-box"><h3><i class="fas fa-star" style="color:#f1c40f"></i></h3><p data-i18n="ratingScore">التقييم</p></div>
+        </div>
+
+        <h3 data-i18n="incomingReq" style="margin-bottom:20px;">الطلبات الواردة</h3>
+        <div id="compReqs"></div>
+    </div>
+</section>
+
+<!-- Admin Dashboard -->
+<section id="adminDash">
+    <div class="dashboard-content">
+        <h2 style="margin-bottom:30px;">لوحة تحكم الأدمن</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-box"><h3 id="adUsers">0</h3><p>المستخدمين</p></div>
+            <div class="stat-box"><h3 id="adReqsTotal">0</h3><p>الطلبات</p></div>
+            <div class="stat-box"><h3 id="adReqsAcc" style="color:green">0</h3><p>مقبولة</p></div>
+            <div class="stat-box"><h3 id="adMsgs">0</h3><p>رسائل</p></div>
+        </div>
+
+        <div style="background:white; padding:20px; border-radius:12px; box-shadow:var(--shadow); margin-bottom:30px;">
+            <h4 style="margin-bottom:15px;">إرسال إشعار</h4>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <input type="text" id="adminNotifText" placeholder="نص الإشعار..." style="flex:2; margin:0;">
+                <div style="flex:1"><select id="adminNotifTarget"><option value="all">الكل</option><option value="parent">أولياء</option><option value="companion">مرافقين</option></select></div>
+                <button class="btn" onclick="sendAdminNotif()">إرسال</button>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom:15px;">الرسائل والإبلاغات</h3>
+        <div id="adminMessagesList" style="max-height:400px; overflow-y:auto; margin-bottom:30px;"></div>
+
+        <h3 style="margin-bottom:15px;">المستخدمين</h3>
+        <div style="position:relative; margin-bottom:15px;">
+            <input type="text" id="userSearchInput" placeholder="بحث..." onkeyup="filterUsersTable()" style="padding-right:40px;">
+            <i class="fas fa-search" style="position:absolute; top:50%; right:15px; transform:translateY(-50%); color:#aaa;"></i>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="admin-table" id="admTable">
+                <thead><tr><th>الاسم</th><th>الدور</th><th>كلمة المرور</th><th>الحالة</th><th>إجراء</th></tr></thead>
+                <tbody></tbody>
+            </table>
         </div>
     </div>
+</section>
 
-    <!-- Report Modal -->
-    <div id="reportModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('reportModal')">&times;</span>
-            <h3 id="reportTitle" style="margin-bottom:20px;">ابلاغ</h3>
-            <input type="hidden" id="reportType">
-            <input type="text" id="repName" placeholder="الاسم الكامل" autocapitalize="off">
-            <input type="email" id="repEmail" placeholder="البريد الإلكتروني" autocapitalize="off">
-            <textarea id="repMsg" placeholder="الرسالة..." rows="4"></textarea>
-            <button class="btn" style="width:100%" onclick="submitReport()">ارسال</button>
+<!-- Booking Modal -->
+<div id="bookingModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('bookingModal')">&times;</span>
+        <h3 style="margin-bottom:20px;" data-i18n="bookTitle">حجز مرافق</h3>
+        <input type="hidden" id="bookCompId">
+        <div class="edit-grid">
+            <div><label data-i18n="childName">اسم الطفل</label><input type="text" id="bkChildName" autocapitalize="off"></div>
+            <div><label data-i18n="childAge">السن</label><input type="number" id="bkChildAge"></div>
+            <div class="full-width"><label data-i18n="eduLevel">المستوى الدراسي</label><select id="bkLevel"><option value="ابتدائي" data-i18n="prim">ابتدائي</option><option value="متوسط" data-i18n="mid">متوسط</option><option value="ثانوي" data-i18n="sec">ثانوي</option><option value="مركز" data-i18n="center">مركز</option><option value="لا يدرس" data-i18n="none">لا يدرس</option></select></div>
+            <div><label data-i18n="childStatus">حالة الطفل</label><select id="bkStatus"><option value="عادي" data-i18n="norm">عادي</option><option value="طفل التوحد" data-i18n="aut">طفل التوحد</option></select></div>
+            <div><label data-i18n="followType">نوع المتابعة</label><select id="bkType"><option value="مرافقة مستمرة" data-i18n="cont">مرافقة مستمرة</option><option value="حصص فقط" data-i18n="sess">حصص فقط</option></select></div>
         </div>
+        <button class="btn" style="width:100%; margin-top:10px;" onclick="submitBooking()" data-i18n="confirmBook">تأكيد الحجز</button>
     </div>
+</div>
 
-    <!-- Notifications Modal -->
-    <div id="notifModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('notifModal')">&times;</span>
-            <h3 data-i18n="notifTitle">الإشعارات</h3>
-            <div id="notifList" style="margin-top:15px; max-height:300px; overflow-y:auto;"></div>
+<!-- Edit Profile Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+        <span class="close" onclick="closeModal('editModal')">&times;</span>
+        <h3 style="margin-bottom:25px;" data-i18n="editTitle">تعديل الملف الشخصي</h3>
+        <div class="edit-grid">
+            <div class="full-width"><div style="border-bottom:1px solid #eee; padding-bottom:5px; margin-bottom:10px;">المعلومات الشخصية</div></div>
+            <div><label data-i18n="fullName">الاسم</label><input type="text" id="edName" autocapitalize="off"></div>
+            <div><label data-i18n="phone">الهاتف</label><input type="tel" id="edPhone"></div>
+            <div class="full-width"><label data-i18n="wilaya">الولاية</label><select id="edWilaya"></select></div>
+            <div class="full-width"><div style="border-bottom:1px solid #eee; padding-bottom:5px; margin-bottom:10px;">الوثائق</div></div>
+            <div class="file-upload-wrapper">
+                <label data-i18n="profilePic">تحديث الصورة</label>
+                <input type="file" id="edImg" accept="image/*" style="display:block; margin-top:5px;">
+            </div>
+            <div id="compEditFields" class="file-upload-wrapper" style="display:none;">
+                <label data-i18n="updateCert">تحديث الشهادة</label>
+                <input type="file" id="edCert" accept="application/pdf" style="display:block; margin-top:5px;">
+            </div>
+            <div class="full-width"><label data-i18n="newPass">كلمة مرور جديدة (اختياري)</label><input type="password" id="edPass"></div>
         </div>
+        <button class="btn" style="width:100%; margin-top:20px;" onclick="saveProfile()" data-i18n="saveChanges">حفظ التغييرات</button>
     </div>
+</div>
 
-    <!-- Privacy Modal -->
-    <div id="privacyModal" class="modal">
-        <div class="modal-content" style="max-height:80vh; overflow-y:auto;">
-            <span class="close" onclick="closeModal('privacyModal')">&times;</span>
-            <h3>سياسة الخصوصية</h3>
-            <p style="color:#555; line-height:1.6">نحن نلتزم بحماية خصوصيتك. يتم جمع المعلومات لغرض تحسين الخدمة فقط ولا يتم مشاركتها مع أطراف ثالثة.</p>
+<!-- Rating Modal (Interactive Stars) -->
+<div id="ratingModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('ratingModal')">&times;</span>
+        <h3 style="margin-bottom:20px;" data-i18n="rateTitle">تقييم</h3>
+        <input type="hidden" id="rateReqId">
+        <div class="star-rating">
+            <input type="radio" id="star5" name="rating" value="5"><label for="star5" title="5 stars">★</label>
+            <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">★</label>
+            <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">★</label>
+            <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">★</label>
+            <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">★</label>
         </div>
+        <textarea id="rtReview" rows="3" placeholder="رأيك..."></textarea>
+        <button class="btn" style="width:100%" onclick="submitRating()" data-i18n="submitRate">ارسال</button>
     </div>
+</div>
 
-    <!-- Footer -->
-    <footer>
-        <div>
-            <h4 data-i18n="aboutUs">من نحن</h4>
-            <p data-i18n="aboutDesc">منصة لربط الأولياء بالمرافقين.</p>
-            <p style="margin-top:10px;"><i class="fas fa-map-marker-alt"></i> <span data-i18n="location">الرويبة، الجزائر العاصمة</span></p>
-        </div>
-        <div>
-            <h4 data-i18n="impLinks">روابط هامة</h4>
-            <ul>
-                <li onclick="openModal('privacyModal')" style="cursor:pointer;"><i class="fas fa-shield-alt"></i> <span data-i18n="privacy">سياسة الخصوصية</span></li>
-                <li><a href="tel:0559293773" style="color:white; text-decoration:none;"><i class="fas fa-phone"></i> 0559293773</a></li>
-                <li onclick="openReportModal('Report')" style="cursor:pointer;"><i class="fas fa-exclamation-circle"></i> <span data-i18n="report">الابلاغ عن مشكل</span></li>
-            </ul>
-        </div>
-    </footer>
+<!-- Report Modal -->
+<div id="reportModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('reportModal')">&times;</span>
+        <h3 id="reportTitle" style="margin-bottom:20px;">ابلاغ</h3>
+        <input type="hidden" id="reportType">
+        <input type="text" id="repName" placeholder="الاسم الكامل" autocapitalize="off">
+        <input type="email" id="repEmail" placeholder="البريد الإلكتروني" autocapitalize="off">
+        <textarea id="repMsg" placeholder="الرسالة..." rows="4"></textarea>
+        <button class="btn" style="width:100%" onclick="submitReport()">ارسال</button>
+    </div>
+</div>
 
-    <script>
-        // Force remove loader after 3s to prevent freezing
-        window.addEventListener('load', () => setTimeout(() => {
-            const l = document.getElementById('loadingScreen');
-            if(l) { l.style.opacity = '0'; setTimeout(()=>l.style.display='none', 500); }
-        }, 3000));
-    </script>
+<!-- Notifications Modal -->
+<div id="notifModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('notifModal')">&times;</span>
+        <h3 data-i18n="notifTitle">الإشعارات</h3>
+        <div id="notifList" style="margin-top:15px; max-height:300px; overflow-y:auto;"></div>
+    </div>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, setDoc, doc, getDoc, getDocs, query, where, updateDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+<!-- Privacy Modal -->
+<div id="privacyModal" class="modal">
+    <div class="modal-content" style="max-height:80vh; overflow-y:auto;">
+        <span class="close" onclick="closeModal('privacyModal')">&times;</span>
+        <h3>سياسة الخصوصية</h3>
+        <p style="color:#555; line-height:1.6">نحن نلتزم بحماية خصوصيتك. يتم جمع المعلومات لغرض تحسين الخدمة فقط ولا يتم مشاركتها مع أطراف ثالثة.</p>
+    </div>
+</div>
 
-        const firebaseConfig = { apiKey: "AIzaSyC5dRvQZE1kMSsYojrMiyuQurnQwEleo3o", authDomain: "mourafik-e9161.firebaseapp.com", projectId: "mourafik-e9161", storageBucket: "mourafik-e9161.firebasestorage.app", messagingSenderId: "133465287328", appId: "1:133465287328:web:9de5b3bd709099d885b7c5", measurementId: "G-MDJXPZ7G5L" };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+<!-- Footer -->
+<footer>
+    <div>
+        <h4 data-i18n="aboutUs">من نحن</h4>
+        <p data-i18n="aboutDesc">منصة لربط الأولياء بالمرافقين.</p>
+        <p style="margin-top:10px;"><i class="fas fa-map-marker-alt"></i> <span data-i18n="location">الرويبة، الجزائر العاصمة</span></p>
+    </div>
+    <div>
+        <h4 data-i18n="impLinks">روابط هامة</h4>
+        <ul>
+            <li onclick="openModal('privacyModal')" style="cursor:pointer;"><i class="fas fa-shield-alt"></i> <span data-i18n="privacy">سياسة الخصوصية</span></li>
+            <li><a href="tel:0559293773" style="color:white; text-decoration:none;"><i class="fas fa-phone"></i> 0559293773</a></li>
+            <li onclick="openReportModal('Report')" style="cursor:pointer;"><i class="fas fa-exclamation-circle"></i> <span data-i18n="report">الابلاغ عن مشكل</span></li>
+        </ul>
+    </div>
+</footer>
 
-        const wilayasAr = ["01 أدرار","02 الشلف","03 الأغواط","04 أم البواقي","05 باتنة","06 بجاية","07 بسكرة","08 بشار","09 البليدة","10 البويرة","11 تمنراست","12 تبسة","13 تلمسان","14 تيارت","15 تيزي وزو","16 الجزائر","17 الجلفة","18 جيجل","19 سطيف","20 سعيدة","21 سكيكدة","22 سيدي بلعباس","23 عنابة","24 قالمة","25 قسنطينة","26 المدية","27 مستغانم","28 المسيلة","29 معسكر","30 ورقلة","31 وهران","32 البيض","33 إليزي","34 برج بوعريريج","35 بومرداس","36 الطارف","37 تندوف","38 تيسمسيلت","39 الوادي","40 خنشلة","41 سوق أهراس","42 تيبازة","43 ميلة","44 عين الدفلى","45 النعامة","46 عين تموشنت","47 غرداية","48 غليزان","49 تيميمون","50 برج باجي مختار","51 أولاد جلال","52 بني عباس","53 عين صالح","54 عين قزام","55 تقرت","56 جانت","57 المغير","58 المنيعة"];
-        const wilayasFr = ["01 Adrar","02 Chlef","03 Laghouat","04 Oum El Bouaghi","05 Batna","06 Béjaïa","07 Biskra","08 Béchar","09 Blida","10 Bouira","11 Tamanrasset","12 Tébessa","13 Tlemcen","14 Tiaret","15 Tizi Ouzou","16 Alger","17 Djelfa","18 Jijel","19 Sétif","20 Saïda","21 Skikda","22 Sidi Bel Abbès","23 Annaba","24 Guelma","25 Constantine","26 Médéa","27 Mostaganem","28 M'Sila","29 Mascara","30 Ouargla","31 Oran","32 El Bayadh","33 Illizi","34 Bordj Bou Arréridj","35 Boumerdès","36 El Tarf","37 Tindouf","38 Tissemsilt","39 El Oued","40 Khenchela","41 Souk Ahras","42 Tipaza","43 Mila","44 Aïn Defla","45 Naâma","46 Aïn Témouchent","47 Ghardaïa","48 Relizane","49 Timimoun","50 Bordj Badji Mokhtar","51 Ouled Djellal","52 Béni Abbès","53 In Salah","54 In Guezzam","55 Touggourt","56 Djanet","57 El M'Ghair","58 El Meniaa"];
+<script>
+    // Force remove loader after 3s to prevent freezing
+    window.addEventListener('load', () => setTimeout(() => {
+        const l = document.getElementById('loadingScreen');
+        if(l) { l.style.opacity = '0'; setTimeout(()=>l.style.display='none', 500); }
+    }, 3000));
+</script>
 
-        const i18n = {
-            ar: { 
-                logo: "مرافق | Morafik", home: "الرئيسية", login: "دخول", register: "حساب جديد", logout: "خروج", heroTitle: "مرافقة لطفل في المدرسة", heroSub: "نربطك بأفضل المرافقين", startNow: "ابدأ الآن", loginTitle: "تسجيل الدخول", loginBtn: "دخول", noAccount: "ليس لديك حساب؟", createOne: "إنشاء حساب", regTitle: "إنشاء حساب", roleParent: "ولي طفل", roleComp: "مرافق / أخصائي", regBtn: "تسجيل", haveAccount: "لديك حساب بالفعل؟", editProfile: "تعديل الملف", searchTitle: "بحث عن مرافق", searchBtn: "بحث", myRequests: "طلباتي", totalReq: "الطلبات", newReq: "جديدة", accReq: "مقبولة", incomingReq: "الطلبات الواردة", bookTitle: "حجز مرافق", childName: "اسم الطفل", childAge: "السن", eduLevel: "المستوى الدراسي", childStatus: "حالة الطفل", followType: "نوع المتابعة", confirmBook: "تأكيد الحجز", editTitle: "تعديل الملف الشخصي", profilePic: "تحديث الصورة", fullName: "الاسم الكامل", phone: "رقم الهاتف", wilaya: "الولاية", updateCert: "تحديث الشهادة", newPass: "كلمة مرور جديدة", saveChanges: "حفظ التغييرات", rateTitle: "تقييم الخدمة", ratingScore: "التقييم", yourReview: "رأيك", submitRate: "إرسال", notifTitle: "الإشعارات", aboutUs: "من نحن", aboutDesc: "منصة جزائرية للمرافقة المدرسية", impLinks: "روابط هامة", privacy: "سياسة الخصوصية", contact: "اتصل بنا", report: "الابلاغ عن مشكل", certLabel: "الشهادة (PDF)", available: "متاح للعمل", spec1: "مرافق طفل التوحد", spec2: "أخصائي نفساني", emailPh: "البريد الإلكتروني", passPh: "كلمة المرور", namePh: "الاسم الكامل", phonePh: "رقم الهاتف", confPassPh: "تأكيد كلمة المرور", wait: "في الانتظار...", acc: "مقبول", rej: "مرفوض", comp: "مكتمل", accept: "قبول", reject: "رفض", book: "حجز", prim:"ابتدائي",mid:"متوسط",sec:"ثانوي",center:"مركز",none:"لا يدرس",norm:"عادي",aut:"طفل توحد",cont:"مستمرة",sess:"حصص", location: "الرويبة، الجزائر العاصمة",
-                lName: "الاسم", lAge: "السن", lLevel: "المستوى", lStatus: "الحالة", lType: "النوع"
-            },
-            fr: { 
-                logo: "Morafik | Algérie", home: "Accueil", login: "Connexion", register: "Inscription", logout: "Déconnexion", heroTitle: "Accompagnement Scolaire", heroSub: "Trouvez le meilleur accompagnateur", startNow: "Commencer", loginTitle: "Se connecter", loginBtn: "Connexion", noAccount: "Pas de compte?", createOne: "Créer un compte", regTitle: "Inscription", roleParent: "Parent", roleComp: "Accompagnateur", regBtn: "S'inscrire", haveAccount: "Déjà inscrit?", editProfile: "Modifier Profil", searchTitle: "Chercher un accompagnateur", searchBtn: "Chercher", myRequests: "Mes demandes", totalReq: "Total", newReq: "Nouveaux", accReq: "Acceptées", incomingReq: "Demandes reçues", bookTitle: "Réserver", childName: "Nom de l'enfant", childAge: "Âge", eduLevel: "Niveau scolaire", childStatus: "État de l'enfant", followType: "Type de suivi", confirmBook: "Confirmer", editTitle: "Modifier Profil", profilePic: "Changer Photo", fullName: "Nom complet", phone: "Téléphone", wilaya: "Wilaya", updateCert: "Mise à jour Certificat", newPass: "Nouveau mot de passe", saveChanges: "Enregistrer", rateTitle: "Évaluer", ratingScore: "Note", yourReview: "Avis", submitRate: "Envoyer", notifTitle: "Notifications", aboutUs: "À propos", aboutDesc: "Plateforme d'accompagnement scolaire", impLinks: "Liens utiles", privacy: "Confidentialité", contact: "Contactez-nous", report: "Signaler un problème", certLabel: "Certificat (PDF)", available: "Disponible", spec1: "Accompagnateur Autisme", spec2: "Psychologue", emailPh: "Email", passPh: "Mot de passe", namePh: "Nom complet", phonePh: "Numéro de téléphone", confPassPh: "Confirmer mot de passe", wait: "En attente...", acc: "Accepté", rej: "Refusé", comp: "Terminé", accept: "Accepter", reject: "Refuser", book: "Réserver", prim:"Primaire",mid:"CEM",sec:"Lycée",center:"Centre",none:"Non scolarisé",norm:"Normal",aut:"Autiste",cont:"Continue",sess:"Séances", location: "Rouiba, Alger",
-                lName: "Nom", lAge: "Âge", lLevel: "Niveau", lStatus: "État", lType: "Type"
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, setDoc, doc, getDoc, getDocs, query, where, updateDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey: "AIzaSyC5dRvQZE1kMSsYojrMiyuQurnQwEleo3o", authDomain: "mourafik-e9161.firebaseapp.com", projectId: "mourafik-e9161", storageBucket: "mourafik-e9161.firebasestorage.app", messagingSenderId: "133465287328", appId: "1:133465287328:web:9de5b3bd709099d885b7c5", measurementId: "G-MDJXPZ7G5L" };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const wilayasAr = ["01 أدرار","02 الشلف","03 الأغواط","04 أم البواقي","05 باتنة","06 بجاية","07 بسكرة","08 بشار","09 البليدة","10 البويرة","11 تمنراست","12 تبسة","13 تلمسان","14 تيارت","15 تيزي وزو","16 الجزائر","17 الجلفة","18 جيجل","19 سطيف","20 سعيدة","21 سكيكدة","22 سيدي بلعباس","23 عنابة","24 قالمة","25 قسنطينة","26 المدية","27 مستغانم","28 المسيلة","29 معسكر","30 ورقلة","31 وهران","32 البيض","33 إليزي","34 برج بوعريريج","35 بومرداس","36 الطارف","37 تندوف","38 تيسمسيلت","39 الوادي","40 خنشلة","41 سوق أهراس","42 تيبازة","43 ميلة","44 عين الدفلى","45 النعامة","46 عين تموشنت","47 غرداية","48 غليزان","49 تيميمون","50 برج باجي مختار","51 أولاد جلال","52 بني عباس","53 عين صالح","54 عين قزام","55 تقرت","56 جانت","57 المغير","58 المنيعة"];
+    const wilayasFr = ["01 Adrar","02 Chlef","03 Laghouat","04 Oum El Bouaghi","05 Batna","06 Béjaïa","07 Biskra","08 Béchar","09 Blida","10 Bouira","11 Tamanrasset","12 Tébessa","13 Tlemcen","14 Tiaret","15 Tizi Ouzou","16 Alger","17 Djelfa","18 Jijel","19 Sétif","20 Saïda","21 Skikda","22 Sidi Bel Abbès","23 Annaba","24 Guelma","25 Constantine","26 Médéa","27 Mostaganem","28 M'Sila","29 Mascara","30 Ouargla","31 Oran","32 El Bayadh","33 Illizi","34 Bordj Bou Arréridj","35 Boumerdès","36 El Tarf","37 Tindouf","38 Tissemsilt","39 El Oued","40 Khenchela","41 Souk Ahras","42 Tipaza","43 Mila","44 Aïn Defla","45 Naâma","46 Aïn Témouchent","47 Ghardaïa","48 Relizane","49 Timimoun","50 Bordj Badji Mokhtar","51 Ouled Djellal","52 Béni Abbès","53 In Salah","54 In Guezzam","55 Touggourt","56 Djanet","57 El M'Ghair","58 El Meniaa"];
+
+    const i18n = {
+        ar: { 
+            logo: "مرافق | Morafik", home: "الرئيسية", login: "دخول", register: "حساب جديد", logout: "خروج", heroTitle: "مرافقة طفلك بأمان", heroSub: "نربطك بأفضل المرافقين", startNow: "ابدأ الآن", loginTitle: "تسجيل الدخول", loginBtn: "دخول", noAccount: "ليس لديك حساب؟", createOne: "إنشاء حساب", regTitle: "إنشاء حساب", roleParent: "ولي طفل", roleComp: "مرافق / أخصائي", regBtn: "تسجيل", haveAccount: "لديك حساب بالفعل؟", editProfile: "تعديل الملف", searchTitle: "بحث عن مرافق", searchBtn: "بحث", myRequests: "طلباتي", totalReq: "الطلبات", newReq: "جديدة", accReq: "مقبولة", incomingReq: "الطلبات الواردة", bookTitle: "حجز مرافق", childName: "اسم الطفل", childAge: "السن", eduLevel: "المستوى الدراسي", childStatus: "حالة الطفل", followType: "نوع المتابعة", confirmBook: "تأكيد الحجز", editTitle: "تعديل الملف الشخصي", profilePic: "تحديث الصورة", fullName: "الاسم الكامل", phone: "رقم الهاتف", wilaya: "الولاية", updateCert: "تحديث الشهادة", newPass: "كلمة مرور جديدة", saveChanges: "حفظ التغييرات", rateTitle: "تقييم الخدمة", ratingScore: "التقييم", yourReview: "رأيك", submitRate: "إرسال", notifTitle: "الإشعارات", aboutUs: "من نحن", aboutDesc: "منصة جزائرية للمرافقة المدرسية", impLinks: "روابط هامة", privacy: "سياسة الخصوصية", contact: "اتصل بنا", report: "الابلاغ عن مشكل", certLabel: "الشهادة (PDF)", available: "متاح للعمل", spec1: "مرافق طفل التوحد", spec2: "أخصائي نفساني", emailPh: "البريد الإلكتروني", passPh: "كلمة المرور", namePh: "الاسم الكامل", phonePh: "رقم الهاتف", confPassPh: "تأكيد كلمة المرور", wait: "في الانتظار...", acc: "مقبول", rej: "مرفوض", comp: "مكتمل", accept: "قبول", reject: "رفض", book: "حجز", prim:"ابتدائي",mid:"متوسط",sec:"ثانوي",center:"مركز",none:"لا يدرس",norm:"عادي",aut:"طفل توحد",cont:"مستمرة",sess:"حصص", location: "الرويبة، الجزائر العاصمة",
+            lName: "الاسم", lAge: "السن", lLevel: "المستوى", lStatus: "الحالة", lType: "النوع"
+        },
+        fr: { 
+            logo: "Morafik | Algérie", home: "Accueil", login: "Connexion", register: "Inscription", logout: "Déconnexion", heroTitle: "Accompagner votre enfant en toute sécurité", heroSub: "Trouvez le meilleur accompagnateur", startNow: "Commencer", loginTitle: "Se connecter", loginBtn: "Connexion", noAccount: "Pas de compte?", createOne: "Créer un compte", regTitle: "Inscription", roleParent: "Parent", roleComp: "Accompagnateur", regBtn: "S'inscrire", haveAccount: "Déjà inscrit?", editProfile: "Modifier Profil", searchTitle: "Chercher un accompagnateur", searchBtn: "Chercher", myRequests: "Mes demandes", totalReq: "Total", newReq: "Nouveaux", accReq: "Acceptées", incomingReq: "Demandes reçues", bookTitle: "Réserver", childName: "Nom de l'enfant", childAge: "Âge", eduLevel: "Niveau scolaire", childStatus: "État de l'enfant", followType: "Type de suivi", confirmBook: "Confirmer", editTitle: "Modifier Profil", profilePic: "Changer Photo", fullName: "Nom complet", phone: "Téléphone", wilaya: "Wilaya", updateCert: "Mise à jour Certificat", newPass: "Nouveau mot de passe", saveChanges: "Enregistrer", rateTitle: "Évaluer", ratingScore: "Note", yourReview: "Avis", submitRate: "Envoyer", notifTitle: "Notifications", aboutUs: "À propos", aboutDesc: "Plateforme d'accompagnement scolaire", impLinks: "Liens utiles", privacy: "Confidentialité", contact: "Contactez-nous", report: "Signaler un problème", certLabel: "Certificat (PDF)", available: "Disponible", spec1: "Accompagnateur Autisme", spec2: "Psychologue", emailPh: "Email", passPh: "Mot de passe", namePh: "Nom complet", phonePh: "Numéro de téléphone", confPassPh: "Confirmer mot de passe", wait: "En attente...", acc: "Accepté", rej: "Refusé", comp: "Terminé", accept: "Accepter", reject: "Refuser", book: "Réserver", prim:"Primaire",mid:"CEM",sec:"Lycée",center:"Centre",none:"Non scolarisé",norm:"Normal",aut:"Autiste",cont:"Continue",sess:"Séances", location: "Rouiba, Alger",
+            lName: "Nom", lAge: "Âge", lLevel: "Niveau", lStatus: "État", lType: "Type"
+        }
+    };
+
+    let curLang = 'ar';
+    let currentUser = null;
+    let selectedRole = 'parent';
+    let allAdminUsers = [];
+
+    // --- Custom Dropdown Logic ---
+    function renderCustomSelects() {
+        document.querySelectorAll('select').forEach(select => {
+            if (select.nextElementSibling && select.nextElementSibling.classList.contains('custom-select')) {
+                select.nextElementSibling.remove();
             }
-        };
-
-        let curLang = 'ar';
-        let currentUser = null;
-        let selectedRole = 'parent';
-        let allAdminUsers = [];
-
-        // --- Custom Dropdown Logic ---
-        function renderCustomSelects() {
-            document.querySelectorAll('select').forEach(select => {
-                if (select.nextElementSibling && select.nextElementSibling.classList.contains('custom-select')) {
-                    select.nextElementSibling.remove();
-                }
-                const wrapper = document.createElement('div');
-                wrapper.classList.add('custom-select');
-                
-                const trigger = document.createElement('div');
-                trigger.classList.add('custom-select__trigger');
-                trigger.innerHTML = `<span>${select.options[select.selectedIndex] ? select.options[select.selectedIndex].text : 'Select'}</span> <i class="fas fa-chevron-down"></i>`;
-                
-                const options = document.createElement('div');
-                options.classList.add('custom-options');
-                
-                Array.from(select.options).forEach(opt => {
-                    const option = document.createElement('div');
-                    option.classList.add('custom-option');
-                    if(opt.selected) option.classList.add('selected');
-                    option.textContent = opt.text;
-                    option.dataset.value = opt.value;
-                    option.addEventListener('click', () => {
-                        select.value = opt.value;
-                        trigger.querySelector('span').textContent = opt.text;
-                        options.querySelectorAll('.custom-option').forEach(o => o.classList.remove('selected'));
-                        option.classList.add('selected');
-                        wrapper.classList.remove('open');
-                        select.dispatchEvent(new Event('change'));
-                    });
-                    options.appendChild(option);
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('custom-select');
+            
+            const trigger = document.createElement('div');
+            trigger.classList.add('custom-select__trigger');
+            trigger.innerHTML = `<span>${select.options[select.selectedIndex] ? select.options[select.selectedIndex].text : 'Select'}</span> <i class="fas fa-chevron-down"></i>`;
+            
+            const options = document.createElement('div');
+            options.classList.add('custom-options');
+            
+            Array.from(select.options).forEach(opt => {
+                const option = document.createElement('div');
+                option.classList.add('custom-option');
+                if(opt.selected) option.classList.add('selected');
+                option.textContent = opt.text;
+                option.dataset.value = opt.value;
+                option.addEventListener('click', () => {
+                    select.value = opt.value;
+                    trigger.querySelector('span').textContent = opt.text;
+                    options.querySelectorAll('.custom-option').forEach(o => o.classList.remove('selected'));
+                    option.classList.add('selected');
+                    wrapper.classList.remove('open');
+                    select.dispatchEvent(new Event('change'));
                 });
-
-                trigger.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    document.querySelectorAll('.custom-select').forEach(s => { if(s !== wrapper) s.classList.remove('open'); });
-                    wrapper.classList.toggle('open');
-                });
-
-                wrapper.appendChild(trigger);
-                wrapper.appendChild(options);
-                select.parentNode.insertBefore(wrapper, select.nextSibling);
+                options.appendChild(option);
             });
-        }
-        window.addEventListener('click', () => document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('open')));
 
-        window.changeLang = () => {
-            curLang = curLang === 'ar' ? 'fr' : 'ar';
-            document.dir = curLang === 'ar' ? 'rtl' : 'ltr';
-            document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = i18n[curLang][el.getAttribute('data-i18n')]);
-            document.querySelectorAll('[data-i18n-ph]').forEach(el => el.placeholder = i18n[curLang][el.getAttribute('data-i18n-ph')]);
-            populateSelects();
-            if(currentUser && currentUser.role === 'parent') loadParentReqs();
-            if(currentUser && currentUser.role === 'companion') loadCompReqs();
-            if(document.getElementById('searchResults').innerHTML !== '') searchCompanions();
-        };
-
-        window.router = (route) => {
-            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-            const map = { 'hero':'hero', 'login':'login', 'register':'register', 'parent':'parentDash', 'companion':'companionDash', 'admin':'adminDash' };
-            const el = document.getElementById(map[route] || 'hero');
-            if(el) setTimeout(() => el.classList.add('active'), 50);
-        };
-
-        window.populateSelects = () => {
-            const list = curLang === 'ar' ? wilayasAr : wilayasFr;
-            ['regWilaya', 'searchWilaya', 'edWilaya'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) { const v = el.value; el.innerHTML = ''; list.forEach((w, i) => el.innerHTML += `<option value="${wilayasAr[i]}">${w}</option>`); if(v) el.value = v; }
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.custom-select').forEach(s => { if(s !== wrapper) s.classList.remove('open'); });
+                wrapper.classList.toggle('open');
             });
-            ['searchSpec', 'regSpec'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) { el.options[0].text = i18n[curLang].spec1; el.options[1].text = i18n[curLang].spec2; }
-            });
-            document.querySelectorAll('#bkLevel option, #bkStatus option, #bkType option').forEach(opt => {
-                const key = opt.getAttribute('value') === 'مرافقة مستمرة' ? 'cont' : 
-                            opt.getAttribute('value') === 'حصص فقط' ? 'sess' :
-                            opt.getAttribute('value') === 'طفل التوحد' ? 'aut' :
-                            opt.getAttribute('value') === 'عادي' ? 'norm' :
-                            opt.getAttribute('value') === 'ابتدائي' ? 'prim' :
-                            opt.getAttribute('value') === 'متوسط' ? 'mid' :
-                            opt.getAttribute('value') === 'ثانوي' ? 'sec' :
-                            opt.getAttribute('value') === 'مركز' ? 'center' :
-                            opt.getAttribute('value') === 'لا يدرس' ? 'none' : null;
-                if(key && i18n[curLang][key]) opt.text = i18n[curLang][key];
-            });
-            setTimeout(renderCustomSelects, 100);
-        };
-        
-        window.setRole = (r) => {
-            selectedRole = r;
-            document.getElementById('roleParent').style.background = r === 'parent' ? 'var(--secondary-color)' : '#eee';
-            document.getElementById('roleParent').style.color = r === 'parent' ? '#fff' : '#333';
-            document.getElementById('roleComp').style.background = r === 'companion' ? 'var(--secondary-color)' : '#eee';
-            document.getElementById('roleComp').style.color = r === 'companion' ? '#fff' : '#333';
-            document.getElementById('compFields').style.display = r === 'companion' ? 'block' : 'none';
-        };
 
-        window.openModal = (id) => document.getElementById(id).classList.add('open');
-        window.closeModal = (id) => document.getElementById(id).classList.remove('open');
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                if(currentUser && currentUser.uid === user.uid) { document.getElementById('loadingScreen').style.display='none'; return; }
-                const snap = await getDoc(doc(db, "users", user.uid));
-                if (snap.exists()) {
-                    currentUser = snap.data();
-                    if(currentUser.isBlocked) { await signOut(auth); Swal.fire('Error','Blocked','error'); return; }
-                    document.getElementById('navLogin').style.display = 'none'; document.getElementById('navReg').style.display = 'none'; document.getElementById('navLogout').style.display = 'block'; document.getElementById('notifWrapper').style.display = 'block';
-                    if(currentUser.role === 'parent') { initParent(); window.router('parent'); }
-                    else if(currentUser.role === 'companion') { initComp(); window.router('companion'); }
-                    else if(currentUser.email === 'admin' || user.email === 'admin@morafik.dz') { initAdmin(); window.router('admin'); }
-                }
-            } else {
-                currentUser = null; document.getElementById('navLogin').style.display = 'block'; document.getElementById('navReg').style.display = 'block'; document.getElementById('navLogout').style.display = 'none'; document.getElementById('notifWrapper').style.display = 'none';
-                window.router('hero');
-            }
-            document.getElementById('loadingScreen').style.display = 'none';
+            wrapper.appendChild(trigger);
+            wrapper.appendChild(options);
+            select.parentNode.insertBefore(wrapper, select.nextSibling);
         });
+    }
+    window.addEventListener('click', () => document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('open')));
 
-        window.handleLogin = async () => {
-            const e = document.getElementById('loginEmail').value, p = document.getElementById('loginPass').value;
-            if(e === 'admin' && p === 'abobob123') { initAdmin(); window.router('admin'); return; }
-            try { await signInWithEmailAndPassword(auth, e, p); } catch { Swal.fire('Error', curLang=='ar'?'بيانات خاطئة':'Invalid data', 'error'); }
-        };
-
-        window.handleRegister = async () => {
-            const e = document.getElementById('regEmail').value, p = document.getElementById('regPass').value;
-            if(p !== document.getElementById('regConfPass').value) return Swal.fire('Error', curLang=='ar'?'كلمات المرور غير متطابقة':'Password mismatch', 'error');
-            try {
-                const cred = await createUserWithEmailAndPassword(auth, e, p);
-                const data = { uid: cred.user.uid, fullName: document.getElementById('regName').value, email: e, phone: document.getElementById('regPhone').value, wilaya: document.getElementById('regWilaya').value, role: selectedRole, isBlocked: false, password_stored: p, createdAt: serverTimestamp() };
-                if(selectedRole === 'companion') { data.specialty = document.getElementById('regSpec').value; data.isAvailable = true; }
-                await setDoc(doc(db, "users", cred.user.uid), data);
-                Swal.fire('Success', curLang=='ar'?'تم إنشاء الحساب':'Account created', 'success');
-            } catch(err) { Swal.fire('Error', err.message, 'error'); }
-        };
-
-        window.logout = () => signOut(auth).then(()=>location.reload());
-
-        function initParent() {
-            document.getElementById('pName').innerText = currentUser.fullName;
-            document.getElementById('pImg').src = currentUser.photoURL || "https://via.placeholder.com/100";
-            populateSelects(); loadParentReqs(); loadNotifications();
-        }
-
-        window.searchCompanions = async () => {
-            const s = document.getElementById('searchSpec').value, w = document.getElementById('searchWilaya').value;
-            const res = document.getElementById('searchResults');
-            res.innerHTML = '<p style="text-align:center">Loading...</p>';
-            const q = query(collection(db, "users"), where("role", "==", "companion"), where("specialty", "==", s), where("wilaya", "==", w));
-            const snap = await getDocs(q);
-            let html = '';
-            snap.forEach(d => {
-                const u = d.data(); if(u.isBlocked) return;
-                html += `<div class="req-card"><div style="display:flex;gap:10px;align-items:center;"><img src="${u.photoURL||'https://via.placeholder.com/50'}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;"><div><strong>${u.fullName}</strong><br><small>${u.specialty}</small></div></div><div style="text-align:${curLang=='ar'?'left':'right'}"><span style="color:${u.isAvailable?'green':'red'};font-weight:bold;">● ${u.isAvailable?(curLang=='ar'?'متاح':'Available'):'Busy'}</span><br><button class="btn" style="margin-top:10px;padding:8px 20px;" onclick="openBookModal('${u.uid}')">${i18n[curLang].book}</button></div></div>`;
-            });
-            res.innerHTML = html || `<p style="text-align:center;padding:20px;color:#999;">${curLang=='ar'?'لا يوجد نتائج':'No results'}</p>`;
-        };
-
-        window.openBookModal = (cid) => { document.getElementById('bookCompId').value = cid; openModal('bookingModal'); };
-        window.submitBooking = async () => {
-            const cid = document.getElementById('bookCompId').value;
-            const data = { parentId: currentUser.uid, parentName: currentUser.fullName, companionId: cid, childName: document.getElementById('bkChildName').value, age: document.getElementById('bkChildAge').value, level: document.getElementById('bkLevel').value, status: document.getElementById('bkStatus').value, type: document.getElementById('bkType').value, reqStatus: 'pending', timestamp: serverTimestamp() };
-            if(!data.childName) return Swal.fire('Error', 'Fill fields', 'warning');
-            await addDoc(collection(db, "requests"), data);
-            await addDoc(collection(db, "notifications"), { targetId: cid, msg: `New request from ${currentUser.fullName}`, read: false, timestamp: serverTimestamp() });
-            closeModal('bookingModal'); Swal.fire('Success', 'Sent', 'success'); loadParentReqs();
-        };
-
-        async function loadParentReqs() {
-            const snap = await getDocs(query(collection(db, "requests"), where("parentId", "==", currentUser.uid)));
-            let docs = []; snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
-            docs.sort((a,b) => (b.timestamp?.seconds||0) - (a.timestamp?.seconds||0));
-            let html = '';
-            for(const r of docs) {
-                const cSnap = await getDoc(doc(db, "users", r.companionId));
-                const c = cSnap.exists() ? cSnap.data() : {fullName:'Unknown', phone:'-'};
-                let st = r.reqStatus === 'pending' ? `<span style="color:orange">${i18n[curLang].wait}</span>` : 
-                         r.reqStatus === 'accepted' ? `<div style="background:#f0fff4;padding:10px;border-radius:10px;border:1px solid green"><p style="color:green;font-weight:bold">${i18n[curLang].acc}!</p><p>📞 <a href="tel:${c.phone}" class="phone-link">${c.phone}</a></p><button class="btn" style="font-size:12px;margin-top:5px" onclick="openRateModal('${r.id}')">${curLang=='ar'?'تقييم':'Rate'}</button></div>` :
-                         r.reqStatus === 'completed' ? `<span style="color:blue">${i18n[curLang].comp} ${getStars(r.rating)}</span>` : `<span style="color:red">${i18n[curLang].rej}</span>`;
-                html += `<div class="req-card"><div><strong>To: ${c.fullName}</strong><p>${r.childName}</p></div><div>${st}</div></div>`;
-            }
-            document.getElementById('parentReqs').innerHTML = html || `<p style="text-align:center;color:#999">No requests</p>`;
-        }
-
-        function getStars(num) { let s = ''; for(let i=0; i<num; i++) s+='⭐'; return s ? `<br><span style="color:gold">${s}</span>` : ''; }
-
-        window.openRateModal = (id) => { 
-            document.getElementById('rateReqId').value = id; 
-            document.querySelectorAll('.star-rating input').forEach(i => i.checked = false);
-            openModal('ratingModal'); 
-        };
-        window.submitRating = async () => {
-            const stars = document.querySelector('.star-rating input:checked');
-            if(!stars) return Swal.fire('Error', 'Select stars', 'warning');
-            await updateDoc(doc(db, "requests", document.getElementById('rateReqId').value), { reqStatus: 'completed', rating: stars.value, review: document.getElementById('rtReview').value });
-            closeModal('ratingModal'); loadParentReqs();
-        };
-
-        function initComp() {
-            document.getElementById('cName').innerText = currentUser.fullName;
-            document.getElementById('cSpec').innerText = currentUser.specialty;
-            document.getElementById('cImg').src = currentUser.photoURL || "https://via.placeholder.com/100";
-            document.getElementById('availToggle').checked = currentUser.isAvailable;
-            populateSelects(); loadCompReqs(); loadNotifications();
-        }
-        window.toggleAvail = async () => { await updateDoc(doc(db, "users", currentUser.uid), { isAvailable: document.getElementById('availToggle').checked }); };
-
-        async function loadCompReqs() {
-            const snap = await getDocs(query(collection(db, "requests"), where("companionId", "==", currentUser.uid)));
-            let docs = []; snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
-            docs.sort((a,b) => (b.timestamp?.seconds||0) - (a.timestamp?.seconds||0));
-            let html = '', t=0, n=0, a=0;
-            for(const r of docs) {
-                t++; if(r.reqStatus==='pending') n++; if(r.reqStatus==='accepted'||r.reqStatus==='completed') a++;
-                let phone = '';
-                if(r.reqStatus==='accepted'||r.reqStatus==='completed') {
-                    const pSnap = await getDoc(doc(db, "users", r.parentId));
-                    const p = pSnap.exists() ? pSnap.data() : {phone:'-'};
-                    phone = `<br>📞 <a href="tel:${p.phone}" class="phone-link">${p.phone}</a>`;
-                }
-                
-                const lbl = i18n[curLang];
-                let details = `<div style="margin-top:10px; font-size:0.9rem; color:#555; line-height:1.6;">
-                    <strong>${lbl.lName}:</strong> ${r.childName}<br>
-                    <strong>${lbl.lAge}:</strong> ${r.childAge}<br>
-                    <strong>${lbl.lLevel}:</strong> ${r.level}<br>
-                    <strong>${lbl.lStatus}:</strong> ${r.status}<br>
-                    <strong>${lbl.lType}:</strong> ${r.type}
-                </div>`;
-
-                let acts = r.reqStatus==='pending' ? `<button class="btn" style="background:green;font-size:12px;margin-bottom:5px" onclick="ansReq('${r.id}','accepted','${r.parentId}')">${i18n[curLang].accept}</button><button class="btn btn-red" style="font-size:12px" onclick="ansReq('${r.id}','rejected','${r.parentId}')">${i18n[curLang].reject}</button>` : `<b>${r.reqStatus}</b>`;
-                html += `<div class="req-card"><div><strong>From: ${r.parentName}</strong>${details}${phone}</div><div>${acts}</div></div>`;
-            }
-            document.getElementById('compReqs').innerHTML = html;
-            document.getElementById('stTotal').innerText = t; document.getElementById('stNew').innerText = n; document.getElementById('stAcc').innerText = a;
-        }
-
-        window.ansReq = async (rid, st, pid) => {
-            await updateDoc(doc(db, "requests", rid), { reqStatus: st });
-            await addDoc(collection(db, "notifications"), { targetId: pid, msg: `Request ${st}`, read: false, timestamp: serverTimestamp() });
-            loadCompReqs();
-        };
-
-        function initAdmin() { loadAdminData(); renderAdminUsers(); }
-        async function loadAdminData() {
-            const u = await getDocs(collection(db, "users")); document.getElementById('adUsers').innerText = u.size;
-            const r = await getDocs(collection(db, "requests")); document.getElementById('adReqsTotal').innerText = r.size;
-            const m = await getDocs(collection(db, "messages")); document.getElementById('adMsgs').innerText = m.size;
-            let msgHtml = '';
-            m.forEach(d => { 
-                const x=d.data(); 
-                msgHtml += `<div class="msg-card"><div class="msg-header"><span>${x.name}</span><span style="color:${x.type==='Report'?'red':'green'}">${x.type}</span></div><div style="font-size:0.85rem;color:#666;margin-bottom:5px">📧 ${x.email}</div><div class="msg-body">${x.text}</div></div>`; 
-            });
-            document.getElementById('adminMessagesList').innerHTML = msgHtml;
-        }
-
-        window.sendAdminNotif = async () => {
-            const msg = document.getElementById('adminNotifText').value, target = document.getElementById('adminNotifTarget').value;
-            let q = collection(db, "users"); if(target!=='all') q = query(q, where("role","==",target));
-            const users = await getDocs(q);
-            users.forEach(u => addDoc(collection(db, "notifications"), { targetId: u.id, msg: `Admin: ${msg}`, read: false, timestamp: serverTimestamp() }));
-            Swal.fire('Sent', `To ${users.size} users`, 'success');
-        };
-
-        async function renderAdminUsers() {
-            const snap = await getDocs(collection(db, "users")); 
-            allAdminUsers = []; snap.forEach(d => allAdminUsers.push({id:d.id, ...d.data()}));
-            filterUsersTable();
-        }
-
-        window.filterUsersTable = () => {
-            const txt = document.getElementById('userSearchInput').value.toLowerCase();
-            const tb = document.querySelector('#admTable tbody'); tb.innerHTML = '';
-            allAdminUsers.forEach(u => {
-                if(u.fullName.toLowerCase().includes(txt)) {
-                    tb.innerHTML += `<tr><td>${u.fullName}</td><td>${u.role}</td><td style="cursor:pointer;" onclick="alert('${u.password_stored}')">👁️ Show</td><td>${u.isBlocked?'Blocked':'Active'}</td><td><button onclick="toggleBlock('${u.id}',${u.isBlocked})">${u.isBlocked?'Unblock':'Block'}</button></td></tr>`;
-                }
-            });
-        };
-        window.toggleBlock = async(id,st) => { await updateDoc(doc(db,"users",id),{isBlocked:!st}); renderAdminUsers(); };
-
-        async function loadNotifications() {
-            const snap = await getDocs(query(collection(db, "notifications"), where("targetId", "==", currentUser.uid)));
-            let docs = []; snap.forEach(d => docs.push(d.data()));
-            docs.sort((a,b)=>(b.timestamp?.seconds||0)-(a.timestamp?.seconds||0));
-            let html = '', unread = 0;
-            docs.forEach(n => { if(!n.read) unread++; html += `<div style="padding:10px;border-bottom:1px solid #eee">${n.msg}</div>`; });
-            document.getElementById('notifList').innerHTML = html;
-            if(unread>0) { document.getElementById('notifBadge').style.display='flex'; document.getElementById('notifBadge').innerText=unread; }
-        }
-        window.openNotifModal = () => { openModal('notifModal'); document.getElementById('notifBadge').style.display='none'; };
-
-        window.openReportModal = async (type) => {
-            if(!currentUser) return Swal.fire('Alert', 'Login First', 'warning');
-            document.getElementById('reportTitle').innerText = type === 'Report' ? 'ابلاغ' : 'اتصل بنا';
-            document.getElementById('reportType').value = type;
-            document.getElementById('repName').value = currentUser.fullName;
-            document.getElementById('repEmail').value = currentUser.email;
-            openModal('reportModal');
-        };
-        window.submitReport = async () => {
-            await addDoc(collection(db, "messages"), { type: document.getElementById('reportType').value, text: document.getElementById('repMsg').value, name: document.getElementById('repName').value, email: document.getElementById('repEmail').value, uid: currentUser.uid, timestamp: serverTimestamp() });
-            closeModal('reportModal'); Swal.fire('Success', 'Sent', 'success');
-        };
-
-        window.openEditModal = () => {
-            document.getElementById('edName').value = currentUser.fullName;
-            document.getElementById('edPhone').value = currentUser.phone;
-            populateSelects();
-            document.getElementById('edWilaya').value = currentUser.wilaya;
-            if(currentUser.role === 'companion') document.getElementById('compEditFields').style.display = 'block';
-            openModal('editModal');
-        };
-        window.saveProfile = async () => {
-            const file = document.getElementById('edImg').files[0];
-            let updates = { fullName: document.getElementById('edName').value, phone: document.getElementById('edPhone').value, wilaya: document.getElementById('edWilaya').value };
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = async (e) => { updates.photoURL = e.target.result; await finishUp(updates); };
-                reader.readAsDataURL(file);
-            } else await finishUp(updates);
-        };
-        async function finishUp(updates) {
-            await updateDoc(doc(db,"users",currentUser.uid), updates);
-            currentUser = {...currentUser, ...updates};
-            closeModal('editModal'); Swal.fire('Success', 'Updated', 'success');
-            if(currentUser.role==='parent') initParent(); else initComp();
-        }
-
+    window.changeLang = () => {
+        curLang = curLang === 'ar' ? 'fr' : 'ar';
+        document.dir = curLang === 'ar' ? 'rtl' : 'ltr';
+        document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = i18n[curLang][el.getAttribute('data-i18n')]);
+        document.querySelectorAll('[data-i18n-ph]').forEach(el => el.placeholder = i18n[curLang][el.getAttribute('data-i18n-ph')]);
         populateSelects();
-    </script>
+        if(currentUser && currentUser.role === 'parent') loadParentReqs();
+        if(currentUser && currentUser.role === 'companion') loadCompReqs();
+        if(document.getElementById('searchResults').innerHTML !== '') searchCompanions();
+    };
+
+    window.router = (route) => {
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        const map = { 'hero':'hero', 'login':'login', 'register':'register', 'parent':'parentDash', 'companion':'companionDash', 'admin':'adminDash' };
+        const el = document.getElementById(map[route] || 'hero');
+        if(el) {
+            setTimeout(() => el.classList.add('active'), 50);
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Sweep up to top
+        }
+    };
+
+    window.populateSelects = () => {
+        const list = curLang === 'ar' ? wilayasAr : wilayasFr;
+        ['regWilaya', 'searchWilaya', 'edWilaya'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) { const v = el.value; el.innerHTML = ''; list.forEach((w, i) => el.innerHTML += `<option value="${wilayasAr[i]}">${w}</option>`); if(v) el.value = v; }
+        });
+        ['searchSpec', 'regSpec'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) { el.options[0].text = i18n[curLang].spec1; el.options[1].text = i18n[curLang].spec2; }
+        });
+        document.querySelectorAll('#bkLevel option, #bkStatus option, #bkType option').forEach(opt => {
+            const key = opt.getAttribute('value') === 'مرافقة مستمرة' ? 'cont' : 
+                        opt.getAttribute('value') === 'حصص فقط' ? 'sess' :
+                        opt.getAttribute('value') === 'طفل التوحد' ? 'aut' :
+                        opt.getAttribute('value') === 'عادي' ? 'norm' :
+                        opt.getAttribute('value') === 'ابتدائي' ? 'prim' :
+                        opt.getAttribute('value') === 'متوسط' ? 'mid' :
+                        opt.getAttribute('value') === 'ثانوي' ? 'sec' :
+                        opt.getAttribute('value') === 'مركز' ? 'center' :
+                        opt.getAttribute('value') === 'لا يدرس' ? 'none' : null;
+            if(key && i18n[curLang][key]) opt.text = i18n[curLang][key];
+        });
+        setTimeout(renderCustomSelects, 100);
+    };
+    
+    window.setRole = (r) => {
+        selectedRole = r;
+        document.getElementById('roleParent').style.background = r === 'parent' ? 'var(--secondary-color)' : '#eee';
+        document.getElementById('roleParent').style.color = r === 'parent' ? '#fff' : '#333';
+        document.getElementById('roleComp').style.background = r === 'companion' ? 'var(--secondary-color)' : '#eee';
+        document.getElementById('roleComp').style.color = r === 'companion' ? '#fff' : '#333';
+        document.getElementById('compFields').style.display = r === 'companion' ? 'block' : 'none';
+    };
+
+    window.openModal = (id) => document.getElementById(id).classList.add('open');
+    window.closeModal = (id) => document.getElementById(id).classList.remove('open');
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            if(currentUser && currentUser.uid === user.uid) { document.getElementById('loadingScreen').style.display='none'; return; }
+            const snap = await getDoc(doc(db, "users", user.uid));
+            if (snap.exists()) {
+                currentUser = snap.data();
+                if(currentUser.isBlocked) { await signOut(auth); Swal.fire('Error','Blocked','error'); return; }
+                document.getElementById('navLogin').style.display = 'none'; document.getElementById('navReg').style.display = 'none'; document.getElementById('navLogout').style.display = 'block'; document.getElementById('notifWrapper').style.display = 'block';
+                if(currentUser.role === 'parent') { initParent(); window.router('parent'); }
+                else if(currentUser.role === 'companion') { initComp(); window.router('companion'); }
+                else if(currentUser.email === 'admin' || user.email === 'admin@morafik.dz') { initAdmin(); window.router('admin'); }
+            }
+        } else {
+            currentUser = null; document.getElementById('navLogin').style.display = 'block'; document.getElementById('navReg').style.display = 'block'; document.getElementById('navLogout').style.display = 'none'; document.getElementById('notifWrapper').style.display = 'none';
+            window.router('hero');
+        }
+        document.getElementById('loadingScreen').style.display = 'none';
+    });
+
+    window.handleLogin = async () => {
+        const e = document.getElementById('loginEmail').value, p = document.getElementById('loginPass').value;
+        if(e === 'admin' && p === 'abobob123') { initAdmin(); window.router('admin'); return; }
+        try { await signInWithEmailAndPassword(auth, e, p); } catch { Swal.fire('Error', curLang=='ar'?'بيانات خاطئة':'Invalid data', 'error'); }
+    };
+
+    window.handleRegister = async () => {
+        const e = document.getElementById('regEmail').value, p = document.getElementById('regPass').value;
+        if(p !== document.getElementById('regConfPass').value) return Swal.fire('Error', curLang=='ar'?'كلمات المرور غير متطابقة':'Password mismatch', 'error');
+        try {
+            const cred = await createUserWithEmailAndPassword(auth, e, p);
+            const data = { uid: cred.user.uid, fullName: document.getElementById('regName').value, email: e, phone: document.getElementById('regPhone').value, wilaya: document.getElementById('regWilaya').value, role: selectedRole, isBlocked: false, password_stored: p, createdAt: serverTimestamp() };
+            if(selectedRole === 'companion') { data.specialty = document.getElementById('regSpec').value; data.isAvailable = true; }
+            await setDoc(doc(db, "users", cred.user.uid), data);
+            Swal.fire('Success', curLang=='ar'?'تم إنشاء الحساب':'Account created', 'success');
+        } catch(err) { Swal.fire('Error', err.message, 'error'); }
+    };
+
+    window.logout = () => signOut(auth).then(()=>location.reload());
+
+    function initParent() {
+        document.getElementById('pName').innerText = currentUser.fullName;
+        document.getElementById('pImg').src = currentUser.photoURL || "https://via.placeholder.com/100";
+        populateSelects(); loadParentReqs(); loadNotifications();
+    }
+
+    window.searchCompanions = async () => {
+        const s = document.getElementById('searchSpec').value, w = document.getElementById('searchWilaya').value;
+        const res = document.getElementById('searchResults');
+        res.innerHTML = '<p style="text-align:center">Loading...</p>';
+        const q = query(collection(db, "users"), where("role", "==", "companion"), where("specialty", "==", s), where("wilaya", "==", w));
+        const snap = await getDocs(q);
+        let html = '';
+        snap.forEach(d => {
+            const u = d.data(); if(u.isBlocked) return;
+            html += `<div class="req-card"><div style="display:flex;gap:10px;align-items:center;"><img src="${u.photoURL||'https://via.placeholder.com/50'}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;"><div><strong>${u.fullName}</strong><br><small>${u.specialty}</small></div></div><div style="text-align:${curLang=='ar'?'left':'right'}"><span style="color:${u.isAvailable?'green':'red'};font-weight:bold;">● ${u.isAvailable?(curLang=='ar'?'متاح':'Available'):'Busy'}</span><br><button class="btn" style="margin-top:10px;padding:8px 20px;" onclick="openBookModal('${u.uid}')">${i18n[curLang].book}</button></div></div>`;
+        });
+        res.innerHTML = html || `<p style="text-align:center;padding:20px;color:#999;">${curLang=='ar'?'لا يوجد نتائج':'No results'}</p>`;
+    };
+
+    window.openBookModal = (cid) => { document.getElementById('bookCompId').value = cid; openModal('bookingModal'); };
+    window.submitBooking = async () => {
+        const cid = document.getElementById('bookCompId').value;
+        const data = { parentId: currentUser.uid, parentName: currentUser.fullName, companionId: cid, childName: document.getElementById('bkChildName').value, age: document.getElementById('bkChildAge').value, level: document.getElementById('bkLevel').value, status: document.getElementById('bkStatus').value, type: document.getElementById('bkType').value, reqStatus: 'pending', timestamp: serverTimestamp() };
+        if(!data.childName) return Swal.fire('Error', 'Fill fields', 'warning');
+        await addDoc(collection(db, "requests"), data);
+        await addDoc(collection(db, "notifications"), { targetId: cid, msg: `New request from ${currentUser.fullName}`, read: false, timestamp: serverTimestamp() });
+        closeModal('bookingModal'); Swal.fire('Success', 'Sent', 'success'); loadParentReqs();
+    };
+
+    async function loadParentReqs() {
+        const snap = await getDocs(query(collection(db, "requests"), where("parentId", "==", currentUser.uid)));
+        let docs = []; snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
+        docs.sort((a,b) => (b.timestamp?.seconds||0) - (a.timestamp?.seconds||0));
+        let html = '';
+        for(const r of docs) {
+            const cSnap = await getDoc(doc(db, "users", r.companionId));
+            const c = cSnap.exists() ? cSnap.data() : {fullName:'Unknown', phone:'-'};
+            let st = r.reqStatus === 'pending' ? `<span style="color:orange">${i18n[curLang].wait}</span>` : 
+                     r.reqStatus === 'accepted' ? `<div style="background:#f0fff4;padding:10px;border-radius:10px;border:1px solid green"><p style="color:green;font-weight:bold">${i18n[curLang].acc}!</p><p>📞 <a href="tel:${c.phone}" class="phone-link">${c.phone}</a></p><button class="btn" style="font-size:12px;margin-top:5px" onclick="openRateModal('${r.id}')">${curLang=='ar'?'تقييم':'Rate'}</button></div>` :
+                     r.reqStatus === 'completed' ? `<span style="color:blue">${i18n[curLang].comp} ${getStars(r.rating)}</span>` : `<span style="color:red">${i18n[curLang].rej}</span>`;
+            html += `<div class="req-card"><div><strong>To: ${c.fullName}</strong><p>${r.childName}</p></div><div>${st}</div></div>`;
+        }
+        document.getElementById('parentReqs').innerHTML = html || `<p style="text-align:center;color:#999">No requests</p>`;
+    }
+
+    function getStars(num) { let s = ''; for(let i=0; i<num; i++) s+='⭐'; return s ? `<br><span style="color:gold">${s}</span>` : ''; }
+
+    window.openRateModal = (id) => { 
+        document.getElementById('rateReqId').value = id; 
+        document.querySelectorAll('.star-rating input').forEach(i => i.checked = false);
+        openModal('ratingModal'); 
+    };
+    window.submitRating = async () => {
+        const stars = document.querySelector('.star-rating input:checked');
+        if(!stars) return Swal.fire('Error', 'Select stars', 'warning');
+        await updateDoc(doc(db, "requests", document.getElementById('rateReqId').value), { reqStatus: 'completed', rating: stars.value, review: document.getElementById('rtReview').value });
+        closeModal('ratingModal'); loadParentReqs();
+    };
+
+    function initComp() {
+        document.getElementById('cName').innerText = currentUser.fullName;
+        document.getElementById('cSpec').innerText = currentUser.specialty;
+        document.getElementById('cImg').src = currentUser.photoURL || "https://via.placeholder.com/100";
+        document.getElementById('availToggle').checked = currentUser.isAvailable;
+        populateSelects(); loadCompReqs(); loadNotifications();
+    }
+    window.toggleAvail = async () => { await updateDoc(doc(db, "users", currentUser.uid), { isAvailable: document.getElementById('availToggle').checked }); };
+
+    async function loadCompReqs() {
+        const snap = await getDocs(query(collection(db, "requests"), where("companionId", "==", currentUser.uid)));
+        let docs = []; snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
+        docs.sort((a,b) => (b.timestamp?.seconds||0) - (a.timestamp?.seconds||0));
+        let html = '', t=0, n=0, a=0;
+        for(const r of docs) {
+            t++; if(r.reqStatus==='pending') n++; if(r.reqStatus==='accepted'||r.reqStatus==='completed') a++;
+            let phone = '';
+            if(r.reqStatus==='accepted'||r.reqStatus==='completed') {
+                const pSnap = await getDoc(doc(db, "users", r.parentId));
+                const p = pSnap.exists() ? pSnap.data() : {phone:'-'};
+                phone = `<br>📞 <a href="tel:${p.phone}" class="phone-link">${p.phone}</a>`;
+            }
+            
+            const lbl = i18n[curLang];
+            let details = `<div style="margin-top:10px; font-size:0.9rem; color:#555; line-height:1.6;">
+                <strong>${lbl.lName}:</strong> ${r.childName}<br>
+                <strong>${lbl.lAge}:</strong> ${r.childAge}<br>
+                <strong>${lbl.lLevel}:</strong> ${r.level}<br>
+                <strong>${lbl.lStatus}:</strong> ${r.status}<br>
+                <strong>${lbl.lType}:</strong> ${r.type}
+            </div>`;
+
+            let acts = r.reqStatus==='pending' ? `<button class="btn" style="background:green;font-size:12px;margin-bottom:5px" onclick="ansReq('${r.id}','accepted','${r.parentId}')">${i18n[curLang].accept}</button><button class="btn btn-red" style="font-size:12px" onclick="ansReq('${r.id}','rejected','${r.parentId}')">${i18n[curLang].reject}</button>` : `<b>${r.reqStatus}</b>`;
+            html += `<div class="req-card"><div><strong>From: ${r.parentName}</strong>${details}${phone}</div><div>${acts}</div></div>`;
+        }
+        document.getElementById('compReqs').innerHTML = html;
+        document.getElementById('stTotal').innerText = t; document.getElementById('stNew').innerText = n; document.getElementById('stAcc').innerText = a;
+    }
+
+    window.ansReq = async (rid, st, pid) => {
+        await updateDoc(doc(db, "requests", rid), { reqStatus: st });
+        await addDoc(collection(db, "notifications"), { targetId: pid, msg: `Request ${st}`, read: false, timestamp: serverTimestamp() });
+        loadCompReqs();
+    };
+
+    function initAdmin() { loadAdminData(); renderAdminUsers(); }
+    async function loadAdminData() {
+        const u = await getDocs(collection(db, "users")); document.getElementById('adUsers').innerText = u.size;
+        const r = await getDocs(collection(db, "requests")); document.getElementById('adReqsTotal').innerText = r.size;
+        const m = await getDocs(collection(db, "messages")); document.getElementById('adMsgs').innerText = m.size;
+        let msgHtml = '';
+        m.forEach(d => { 
+            const x=d.data(); 
+            msgHtml += `<div class="msg-card"><div class="msg-header"><span>${x.name}</span><span style="color:${x.type==='Report'?'red':'green'}">${x.type}</span></div><div style="font-size:0.85rem;color:#666;margin-bottom:5px">📧 ${x.email}</div><div class="msg-body">${x.text}</div></div>`; 
+        });
+        document.getElementById('adminMessagesList').innerHTML = msgHtml;
+    }
+
+    window.sendAdminNotif = async () => {
+        const msg = document.getElementById('adminNotifText').value, target = document.getElementById('adminNotifTarget').value;
+        let q = collection(db, "users"); if(target!=='all') q = query(q, where("role","==",target));
+        const users = await getDocs(q);
+        users.forEach(u => addDoc(collection(db, "notifications"), { targetId: u.id, msg: `Admin: ${msg}`, read: false, timestamp: serverTimestamp() }));
+        Swal.fire('Sent', `To ${users.size} users`, 'success');
+    };
+
+    async function renderAdminUsers() {
+        const snap = await getDocs(collection(db, "users")); 
+        allAdminUsers = []; snap.forEach(d => allAdminUsers.push({id:d.id, ...d.data()}));
+        filterUsersTable();
+    }
+
+    window.filterUsersTable = () => {
+        const txt = document.getElementById('userSearchInput').value.toLowerCase();
+        const tb = document.querySelector('#admTable tbody'); tb.innerHTML = '';
+        allAdminUsers.forEach(u => {
+            if(u.fullName.toLowerCase().includes(txt)) {
+                tb.innerHTML += `<tr><td>${u.fullName}</td><td>${u.role}</td><td style="cursor:pointer;" onclick="alert('${u.password_stored}')">👁️ Show</td><td>${u.isBlocked?'Blocked':'Active'}</td><td><button onclick="toggleBlock('${u.id}',${u.isBlocked})">${u.isBlocked?'Unblock':'Block'}</button></td></tr>`;
+            }
+        });
+    };
+    window.toggleBlock = async(id,st) => { await updateDoc(doc(db,"users",id),{isBlocked:!st}); renderAdminUsers(); };
+
+    async function loadNotifications() {
+        const snap = await getDocs(query(collection(db, "notifications"), where("targetId", "==", currentUser.uid)));
+        let docs = []; snap.forEach(d => docs.push(d.data()));
+        docs.sort((a,b)=>(b.timestamp?.seconds||0)-(a.timestamp?.seconds||0));
+        let html = '', unread = 0;
+        docs.forEach(n => { if(!n.read) unread++; html += `<div style="padding:10px;border-bottom:1px solid #eee">${n.msg}</div>`; });
+        document.getElementById('notifList').innerHTML = html;
+        if(unread>0) { document.getElementById('notifBadge').style.display='flex'; document.getElementById('notifBadge').innerText=unread; }
+    }
+    window.openNotifModal = () => { openModal('notifModal'); document.getElementById('notifBadge').style.display='none'; };
+
+    window.openReportModal = async (type) => {
+        if(!currentUser) return Swal.fire('Alert', 'Login First', 'warning');
+        document.getElementById('reportTitle').innerText = type === 'Report' ? 'ابلاغ' : 'اتصل بنا';
+        document.getElementById('reportType').value = type;
+        document.getElementById('repName').value = currentUser.fullName;
+        document.getElementById('repEmail').value = currentUser.email;
+        openModal('reportModal');
+    };
+    window.submitReport = async () => {
+        await addDoc(collection(db, "messages"), { type: document.getElementById('reportType').value, text: document.getElementById('repMsg').value, name: document.getElementById('repName').value, email: document.getElementById('repEmail').value, uid: currentUser.uid, timestamp: serverTimestamp() });
+        closeModal('reportModal'); Swal.fire('Success', 'Sent', 'success');
+    };
+
+    window.openEditModal = () => {
+        document.getElementById('edName').value = currentUser.fullName;
+        document.getElementById('edPhone').value = currentUser.phone;
+        populateSelects();
+        document.getElementById('edWilaya').value = currentUser.wilaya;
+        if(currentUser.role === 'companion') document.getElementById('compEditFields').style.display = 'block';
+        openModal('editModal');
+    };
+    window.saveProfile = async () => {
+        const file = document.getElementById('edImg').files[0];
+        let updates = { fullName: document.getElementById('edName').value, phone: document.getElementById('edPhone').value, wilaya: document.getElementById('edWilaya').value };
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => { updates.photoURL = e.target.result; await finishUp(updates); };
+            reader.readAsDataURL(file);
+        } else await finishUp(updates);
+    };
+    async function finishUp(updates) {
+        await updateDoc(doc(db,"users",currentUser.uid), updates);
+        currentUser = {...currentUser, ...updates};
+        closeModal('editModal'); Swal.fire('Success', 'Updated', 'success');
+        if(currentUser.role==='parent') initParent(); else initComp();
+    }
+
+    populateSelects();
+</script>
 </body>
 </html>
