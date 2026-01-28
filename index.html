@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مرافق | Morafik</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
@@ -14,10 +14,9 @@
             --secondary-color: #3498db;
             --accent-color: #e74c3c;
             --light-bg: #f8f9fa;
-            --glass: rgba(255, 255, 255, 0.95);
+            --glass: rgba(255, 255, 255, 0.98);
             --shadow: 0 10px 30px rgba(0,0,0,0.08);
             --radius: 16px;
-            --anim-speed: 0.4s;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; outline: none; }
@@ -27,89 +26,106 @@
             color: #333; 
             overflow-x: hidden; 
             min-height: 100vh; 
-            transition: all var(--anim-speed) ease; /* Smooth transition for everything */
+            transition: all 0.3s ease;
         }
 
-        /* Smooth Section Transitions */
-        section { 
-            padding-top: 100px; 
-            min-height: 100vh; 
-            display: none; 
-            padding-bottom: 50px; 
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-        section.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--secondary-color); }
 
-        /* Inputs & Buttons */
-        input, textarea { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 0.95rem; margin-bottom: 15px; background: #fff; transition: 0.3s; }
+        /* Loader */
+        #loadingScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #eee; border-top: 5px solid var(--secondary-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+
+        /* Inputs */
+        input, textarea { 
+            width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 0.95rem; margin-bottom: 15px; background: #fff; transition: 0.3s; 
+            text-transform: none; /* Cancel auto caps */
+        }
         input:focus, textarea:focus { border-color: var(--secondary-color); box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1); }
         
-        .btn { padding: 12px 25px; background: var(--secondary-color); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3); position: relative; overflow: hidden; }
+        .btn { padding: 12px 25px; background: var(--secondary-color); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3); }
         .btn:hover { background: #2980b9; transform: translateY(-2px); }
-        .btn:active { transform: scale(0.98); }
         .btn-red { background: var(--accent-color); box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3); }
         .btn-red:hover { background: #c0392b; }
 
-        /* Custom Professional Dropdown (Select) */
-        .custom-select-wrapper { position: relative; margin-bottom: 15px; user-select: none; }
-        .custom-select-trigger {
+        /* Modern Custom Select */
+        select { display: none; } 
+        
+        .custom-select-wrapper { position: relative; user-select: none; width: 100%; margin-bottom: 15px; }
+        .custom-select { position: relative; display: flex; flex-direction: column; }
+        .custom-select__trigger {
             position: relative; display: flex; align-items: center; justify-content: space-between;
             padding: 12px 15px; font-size: 0.95rem; font-weight: 500; color: #333; height: 48px;
-            background: #fff; border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer; transition: 0.3s;
+            background: #fff; border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer; transition: all 0.3s;
         }
-        .custom-select-trigger:hover { border-color: #ccc; }
-        .custom-select.open .custom-select-trigger { border-color: var(--secondary-color); box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1); }
+        .custom-select__trigger:hover { border-color: #ccc; }
+        .custom-select.open .custom-select__trigger { border-color: var(--secondary-color); box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1); }
         .custom-options {
             position: absolute; display: block; top: 110%; left: 0; right: 0;
-            background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: var(--shadow);
-            opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(-10px);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 100; max-height: 200px; overflow-y: auto;
+            background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(-15px);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 1000; max-height: 250px; overflow-y: auto;
         }
         .custom-select.open .custom-options { opacity: 1; visibility: visible; pointer-events: all; transform: translateY(0); }
-        .custom-option { position: relative; display: block; padding: 10px 15px; font-size: 0.9rem; color: #333; cursor: pointer; transition: 0.2s; }
+        .custom-option {
+            position: relative; display: block; padding: 10px 15px; font-size: 0.9rem; font-weight: 500; color: #333;
+            cursor: pointer; transition: all 0.2s; border-bottom: 1px solid #f5f5f5;
+        }
+        .custom-option:last-child { border-bottom: none; }
         .custom-option:hover { background-color: var(--secondary-color); color: #fff; }
-        .custom-option.selected { background-color: #f0f0f0; color: #333; font-weight: bold; }
-        /* Hide native select */
-        select { display: none; } 
+        .custom-option.selected { background-color: #f0f9ff; color: var(--secondary-color); }
+
+        /* Star Rating */
+        .star-rating { display: flex; flex-direction: row-reverse; justify-content: center; gap: 10px; margin: 20px 0; }
+        .star-rating input { display: none; }
+        .star-rating label { font-size: 30px; color: #ddd; cursor: pointer; transition: color 0.2s; }
+        .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: gold; }
 
         /* Header */
-        header { background: var(--glass); backdrop-filter: blur(10px); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 15px rgba(0,0,0,0.05); transition: 0.3s; }
+        header { background: var(--glass); backdrop-filter: blur(10px); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
         .logo { font-size: 24px; font-weight: 900; color: var(--secondary-color); display: flex; align-items: center; gap: 10px; }
         .nav-links { display: flex; align-items: center; gap: 15px; }
         .nav-links button { background: transparent; border: none; font-size: 16px; cursor: pointer; color: #2c3e50; font-weight: 500; transition: 0.3s; }
-        .nav-links button:hover { color: var(--secondary-color); transform: scale(1.05); }
+        .nav-links button:hover { color: var(--secondary-color); }
         .lang-btn { border: 2px solid var(--secondary-color) !important; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
         
-        .notif-icon { position: relative; font-size: 22px; cursor: pointer; margin: 0 10px; color: var(--primary-color); transition: 0.3s; }
-        .notif-icon:hover { transform: scale(1.1); }
+        .notif-icon { position: relative; font-size: 22px; cursor: pointer; margin: 0 10px; color: var(--primary-color); }
         .notif-badge { position: absolute; top: -5px; right: -5px; background: var(--accent-color); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; justify-content: center; align-items: center; border: 2px solid white; }
 
-        /* Hero */
+        /* Sections */
+        section { padding-top: 100px; min-height: 100vh; display: none; padding-bottom: 50px; }
+        section.active { display: block; }
+
         .hero-section { 
-            background: url('https://images.unsplash.com/photo-1544717305-2782549b5136?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover;
-            position: relative; display: flex; align-items: center; justify-content: center; text-align: center; color: white; 
+            position: relative; display: flex; align-items: center; justify-content: center; text-align: center; color: white; overflow: hidden;
         }
-        .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); }
+        .hero-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            /* Fixed Image Link - Woman (Teacher/Companion) */
+            background: url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            z-index: -1;
+        }
+        .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 0; }
         .hero-content { position: relative; z-index: 2; padding: 20px; max-width: 800px; }
         
-        /* Dashboard Cards */
         .dashboard-content { padding: 0 5%; max-width: 1200px; margin: 0 auto; }
-        .profile-card { background: white; padding: 30px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); margin-bottom: 30px; flex-wrap: wrap; gap: 20px; border: 1px solid #fff; transition: 0.3s; }
-        .profile-card:hover { transform: translateY(-5px); }
-
+        .profile-card { background: white; padding: 30px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); margin-bottom: 30px; flex-wrap: wrap; gap: 20px; border: 1px solid #fff; }
+        
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px; }
-        .stat-box { background: white; padding: 25px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow); border: 1px solid #eee; transition: 0.3s; }
-        .stat-box:hover { transform: translateY(-5px); border-color: var(--secondary-color); }
+        .stat-box { background: white; padding: 25px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow); border: 1px solid #eee; }
         .stat-box h3 { font-size: 2.5rem; color: var(--secondary-color); margin: 0; font-weight: 800; }
         
-        .req-card { background: white; padding: 20px; border-radius: var(--radius); box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-right: 5px solid var(--secondary-color); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; transition: 0.3s; }
-        .req-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+        .req-card { background: white; padding: 25px; border-radius: var(--radius); box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-right: 5px solid var(--secondary-color); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; animation: fadeIn 0.5s ease; }
+        .req-details p { margin: 8px 0; font-size: 0.95rem; color: #555; display: flex; gap: 5px; }
+        .req-details strong { color: var(--primary-color); min-width: 80px; }
 
         /* Modals */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); overflow-y: auto; backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.3s; }
@@ -124,23 +140,13 @@
         .file-upload-wrapper { border: 2px dashed #ddd; padding: 20px; text-align: center; border-radius: 12px; cursor: pointer; transition: 0.3s; }
         .file-upload-wrapper:hover { border-color: var(--secondary-color); background: #f9fbfd; }
 
-        /* Admin Styles */
+        /* Admin Table */
         .admin-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
         .admin-table th { padding: 15px; background: #f8f9fa; color: #555; text-align: start; }
         .admin-table td { padding: 15px; background: white; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
         .admin-table td:first-child { border-radius: 0 10px 10px 0; border-right: 1px solid #eee; }
         .admin-table td:last-child { border-radius: 10px 0 0 10px; border-left: 1px solid #eee; }
-        
-        .msg-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: 4px solid var(--secondary-color); display: flex; flex-direction: column; gap: 5px; }
-        .msg-header { display: flex; justify-content: space-between; color: #777; font-size: 0.9rem; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 5px; }
-        .msg-body { font-weight: 500; color: #333; line-height: 1.5; }
-
-        .search-box-container { position: relative; margin-bottom: 15px; }
-        .search-box-container i { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); color: #aaa; }
-        .search-box-container input { padding-right: 40px; margin-bottom: 0; }
-
-        /* Stars */
-        .stars-display { color: gold; font-size: 1.2rem; letter-spacing: 2px; }
+        .msg-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: 4px solid var(--secondary-color); }
 
         footer { background: var(--primary-color); color: white; padding: 60px 5%; margin-top: 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; }
         footer li { margin-bottom: 12px; opacity: 0.8; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
@@ -157,6 +163,11 @@
     </style>
 </head>
 <body>
+
+    <!-- Loader -->
+    <div id="loadingScreen">
+        <div class="spinner"></div>
+    </div>
 
     <!-- Header -->
     <header>
@@ -176,6 +187,7 @@
 
     <!-- Hero -->
     <section id="hero" class="hero-section active">
+        <div class="hero-bg"></div>
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <h1 data-i18n="heroTitle" style="font-size:3rem; margin-bottom:20px;">مرافقة لطفل في المدرسة</h1>
@@ -188,7 +200,7 @@
     <section id="login">
         <div class="modal-content" style="max-width: 400px; margin-top: 80px;">
             <h2 style="text-align: center; margin-bottom: 30px;" data-i18n="loginTitle">تسجيل الدخول</h2>
-            <input type="text" id="loginEmail" data-i18n-ph="emailPh" placeholder="البريد الإلكتروني">
+            <input type="text" id="loginEmail" data-i18n-ph="emailPh" placeholder="البريد الإلكتروني" autocapitalize="off">
             <input type="password" id="loginPass" data-i18n-ph="passPh" placeholder="كلمة المرور">
             <button class="btn" style="width: 100%;" onclick="handleLogin()" data-i18n="loginBtn">دخول</button>
             <div style="text-align: center; margin-top: 20px;">
@@ -206,8 +218,8 @@
                 <button class="btn" style="flex:1; background:#eee; color:#333;" id="roleComp" onclick="setRole('companion')" data-i18n="roleComp">مرافق</button>
             </div>
             
-            <input type="text" id="regName" data-i18n-ph="namePh" placeholder="الاسم الكامل">
-            <input type="email" id="regEmail" data-i18n-ph="emailPh" placeholder="البريد الإلكتروني">
+            <input type="text" id="regName" data-i18n-ph="namePh" placeholder="الاسم الكامل" autocapitalize="off">
+            <input type="email" id="regEmail" data-i18n-ph="emailPh" placeholder="البريد الإلكتروني" autocapitalize="off">
             <input type="tel" id="regPhone" data-i18n-ph="phonePh" placeholder="رقم الهاتف">
             <select id="regWilaya"></select>
 
@@ -311,9 +323,9 @@
             <div id="adminMessagesList" style="max-height:400px; overflow-y:auto; margin-bottom:30px;"></div>
 
             <h3 style="margin-bottom:15px;">المستخدمين</h3>
-            <div class="search-box-container">
-                <input type="text" id="userSearchInput" placeholder="بحث عن اسم المستخدم..." onkeyup="filterUsersTable()">
-                <i class="fas fa-search"></i>
+            <div style="position:relative; margin-bottom:15px;">
+                <input type="text" id="userSearchInput" placeholder="بحث..." onkeyup="filterUsersTable()" style="padding-right:40px;">
+                <i class="fas fa-search" style="position:absolute; top:50%; right:15px; transform:translateY(-50%); color:#aaa;"></i>
             </div>
             <div style="overflow-x:auto;">
                 <table class="admin-table" id="admTable">
@@ -331,7 +343,7 @@
             <h3 style="margin-bottom:20px;" data-i18n="bookTitle">حجز مرافق</h3>
             <input type="hidden" id="bookCompId">
             <div class="edit-grid">
-                <div><label data-i18n="childName">اسم الطفل</label><input type="text" id="bkChildName"></div>
+                <div><label data-i18n="childName">اسم الطفل</label><input type="text" id="bkChildName" autocapitalize="off"></div>
                 <div><label data-i18n="childAge">السن</label><input type="number" id="bkChildAge"></div>
                 <div class="full-width"><label data-i18n="eduLevel">المستوى الدراسي</label><select id="bkLevel"><option value="ابتدائي" data-i18n="prim">ابتدائي</option><option value="متوسط" data-i18n="mid">متوسط</option><option value="ثانوي" data-i18n="sec">ثانوي</option><option value="مركز" data-i18n="center">مركز</option><option value="لا يدرس" data-i18n="none">لا يدرس</option></select></div>
                 <div><label data-i18n="childStatus">حالة الطفل</label><select id="bkStatus"><option value="عادي" data-i18n="norm">عادي</option><option value="طفل التوحد" data-i18n="aut">طفل التوحد</option></select></div>
@@ -348,7 +360,7 @@
             <h3 style="margin-bottom:25px;" data-i18n="editTitle">تعديل الملف الشخصي</h3>
             <div class="edit-grid">
                 <div class="full-width"><div style="border-bottom:1px solid #eee; padding-bottom:5px; margin-bottom:10px;">المعلومات الشخصية</div></div>
-                <div><label data-i18n="fullName">الاسم</label><input type="text" id="edName"></div>
+                <div><label data-i18n="fullName">الاسم</label><input type="text" id="edName" autocapitalize="off"></div>
                 <div><label data-i18n="phone">الهاتف</label><input type="tel" id="edPhone"></div>
                 <div class="full-width"><label data-i18n="wilaya">الولاية</label><select id="edWilaya"></select></div>
                 <div class="full-width"><div style="border-bottom:1px solid #eee; padding-bottom:5px; margin-bottom:10px;">الوثائق</div></div>
@@ -366,13 +378,19 @@
         </div>
     </div>
 
-    <!-- Rating Modal -->
+    <!-- Rating Modal (Interactive Stars) -->
     <div id="ratingModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('ratingModal')">&times;</span>
             <h3 style="margin-bottom:20px;" data-i18n="rateTitle">تقييم</h3>
             <input type="hidden" id="rateReqId">
-            <select id="rtScore"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select>
+            <div class="star-rating">
+                <input type="radio" id="star5" name="rating" value="5"><label for="star5" title="5 stars">★</label>
+                <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">★</label>
+                <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">★</label>
+                <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">★</label>
+                <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">★</label>
+            </div>
             <textarea id="rtReview" rows="3" placeholder="رأيك..."></textarea>
             <button class="btn" style="width:100%" onclick="submitRating()" data-i18n="submitRate">ارسال</button>
         </div>
@@ -384,8 +402,8 @@
             <span class="close" onclick="closeModal('reportModal')">&times;</span>
             <h3 id="reportTitle" style="margin-bottom:20px;">ابلاغ</h3>
             <input type="hidden" id="reportType">
-            <input type="text" id="repName" placeholder="الاسم الكامل">
-            <input type="email" id="repEmail" placeholder="البريد الإلكتروني">
+            <input type="text" id="repName" placeholder="الاسم الكامل" autocapitalize="off">
+            <input type="email" id="repEmail" placeholder="البريد الإلكتروني" autocapitalize="off">
             <textarea id="repMsg" placeholder="الرسالة..." rows="4"></textarea>
             <button class="btn" style="width:100%" onclick="submitReport()">ارسال</button>
         </div>
@@ -414,7 +432,7 @@
         <div>
             <h4 data-i18n="aboutUs">من نحن</h4>
             <p data-i18n="aboutDesc">منصة لربط الأولياء بالمرافقين.</p>
-            <p style="margin-top:10px;"><i class="fas fa-map-marker-alt"></i> الرويبة، الجزائر العاصمة</p>
+            <p style="margin-top:10px;"><i class="fas fa-map-marker-alt"></i> <span data-i18n="location">الرويبة، الجزائر العاصمة</span></p>
         </div>
         <div>
             <h4 data-i18n="impLinks">روابط هامة</h4>
@@ -425,6 +443,14 @@
             </ul>
         </div>
     </footer>
+
+    <script>
+        // Force remove loader after 3s to prevent freezing
+        window.addEventListener('load', () => setTimeout(() => {
+            const l = document.getElementById('loadingScreen');
+            if(l) { l.style.opacity = '0'; setTimeout(()=>l.style.display='none', 500); }
+        }, 3000));
+    </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
@@ -440,28 +466,32 @@
         const wilayasFr = ["01 Adrar","02 Chlef","03 Laghouat","04 Oum El Bouaghi","05 Batna","06 Béjaïa","07 Biskra","08 Béchar","09 Blida","10 Bouira","11 Tamanrasset","12 Tébessa","13 Tlemcen","14 Tiaret","15 Tizi Ouzou","16 Alger","17 Djelfa","18 Jijel","19 Sétif","20 Saïda","21 Skikda","22 Sidi Bel Abbès","23 Annaba","24 Guelma","25 Constantine","26 Médéa","27 Mostaganem","28 M'Sila","29 Mascara","30 Ouargla","31 Oran","32 El Bayadh","33 Illizi","34 Bordj Bou Arréridj","35 Boumerdès","36 El Tarf","37 Tindouf","38 Tissemsilt","39 El Oued","40 Khenchela","41 Souk Ahras","42 Tipaza","43 Mila","44 Aïn Defla","45 Naâma","46 Aïn Témouchent","47 Ghardaïa","48 Relizane","49 Timimoun","50 Bordj Badji Mokhtar","51 Ouled Djellal","52 Béni Abbès","53 In Salah","54 In Guezzam","55 Touggourt","56 Djanet","57 El M'Ghair","58 El Meniaa"];
 
         const i18n = {
-            ar: { logo: "مرافق | Morafik", home: "الرئيسية", login: "دخول", register: "حساب جديد", logout: "خروج", heroTitle: "مرافقة لطفل في المدرسة", heroSub: "نربطك بأفضل المرافقين", startNow: "ابدأ الآن", loginTitle: "تسجيل الدخول", loginBtn: "دخول", noAccount: "ليس لديك حساب؟", createOne: "إنشاء حساب", regTitle: "إنشاء حساب", roleParent: "ولي طفل", roleComp: "مرافق / أخصائي", regBtn: "تسجيل", haveAccount: "لديك حساب بالفعل؟", editProfile: "تعديل الملف", searchTitle: "بحث عن مرافق", searchBtn: "بحث", myRequests: "طلباتي", totalReq: "الطلبات", newReq: "جديدة", accReq: "مقبولة", incomingReq: "الطلبات الواردة", bookTitle: "حجز مرافق", childName: "اسم الطفل", childAge: "السن", eduLevel: "المستوى الدراسي", childStatus: "حالة الطفل", followType: "نوع المتابعة", confirmBook: "تأكيد الحجز", editTitle: "تعديل الملف الشخصي", profilePic: "تحديث الصورة", fullName: "الاسم الكامل", phone: "رقم الهاتف", wilaya: "الولاية", updateCert: "تحديث الشهادة", newPass: "كلمة مرور جديدة", saveChanges: "حفظ التغييرات", rateTitle: "تقييم الخدمة", ratingScore: "التقييم", yourReview: "رأيك", submitRate: "إرسال", notifTitle: "الإشعارات", aboutUs: "من نحن", aboutDesc: "منصة جزائرية للمرافقة المدرسية", impLinks: "روابط هامة", privacy: "سياسة الخصوصية", contact: "اتصل بنا", report: "الابلاغ عن مشكل", certLabel: "الشهادة (PDF)", available: "متاح للعمل", spec1: "مرافق طفل التوحد", spec2: "أخصائي نفساني", emailPh: "البريد الإلكتروني", passPh: "كلمة المرور", namePh: "الاسم الكامل", phonePh: "رقم الهاتف", confPassPh: "تأكيد كلمة المرور", wait: "في الانتظار...", acc: "مقبول", rej: "مرفوض", comp: "مكتمل", accept: "قبول", reject: "رفض", book: "حجز", prim:"ابتدائي",mid:"متوسط",sec:"ثانوي",center:"مركز",none:"لا يدرس",norm:"عادي",aut:"طفل توحد",cont:"مستمرة",sess:"حصص" },
-            fr: { logo: "Morafik | Algérie", home: "Accueil", login: "Connexion", register: "Inscription", logout: "Déconnexion", heroTitle: "Accompagnement Scolaire", heroSub: "Trouvez le meilleur accompagnateur", startNow: "Commencer", loginTitle: "Se connecter", loginBtn: "Connexion", noAccount: "Pas de compte?", createOne: "Créer un compte", regTitle: "Inscription", roleParent: "Parent", roleComp: "Accompagnateur", regBtn: "S'inscrire", haveAccount: "Déjà inscrit?", editProfile: "Modifier Profil", searchTitle: "Chercher un accompagnateur", searchBtn: "Chercher", myRequests: "Mes demandes", totalReq: "Total", newReq: "Nouveaux", accReq: "Acceptées", incomingReq: "Demandes reçues", bookTitle: "Réserver", childName: "Nom de l'enfant", childAge: "Âge", eduLevel: "Niveau scolaire", childStatus: "État de l'enfant", followType: "Type de suivi", confirmBook: "Confirmer", editTitle: "Modifier Profil", profilePic: "Changer Photo", fullName: "Nom complet", phone: "Téléphone", wilaya: "Wilaya", updateCert: "Mise à jour Certificat", newPass: "Nouveau mot de passe", saveChanges: "Enregistrer", rateTitle: "Évaluer", ratingScore: "Note", yourReview: "Avis", submitRate: "Envoyer", notifTitle: "Notifications", aboutUs: "À propos", aboutDesc: "Plateforme d'accompagnement scolaire", impLinks: "Liens utiles", privacy: "Confidentialité", contact: "Contactez-nous", report: "Signaler un problème", certLabel: "Certificat (PDF)", available: "Disponible", spec1: "Accompagnateur Autisme", spec2: "Psychologue", emailPh: "Email", passPh: "Mot de passe", namePh: "Nom complet", phonePh: "Numéro de téléphone", confPassPh: "Confirmer mot de passe", wait: "En attente...", acc: "Accepté", rej: "Refusé", comp: "Terminé", accept: "Accepter", reject: "Refuser", book: "Réserver", prim:"Primaire",mid:"CEM",sec:"Lycée",center:"Centre",none:"Non scolarisé",norm:"Normal",aut:"Autiste",cont:"Continue",sess:"Séances" }
+            ar: { 
+                logo: "مرافق | Morafik", home: "الرئيسية", login: "دخول", register: "حساب جديد", logout: "خروج", heroTitle: "مرافقة لطفل في المدرسة", heroSub: "نربطك بأفضل المرافقين", startNow: "ابدأ الآن", loginTitle: "تسجيل الدخول", loginBtn: "دخول", noAccount: "ليس لديك حساب؟", createOne: "إنشاء حساب", regTitle: "إنشاء حساب", roleParent: "ولي طفل", roleComp: "مرافق / أخصائي", regBtn: "تسجيل", haveAccount: "لديك حساب بالفعل؟", editProfile: "تعديل الملف", searchTitle: "بحث عن مرافق", searchBtn: "بحث", myRequests: "طلباتي", totalReq: "الطلبات", newReq: "جديدة", accReq: "مقبولة", incomingReq: "الطلبات الواردة", bookTitle: "حجز مرافق", childName: "اسم الطفل", childAge: "السن", eduLevel: "المستوى الدراسي", childStatus: "حالة الطفل", followType: "نوع المتابعة", confirmBook: "تأكيد الحجز", editTitle: "تعديل الملف الشخصي", profilePic: "تحديث الصورة", fullName: "الاسم الكامل", phone: "رقم الهاتف", wilaya: "الولاية", updateCert: "تحديث الشهادة", newPass: "كلمة مرور جديدة", saveChanges: "حفظ التغييرات", rateTitle: "تقييم الخدمة", ratingScore: "التقييم", yourReview: "رأيك", submitRate: "إرسال", notifTitle: "الإشعارات", aboutUs: "من نحن", aboutDesc: "منصة جزائرية للمرافقة المدرسية", impLinks: "روابط هامة", privacy: "سياسة الخصوصية", contact: "اتصل بنا", report: "الابلاغ عن مشكل", certLabel: "الشهادة (PDF)", available: "متاح للعمل", spec1: "مرافق طفل التوحد", spec2: "أخصائي نفساني", emailPh: "البريد الإلكتروني", passPh: "كلمة المرور", namePh: "الاسم الكامل", phonePh: "رقم الهاتف", confPassPh: "تأكيد كلمة المرور", wait: "في الانتظار...", acc: "مقبول", rej: "مرفوض", comp: "مكتمل", accept: "قبول", reject: "رفض", book: "حجز", prim:"ابتدائي",mid:"متوسط",sec:"ثانوي",center:"مركز",none:"لا يدرس",norm:"عادي",aut:"طفل توحد",cont:"مستمرة",sess:"حصص", location: "الرويبة، الجزائر العاصمة",
+                lName: "الاسم", lAge: "السن", lLevel: "المستوى", lStatus: "الحالة", lType: "النوع"
+            },
+            fr: { 
+                logo: "Morafik | Algérie", home: "Accueil", login: "Connexion", register: "Inscription", logout: "Déconnexion", heroTitle: "Accompagnement Scolaire", heroSub: "Trouvez le meilleur accompagnateur", startNow: "Commencer", loginTitle: "Se connecter", loginBtn: "Connexion", noAccount: "Pas de compte?", createOne: "Créer un compte", regTitle: "Inscription", roleParent: "Parent", roleComp: "Accompagnateur", regBtn: "S'inscrire", haveAccount: "Déjà inscrit?", editProfile: "Modifier Profil", searchTitle: "Chercher un accompagnateur", searchBtn: "Chercher", myRequests: "Mes demandes", totalReq: "Total", newReq: "Nouveaux", accReq: "Acceptées", incomingReq: "Demandes reçues", bookTitle: "Réserver", childName: "Nom de l'enfant", childAge: "Âge", eduLevel: "Niveau scolaire", childStatus: "État de l'enfant", followType: "Type de suivi", confirmBook: "Confirmer", editTitle: "Modifier Profil", profilePic: "Changer Photo", fullName: "Nom complet", phone: "Téléphone", wilaya: "Wilaya", updateCert: "Mise à jour Certificat", newPass: "Nouveau mot de passe", saveChanges: "Enregistrer", rateTitle: "Évaluer", ratingScore: "Note", yourReview: "Avis", submitRate: "Envoyer", notifTitle: "Notifications", aboutUs: "À propos", aboutDesc: "Plateforme d'accompagnement scolaire", impLinks: "Liens utiles", privacy: "Confidentialité", contact: "Contactez-nous", report: "Signaler un problème", certLabel: "Certificat (PDF)", available: "Disponible", spec1: "Accompagnateur Autisme", spec2: "Psychologue", emailPh: "Email", passPh: "Mot de passe", namePh: "Nom complet", phonePh: "Numéro de téléphone", confPassPh: "Confirmer mot de passe", wait: "En attente...", acc: "Accepté", rej: "Refusé", comp: "Terminé", accept: "Accepter", reject: "Refuser", book: "Réserver", prim:"Primaire",mid:"CEM",sec:"Lycée",center:"Centre",none:"Non scolarisé",norm:"Normal",aut:"Autiste",cont:"Continue",sess:"Séances", location: "Rouiba, Alger",
+                lName: "Nom", lAge: "Âge", lLevel: "Niveau", lStatus: "État", lType: "Type"
+            }
         };
 
         let curLang = 'ar';
         let currentUser = null;
         let selectedRole = 'parent';
-        let allAdminUsers = []; // Cache for search
+        let allAdminUsers = [];
 
-        // --- Custom Select Functionality ---
-        window.renderCustomSelects = () => {
+        // --- Custom Dropdown Logic ---
+        function renderCustomSelects() {
             document.querySelectorAll('select').forEach(select => {
-                // Remove existing custom select if any (for re-rendering lang change)
                 if (select.nextElementSibling && select.nextElementSibling.classList.contains('custom-select')) {
                     select.nextElementSibling.remove();
                 }
-
                 const wrapper = document.createElement('div');
                 wrapper.classList.add('custom-select');
                 
                 const trigger = document.createElement('div');
-                trigger.classList.add('custom-select-trigger');
+                trigger.classList.add('custom-select__trigger');
                 trigger.innerHTML = `<span>${select.options[select.selectedIndex] ? select.options[select.selectedIndex].text : 'Select'}</span> <i class="fas fa-chevron-down"></i>`;
                 
                 const options = document.createElement('div');
@@ -471,23 +501,21 @@
                     const option = document.createElement('div');
                     option.classList.add('custom-option');
                     if(opt.selected) option.classList.add('selected');
-                    option.textContent = opt.text; // Text handles translation naturally
+                    option.textContent = opt.text;
                     option.dataset.value = opt.value;
-                    
                     option.addEventListener('click', () => {
                         select.value = opt.value;
                         trigger.querySelector('span').textContent = opt.text;
                         options.querySelectorAll('.custom-option').forEach(o => o.classList.remove('selected'));
                         option.classList.add('selected');
                         wrapper.classList.remove('open');
-                        select.dispatchEvent(new Event('change')); // Trigger native change
+                        select.dispatchEvent(new Event('change'));
                     });
                     options.appendChild(option);
                 });
 
                 trigger.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    // Close others
                     document.querySelectorAll('.custom-select').forEach(s => { if(s !== wrapper) s.classList.remove('open'); });
                     wrapper.classList.toggle('open');
                 });
@@ -496,44 +524,25 @@
                 wrapper.appendChild(options);
                 select.parentNode.insertBefore(wrapper, select.nextSibling);
             });
-        };
+        }
+        window.addEventListener('click', () => document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('open')));
 
-        // Close dropdowns on click outside
-        window.addEventListener('click', () => {
-            document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('open'));
-        });
-
-        // --- Translation & View Logic ---
         window.changeLang = () => {
             curLang = curLang === 'ar' ? 'fr' : 'ar';
             document.dir = curLang === 'ar' ? 'rtl' : 'ltr';
-            
-            // Translate text elements
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const k = el.getAttribute('data-i18n');
-                if(i18n[curLang][k]) el.innerText = i18n[curLang][k];
-            });
-            // Translate placeholders
-            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-                const k = el.getAttribute('data-i18n-ph');
-                if(i18n[curLang][k]) el.placeholder = i18n[curLang][k];
-            });
-            // Translate Select Options
-            document.querySelectorAll('select option[data-i18n]').forEach(opt => {
-                const k = opt.getAttribute('data-i18n');
-                if(i18n[curLang][k]) opt.text = i18n[curLang][k];
-            });
-
-            populateSelects(); // Re-populate wilayas and re-render custom selects
+            document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = i18n[curLang][el.getAttribute('data-i18n')]);
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => el.placeholder = i18n[curLang][el.getAttribute('data-i18n-ph')]);
+            populateSelects();
             if(currentUser && currentUser.role === 'parent') loadParentReqs();
             if(currentUser && currentUser.role === 'companion') loadCompReqs();
+            if(document.getElementById('searchResults').innerHTML !== '') searchCompanions();
         };
 
         window.router = (route) => {
             document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
             const map = { 'hero':'hero', 'login':'login', 'register':'register', 'parent':'parentDash', 'companion':'companionDash', 'admin':'adminDash' };
             const el = document.getElementById(map[route] || 'hero');
-            if(el) setTimeout(() => el.classList.add('active'), 50); // slight delay for animation
+            if(el) setTimeout(() => el.classList.add('active'), 50);
         };
 
         window.populateSelects = () => {
@@ -546,9 +555,19 @@
                 const el = document.getElementById(id);
                 if(el) { el.options[0].text = i18n[curLang].spec1; el.options[1].text = i18n[curLang].spec2; }
             });
-            
-            // Important: Re-render custom selects after changing options
-            setTimeout(window.renderCustomSelects, 100); 
+            document.querySelectorAll('#bkLevel option, #bkStatus option, #bkType option').forEach(opt => {
+                const key = opt.getAttribute('value') === 'مرافقة مستمرة' ? 'cont' : 
+                            opt.getAttribute('value') === 'حصص فقط' ? 'sess' :
+                            opt.getAttribute('value') === 'طفل التوحد' ? 'aut' :
+                            opt.getAttribute('value') === 'عادي' ? 'norm' :
+                            opt.getAttribute('value') === 'ابتدائي' ? 'prim' :
+                            opt.getAttribute('value') === 'متوسط' ? 'mid' :
+                            opt.getAttribute('value') === 'ثانوي' ? 'sec' :
+                            opt.getAttribute('value') === 'مركز' ? 'center' :
+                            opt.getAttribute('value') === 'لا يدرس' ? 'none' : null;
+                if(key && i18n[curLang][key]) opt.text = i18n[curLang][key];
+            });
+            setTimeout(renderCustomSelects, 100);
         };
         
         window.setRole = (r) => {
@@ -563,10 +582,9 @@
         window.openModal = (id) => document.getElementById(id).classList.add('open');
         window.closeModal = (id) => document.getElementById(id).classList.remove('open');
 
-        // --- Firebase Auth & Routing ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                if(currentUser && currentUser.uid === user.uid) return;
+                if(currentUser && currentUser.uid === user.uid) { document.getElementById('loadingScreen').style.display='none'; return; }
                 const snap = await getDoc(doc(db, "users", user.uid));
                 if (snap.exists()) {
                     currentUser = snap.data();
@@ -580,30 +598,29 @@
                 currentUser = null; document.getElementById('navLogin').style.display = 'block'; document.getElementById('navReg').style.display = 'block'; document.getElementById('navLogout').style.display = 'none'; document.getElementById('notifWrapper').style.display = 'none';
                 window.router('hero');
             }
+            document.getElementById('loadingScreen').style.display = 'none';
         });
 
-        // --- Handlers ---
         window.handleLogin = async () => {
             const e = document.getElementById('loginEmail').value, p = document.getElementById('loginPass').value;
             if(e === 'admin' && p === 'abobob123') { initAdmin(); window.router('admin'); return; }
-            try { await signInWithEmailAndPassword(auth, e, p); } catch { Swal.fire('خطأ', 'بيانات خاطئة', 'error'); }
+            try { await signInWithEmailAndPassword(auth, e, p); } catch { Swal.fire('Error', curLang=='ar'?'بيانات خاطئة':'Invalid data', 'error'); }
         };
 
         window.handleRegister = async () => {
             const e = document.getElementById('regEmail').value, p = document.getElementById('regPass').value;
-            if(p !== document.getElementById('regConfPass').value) return Swal.fire('خطأ', 'كلمات المرور غير متطابقة', 'error');
+            if(p !== document.getElementById('regConfPass').value) return Swal.fire('Error', curLang=='ar'?'كلمات المرور غير متطابقة':'Password mismatch', 'error');
             try {
                 const cred = await createUserWithEmailAndPassword(auth, e, p);
                 const data = { uid: cred.user.uid, fullName: document.getElementById('regName').value, email: e, phone: document.getElementById('regPhone').value, wilaya: document.getElementById('regWilaya').value, role: selectedRole, isBlocked: false, password_stored: p, createdAt: serverTimestamp() };
                 if(selectedRole === 'companion') { data.specialty = document.getElementById('regSpec').value; data.isAvailable = true; }
                 await setDoc(doc(db, "users", cred.user.uid), data);
-                Swal.fire('تم', 'تم إنشاء الحساب', 'success');
-            } catch(err) { Swal.fire('خطأ', err.message, 'error'); }
+                Swal.fire('Success', curLang=='ar'?'تم إنشاء الحساب':'Account created', 'success');
+            } catch(err) { Swal.fire('Error', err.message, 'error'); }
         };
 
         window.logout = () => signOut(auth).then(()=>location.reload());
 
-        // --- Parent Functions ---
         function initParent() {
             document.getElementById('pName').innerText = currentUser.fullName;
             document.getElementById('pImg').src = currentUser.photoURL || "https://via.placeholder.com/100";
@@ -619,7 +636,7 @@
             let html = '';
             snap.forEach(d => {
                 const u = d.data(); if(u.isBlocked) return;
-                html += `<div class="req-card"><div style="display:flex;gap:10px;align-items:center;"><img src="${u.photoURL||'https://via.placeholder.com/50'}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;"><div><strong>${u.fullName}</strong><br><small>${u.specialty}</small></div></div><div style="text-align:left"><span style="color:${u.isAvailable?'green':'red'};font-weight:bold;">● ${u.isAvailable?(curLang=='ar'?'متاح':'Available'):'Busy'}</span><br><button class="btn" style="margin-top:10px;padding:8px 20px;" onclick="openBookModal('${u.uid}')">${i18n[curLang].book}</button></div></div>`;
+                html += `<div class="req-card"><div style="display:flex;gap:10px;align-items:center;"><img src="${u.photoURL||'https://via.placeholder.com/50'}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;"><div><strong>${u.fullName}</strong><br><small>${u.specialty}</small></div></div><div style="text-align:${curLang=='ar'?'left':'right'}"><span style="color:${u.isAvailable?'green':'red'};font-weight:bold;">● ${u.isAvailable?(curLang=='ar'?'متاح':'Available'):'Busy'}</span><br><button class="btn" style="margin-top:10px;padding:8px 20px;" onclick="openBookModal('${u.uid}')">${i18n[curLang].book}</button></div></div>`;
             });
             res.innerHTML = html || `<p style="text-align:center;padding:20px;color:#999;">${curLang=='ar'?'لا يوجد نتائج':'No results'}</p>`;
         };
@@ -631,7 +648,7 @@
             if(!data.childName) return Swal.fire('Error', 'Fill fields', 'warning');
             await addDoc(collection(db, "requests"), data);
             await addDoc(collection(db, "notifications"), { targetId: cid, msg: `New request from ${currentUser.fullName}`, read: false, timestamp: serverTimestamp() });
-            closeModal('bookingModal'); Swal.fire('تم', 'تم الارسال', 'success'); loadParentReqs();
+            closeModal('bookingModal'); Swal.fire('Success', 'Sent', 'success'); loadParentReqs();
         };
 
         async function loadParentReqs() {
@@ -643,26 +660,27 @@
                 const cSnap = await getDoc(doc(db, "users", r.companionId));
                 const c = cSnap.exists() ? cSnap.data() : {fullName:'Unknown', phone:'-'};
                 let st = r.reqStatus === 'pending' ? `<span style="color:orange">${i18n[curLang].wait}</span>` : 
-                         r.reqStatus === 'accepted' ? `<div style="background:#f0fff4;padding:10px;border-radius:10px;border:1px solid green"><p style="color:green;font-weight:bold">${i18n[curLang].acc}!</p><p>📞 <a href="tel:${c.phone}" class="phone-link">${c.phone}</a></p><button class="btn" style="font-size:12px;margin-top:5px" onclick="openRateModal('${r.id}')">Rate</button></div>` :
+                         r.reqStatus === 'accepted' ? `<div style="background:#f0fff4;padding:10px;border-radius:10px;border:1px solid green"><p style="color:green;font-weight:bold">${i18n[curLang].acc}!</p><p>📞 <a href="tel:${c.phone}" class="phone-link">${c.phone}</a></p><button class="btn" style="font-size:12px;margin-top:5px" onclick="openRateModal('${r.id}')">${curLang=='ar'?'تقييم':'Rate'}</button></div>` :
                          r.reqStatus === 'completed' ? `<span style="color:blue">${i18n[curLang].comp} ${getStars(r.rating)}</span>` : `<span style="color:red">${i18n[curLang].rej}</span>`;
                 html += `<div class="req-card"><div><strong>To: ${c.fullName}</strong><p>${r.childName}</p></div><div>${st}</div></div>`;
             }
             document.getElementById('parentReqs').innerHTML = html || `<p style="text-align:center;color:#999">No requests</p>`;
         }
 
-        // Star Display Helper
-        function getStars(num) {
-            let s = ''; for(let i=0; i<num; i++) s+='⭐';
-            return s ? `<br><span class="stars-display">${s}</span>` : '';
-        }
+        function getStars(num) { let s = ''; for(let i=0; i<num; i++) s+='⭐'; return s ? `<br><span style="color:gold">${s}</span>` : ''; }
 
-        window.openRateModal = (id) => { document.getElementById('rateReqId').value = id; openModal('ratingModal'); };
+        window.openRateModal = (id) => { 
+            document.getElementById('rateReqId').value = id; 
+            document.querySelectorAll('.star-rating input').forEach(i => i.checked = false);
+            openModal('ratingModal'); 
+        };
         window.submitRating = async () => {
-            await updateDoc(doc(db, "requests", document.getElementById('rateReqId').value), { reqStatus: 'completed', rating: document.getElementById('rtScore').value, review: document.getElementById('rtReview').value });
+            const stars = document.querySelector('.star-rating input:checked');
+            if(!stars) return Swal.fire('Error', 'Select stars', 'warning');
+            await updateDoc(doc(db, "requests", document.getElementById('rateReqId').value), { reqStatus: 'completed', rating: stars.value, review: document.getElementById('rtReview').value });
             closeModal('ratingModal'); loadParentReqs();
         };
 
-        // --- Companion Functions ---
         function initComp() {
             document.getElementById('cName').innerText = currentUser.fullName;
             document.getElementById('cSpec').innerText = currentUser.specialty;
@@ -686,14 +704,17 @@
                     phone = `<br>📞 <a href="tel:${p.phone}" class="phone-link">${p.phone}</a>`;
                 }
                 
-                // Show ALL details
-                let details = `<p style="margin:5px 0 0 0; color:#555; font-size:0.9rem;">
-                    <strong>Child:</strong> ${r.childName} (${r.age})<br>
-                    <strong>Details:</strong> ${r.level} | ${r.status} | ${r.type}
-                </p>`;
+                const lbl = i18n[curLang];
+                let details = `<div style="margin-top:10px; font-size:0.9rem; color:#555; line-height:1.6;">
+                    <strong>${lbl.lName}:</strong> ${r.childName}<br>
+                    <strong>${lbl.lAge}:</strong> ${r.childAge}<br>
+                    <strong>${lbl.lLevel}:</strong> ${r.level}<br>
+                    <strong>${lbl.lStatus}:</strong> ${r.status}<br>
+                    <strong>${lbl.lType}:</strong> ${r.type}
+                </div>`;
 
-                let acts = r.reqStatus==='pending' ? `<button class="btn" style="background:green;font-size:12px" onclick="ansReq('${r.id}','accepted','${r.parentId}')">${i18n[curLang].accept}</button><button class="btn btn-red" style="font-size:12px" onclick="ansReq('${r.id}','rejected','${r.parentId}')">${i18n[curLang].reject}</button>` : `<b>${r.reqStatus}</b>`;
-                html += `<div class="req-card"><div><strong>${r.parentName}</strong>${details}${phone}</div><div>${acts}</div></div>`;
+                let acts = r.reqStatus==='pending' ? `<button class="btn" style="background:green;font-size:12px;margin-bottom:5px" onclick="ansReq('${r.id}','accepted','${r.parentId}')">${i18n[curLang].accept}</button><button class="btn btn-red" style="font-size:12px" onclick="ansReq('${r.id}','rejected','${r.parentId}')">${i18n[curLang].reject}</button>` : `<b>${r.reqStatus}</b>`;
+                html += `<div class="req-card"><div><strong>From: ${r.parentName}</strong>${details}${phone}</div><div>${acts}</div></div>`;
             }
             document.getElementById('compReqs').innerHTML = html;
             document.getElementById('stTotal').innerText = t; document.getElementById('stNew').innerText = n; document.getElementById('stAcc').innerText = a;
@@ -705,30 +726,18 @@
             loadCompReqs();
         };
 
-        // --- Admin Functions ---
         function initAdmin() { loadAdminData(); renderAdminUsers(); }
         async function loadAdminData() {
             const u = await getDocs(collection(db, "users")); document.getElementById('adUsers').innerText = u.size;
             const r = await getDocs(collection(db, "requests")); document.getElementById('adReqsTotal').innerText = r.size;
             const m = await getDocs(collection(db, "messages")); document.getElementById('adMsgs').innerText = m.size;
-            
             let msgHtml = '';
             m.forEach(d => { 
                 const x=d.data(); 
-                // Better layout for messages with Email clearly visible
-                msgHtml += `
-                <div class="msg-card">
-                    <div class="msg-header">
-                        <span>${x.name}</span>
-                        <span style="color:${varColor(x.type)}">${x.type}</span>
-                    </div>
-                    <div style="font-size:0.85rem; color:#666; margin-bottom:5px;">📧 ${x.email}</div>
-                    <div class="msg-body">${x.text}</div>
-                </div>`; 
+                msgHtml += `<div class="msg-card"><div class="msg-header"><span>${x.name}</span><span style="color:${x.type==='Report'?'red':'green'}">${x.type}</span></div><div style="font-size:0.85rem;color:#666;margin-bottom:5px">📧 ${x.email}</div><div class="msg-body">${x.text}</div></div>`; 
             });
             document.getElementById('adminMessagesList').innerHTML = msgHtml;
         }
-        function varColor(t){ return t==='Report'?'red':'green'; }
 
         window.sendAdminNotif = async () => {
             const msg = document.getElementById('adminNotifText').value, target = document.getElementById('adminNotifTarget').value;
@@ -738,11 +747,9 @@
             Swal.fire('Sent', `To ${users.size} users`, 'success');
         };
 
-        // Admin User Table with Search & Reveal Pass
         async function renderAdminUsers() {
             const snap = await getDocs(collection(db, "users")); 
-            allAdminUsers = []; // populate global cache
-            snap.forEach(d => allAdminUsers.push({id:d.id, ...d.data()}));
+            allAdminUsers = []; snap.forEach(d => allAdminUsers.push({id:d.id, ...d.data()}));
             filterUsersTable();
         }
 
@@ -751,23 +758,12 @@
             const tb = document.querySelector('#admTable tbody'); tb.innerHTML = '';
             allAdminUsers.forEach(u => {
                 if(u.fullName.toLowerCase().includes(txt)) {
-                    tb.innerHTML += `
-                    <tr>
-                        <td>${u.fullName}</td>
-                        <td>${u.role}</td>
-                        <td style="cursor:pointer;" onclick="alert('${u.password_stored}')">
-                            <i class="fas fa-eye"></i> Show
-                        </td>
-                        <td>${u.isBlocked?'Blocked':'Active'}</td>
-                        <td><button onclick="toggleBlock('${u.id}',${u.isBlocked})">${u.isBlocked?'Unblock':'Block'}</button></td>
-                    </tr>`;
+                    tb.innerHTML += `<tr><td>${u.fullName}</td><td>${u.role}</td><td style="cursor:pointer;" onclick="alert('${u.password_stored}')">👁️ Show</td><td>${u.isBlocked?'Blocked':'Active'}</td><td><button onclick="toggleBlock('${u.id}',${u.isBlocked})">${u.isBlocked?'Unblock':'Block'}</button></td></tr>`;
                 }
             });
         };
-
         window.toggleBlock = async(id,st) => { await updateDoc(doc(db,"users",id),{isBlocked:!st}); renderAdminUsers(); };
 
-        // --- Common ---
         async function loadNotifications() {
             const snap = await getDocs(query(collection(db, "notifications"), where("targetId", "==", currentUser.uid)));
             let docs = []; snap.forEach(d => docs.push(d.data()));
@@ -779,7 +775,6 @@
         }
         window.openNotifModal = () => { openModal('notifModal'); document.getElementById('notifBadge').style.display='none'; };
 
-        // Footer Actions
         window.openReportModal = async (type) => {
             if(!currentUser) return Swal.fire('Alert', 'Login First', 'warning');
             document.getElementById('reportTitle').innerText = type === 'Report' ? 'ابلاغ' : 'اتصل بنا';
@@ -790,10 +785,9 @@
         };
         window.submitReport = async () => {
             await addDoc(collection(db, "messages"), { type: document.getElementById('reportType').value, text: document.getElementById('repMsg').value, name: document.getElementById('repName').value, email: document.getElementById('repEmail').value, uid: currentUser.uid, timestamp: serverTimestamp() });
-            closeModal('reportModal'); Swal.fire('تم', 'Sent', 'success');
+            closeModal('reportModal'); Swal.fire('Success', 'Sent', 'success');
         };
 
-        // Edit Profile
         window.openEditModal = () => {
             document.getElementById('edName').value = currentUser.fullName;
             document.getElementById('edPhone').value = currentUser.phone;
@@ -814,11 +808,10 @@
         async function finishUp(updates) {
             await updateDoc(doc(db,"users",currentUser.uid), updates);
             currentUser = {...currentUser, ...updates};
-            closeModal('editModal'); Swal.fire('تم', 'Updated', 'success');
+            closeModal('editModal'); Swal.fire('Success', 'Updated', 'success');
             if(currentUser.role==='parent') initParent(); else initComp();
         }
 
-        // Init Custom Selects
         populateSelects();
     </script>
 </body>
