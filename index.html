@@ -44,6 +44,11 @@
         .fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 
+        @keyframes heroZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
         /* Inputs */
         input, textarea { 
             width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 0.95rem; margin-bottom: 15px; background: #fff; transition: 0.3s; 
@@ -109,9 +114,10 @@
         }
         .hero-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* Woman Image Restored - No Zoom Animation */
+            /* Woman Image Restored */
             background: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
             z-index: -1;
+            animation: heroZoom 20s infinite alternate; /* Soft Zoom */
         }
         .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 0; }
         .hero-content { position: relative; z-index: 2; padding: 20px; max-width: 800px; }
@@ -124,9 +130,7 @@
         .stat-box h3 { font-size: 2.5rem; color: var(--secondary-color); margin: 0; font-weight: 800; }
         
         .req-card { background: white; padding: 25px; border-radius: var(--radius); box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-right: 5px solid var(--secondary-color); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; animation: fadeIn 0.5s ease; }
-        .req-details p { margin: 8px 0; font-size: 0.95rem; color: #555; display: flex; gap: 5px; }
-        .req-details strong { color: var(--primary-color); min-width: 80px; }
-
+        
         /* Modals */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); overflow-y: auto; backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.3s; }
         .modal.open { display: block; opacity: 1; }
@@ -171,7 +175,8 @@
 
     <!-- Header -->
     <header>
-        <div class="logo"><i class="fas fa-hands-helping"></i> <span data-i18n="logo">مرافق | Morafik</span></div>
+        <!-- Logo Text Fixed as requested -->
+        <div class="logo"><i class="fas fa-hands-helping"></i> مرافق | Morafik</div>
         <div class="nav-links">
             <button onclick="changeLang()" class="lang-btn">FR / AR</button>
             <div id="notifWrapper" class="notif-icon" onclick="openNotifModal()" style="display:none;">
@@ -468,6 +473,7 @@
         const i18n = {
             ar: { 
                 logo: "مرافق | Morafik", home: "الرئيسية", login: "دخول", register: "حساب جديد", logout: "خروج", heroTitle: "مرافقة لطفل في المدرسة", heroSub: "نربطك بأفضل المرافقين", startNow: "ابدأ الآن", loginTitle: "تسجيل الدخول", loginBtn: "دخول", noAccount: "ليس لديك حساب؟", createOne: "إنشاء حساب", regTitle: "إنشاء حساب", roleParent: "ولي طفل", roleComp: "مرافق / أخصائي", regBtn: "تسجيل", haveAccount: "لديك حساب بالفعل؟", editProfile: "تعديل الملف", searchTitle: "بحث عن مرافق", searchBtn: "بحث", myRequests: "طلباتي", totalReq: "الطلبات", newReq: "جديدة", accReq: "مقبولة", incomingReq: "الطلبات الواردة", bookTitle: "حجز مرافق", childName: "اسم الطفل", childAge: "السن", eduLevel: "المستوى الدراسي", childStatus: "حالة الطفل", followType: "نوع المتابعة", confirmBook: "تأكيد الحجز", editTitle: "تعديل الملف الشخصي", profilePic: "تحديث الصورة", fullName: "الاسم الكامل", phone: "رقم الهاتف", wilaya: "الولاية", updateCert: "تحديث الشهادة", newPass: "كلمة مرور جديدة", saveChanges: "حفظ التغييرات", rateTitle: "تقييم الخدمة", ratingScore: "التقييم", yourReview: "رأيك", submitRate: "إرسال", notifTitle: "الإشعارات", aboutUs: "من نحن", aboutDesc: "منصة جزائرية للمرافقة المدرسية", impLinks: "روابط هامة", privacy: "سياسة الخصوصية", contact: "اتصل بنا", report: "الابلاغ عن مشكل", certLabel: "الشهادة (PDF)", available: "متاح للعمل", spec1: "مرافق طفل التوحد", spec2: "أخصائي نفساني", emailPh: "البريد الإلكتروني", passPh: "كلمة المرور", namePh: "الاسم الكامل", phonePh: "رقم الهاتف", confPassPh: "تأكيد كلمة المرور", wait: "في الانتظار...", acc: "مقبول", rej: "مرفوض", comp: "مكتمل", accept: "قبول", reject: "رفض", book: "حجز", prim:"ابتدائي",mid:"متوسط",sec:"ثانوي",center:"مركز",none:"لا يدرس",norm:"عادي",aut:"طفل توحد",cont:"مستمرة",sess:"حصص", location: "الرويبة، الجزائر العاصمة",
+                // Labels for companion card
                 lName: "الاسم", lAge: "السن", lLevel: "المستوى", lStatus: "الحالة", lType: "النوع"
             },
             fr: { 
@@ -555,6 +561,7 @@
                 const el = document.getElementById(id);
                 if(el) { el.options[0].text = i18n[curLang].spec1; el.options[1].text = i18n[curLang].spec2; }
             });
+            // Translate booking dropdown options
             document.querySelectorAll('#bkLevel option, #bkStatus option, #bkType option').forEach(opt => {
                 const key = opt.getAttribute('value') === 'مرافقة مستمرة' ? 'cont' : 
                             opt.getAttribute('value') === 'حصص فقط' ? 'sess' :
@@ -567,6 +574,7 @@
                             opt.getAttribute('value') === 'لا يدرس' ? 'none' : null;
                 if(key && i18n[curLang][key]) opt.text = i18n[curLang][key];
             });
+
             setTimeout(renderCustomSelects, 100);
         };
         
@@ -671,6 +679,7 @@
 
         window.openRateModal = (id) => { 
             document.getElementById('rateReqId').value = id; 
+            // Reset stars
             document.querySelectorAll('.star-rating input').forEach(i => i.checked = false);
             openModal('ratingModal'); 
         };
@@ -704,6 +713,7 @@
                     phone = `<br>📞 <a href="tel:${p.phone}" class="phone-link">${p.phone}</a>`;
                 }
                 
+                // Organized details list (Name, Age, Level...) in both languages
                 const lbl = i18n[curLang];
                 let details = `<div style="margin-top:10px; font-size:0.9rem; color:#555; line-height:1.6;">
                     <strong>${lbl.lName}:</strong> ${r.childName}<br>
@@ -726,6 +736,7 @@
             loadCompReqs();
         };
 
+        // --- Admin Functions ---
         function initAdmin() { loadAdminData(); renderAdminUsers(); }
         async function loadAdminData() {
             const u = await getDocs(collection(db, "users")); document.getElementById('adUsers').innerText = u.size;
@@ -764,6 +775,7 @@
         };
         window.toggleBlock = async(id,st) => { await updateDoc(doc(db,"users",id),{isBlocked:!st}); renderAdminUsers(); };
 
+        // --- Common ---
         async function loadNotifications() {
             const snap = await getDocs(query(collection(db, "notifications"), where("targetId", "==", currentUser.uid)));
             let docs = []; snap.forEach(d => docs.push(d.data()));
