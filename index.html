@@ -22,10 +22,22 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; outline: none; }
         body { background-color: var(--light-bg); color: #333; overflow-x: hidden; min-height: 100vh; transition: 0.3s; }
 
-        #loadingScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
+        /* Loader */
+        #loadingScreen { 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: #fff; 
+            z-index: 99999; /* Z-index عالي جداً */
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            transition: opacity 0.5s ease, visibility 0.5s; 
+        }
         .spinner { width: 50px; height: 50px; border: 5px solid #eee; border-top: 5px solid var(--secondary-color); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
+        /* General UI */
         .fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 
@@ -37,6 +49,7 @@
         .btn-red { background: var(--accent-color); box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3); }
         .btn-red:hover { background: #c0392b; }
 
+        /* Header */
         header { background: var(--glass); backdrop-filter: blur(10px); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
         .logo { font-size: 24px; font-weight: 900; color: var(--secondary-color); display: flex; align-items: center; gap: 10px; }
         .nav-links { display: flex; align-items: center; gap: 15px; }
@@ -47,9 +60,13 @@
         .notif-icon { position: relative; font-size: 22px; cursor: pointer; margin: 0 10px; color: var(--primary-color); }
         .notif-badge { position: absolute; top: -5px; right: -5px; background: var(--accent-color); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; justify-content: center; align-items: center; border: 2px solid white; }
 
+        /* Sections */
         section { padding-top: 100px; min-height: 100vh; display: none; padding-bottom: 50px; }
         
-        .hero-section { background: url('https://images.unsplash.com/photo-1544717305-2782549b5136?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover; position: relative; display: flex; align-items: center; justify-content: center; text-align: center; color: white; }
+        .hero-section { 
+            background: url('https://images.unsplash.com/photo-1544717305-2782549b5136?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover;
+            position: relative; display: flex; align-items: center; justify-content: center; text-align: center; color: white; 
+        }
         .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); }
         .hero-content { position: relative; z-index: 2; padding: 20px; max-width: 800px; }
         
@@ -62,6 +79,7 @@
         
         .req-card { background: white; padding: 20px; border-radius: var(--radius); box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-right: 5px solid var(--secondary-color); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; animation: fadeIn 0.5s ease; }
         
+        /* Modals */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); overflow-y: auto; backdrop-filter: blur(5px); }
         .modal-content { background-color: #fff; margin: 5% auto; padding: 30px; width: 90%; max-width: 600px; border-radius: 24px; animation: fadeIn 0.3s; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
         .close { float: left; font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa; transition: 0.3s; }
@@ -94,7 +112,11 @@
 </head>
 <body>
 
-    <div id="loadingScreen"><div class="spinner"></div></div>
+    <!-- Loader -->
+    <div id="loadingScreen">
+        <div class="spinner"></div>
+        <p style="margin-top:20px; font-weight:bold;">جاري التحميل... (Loading)</p>
+    </div>
 
     <!-- Header -->
     <header>
@@ -386,6 +408,19 @@
         </div>
     </footer>
 
+    <!-- EMERGENCY LOADER REMOVER -->
+    <script>
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var loader = document.getElementById('loadingScreen');
+                if(loader) {
+                    loader.style.opacity = '0';
+                    loader.style.visibility = 'hidden';
+                }
+            }, 3000); // 3 seconds max wait
+        });
+    </script>
+
     <!-- Firebase Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
@@ -463,15 +498,22 @@
         window.changeLang = () => {
             curLang = curLang === 'ar' ? 'fr' : 'ar';
             document.dir = curLang === 'ar' ? 'rtl' : 'ltr';
+            
+            // Text Elements
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const k = el.getAttribute('data-i18n');
                 if(i18n[curLang][k]) el.innerText = i18n[curLang][k];
             });
+
+            // Input Placeholders
             document.querySelectorAll('[data-i18n-ph]').forEach(el => {
                 const k = el.getAttribute('data-i18n-ph');
                 if(i18n[curLang][k]) el.placeholder = i18n[curLang][k];
             });
+
+            // Refresh Selects (Wilayas & Specs)
             window.populateSelects();
+            // Re-render requests to translate status text
             if(currentUser && currentUser.role === 'parent') loadParentReqs();
             if(currentUser && currentUser.role === 'companion') loadCompReqs();
             if(document.getElementById('searchResults').innerHTML !== '') searchCompanions();
@@ -538,7 +580,7 @@
                 document.getElementById('notifWrapper').style.display = 'none';
                 if(document.getElementById('parentDash').style.display === 'block' || document.getElementById('companionDash').style.display === 'block') window.router('hero');
             }
-            l.style.display = 'none';
+            if(l) l.style.opacity = 0; // Handled by emergency script mostly, but this ensures it
         });
 
         window.handleLogin = async () => {
@@ -553,7 +595,6 @@
             const p = document.getElementById('regPass').value;
             if(p !== document.getElementById('regConfPass').value) return Swal.fire(curLang=='ar'?'خطأ':'Error', curLang=='ar'?'كلمات المرور غير متطابقة':'Passwords mismatch', 'error');
             try {
-                document.getElementById('loadingScreen').style.display = 'flex';
                 const cred = await createUserWithEmailAndPassword(auth, e, p);
                 const data = {
                     uid: cred.user.uid,
@@ -572,7 +613,7 @@
                 }
                 await setDoc(doc(db, "users", cred.user.uid), data);
                 Swal.fire(curLang=='ar'?'تم':'Success', curLang=='ar'?'تم إنشاء الحساب':'Account Created', 'success');
-            } catch(err) { Swal.fire('Error', err.message, 'error'); document.getElementById('loadingScreen').style.display = 'none'; }
+            } catch(err) { Swal.fire('Error', err.message, 'error'); }
         };
 
         window.logout = () => signOut(auth).then(()=>location.reload());
@@ -593,4 +634,301 @@
             const q = query(collection(db, "users"), where("role", "==", "companion"), where("specialty", "==", s), where("wilaya", "==", w));
             const snap = await getDocs(q);
             res.innerHTML = '';
-            if(snap.empty) { res.innerHTML = `<p style="text-align:center; padding:20px; color:#999;">${c
+            if(snap.empty) { res.innerHTML = `<p style="text-align:center; padding:20px; color:#999;">${curLang=='ar'?'لا يوجد نتائج':'No results'}</p>`; return; }
+            snap.forEach(d => {
+                const u = d.data();
+                if(u.isBlocked) return;
+                const statusTxt = u.isAvailable ? (curLang=='ar'?'متاح':'Available') : (curLang=='ar'?'مشغول':'Busy');
+                res.innerHTML += `
+                    <div class="req-card">
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <img src="${u.photoURL || 'https://via.placeholder.com/50'}" style="width:60px; height:60px; border-radius:50%; object-fit:cover;">
+                            <div><strong style="font-size:1.1rem;">${u.fullName}</strong><br><small style="color:#666;">${u.specialty}</small></div>
+                        </div>
+                        <div style="text-align:${curLang=='ar'?'left':'right'}">
+                            <span style="color:${u.isAvailable?'green':'red'}; font-weight:bold;">● ${statusTxt}</span>
+                            <br><button class="btn" style="margin-top:10px; padding:8px 20px;" onclick="openBookModal('${u.uid}')">${i18n[curLang].book}</button>
+                        </div>
+                    </div>`;
+            });
+        };
+
+        window.openBookModal = (cid) => { document.getElementById('bookCompId').value = cid; openModal('bookingModal'); };
+
+        window.submitBooking = async () => {
+            const cid = document.getElementById('bookCompId').value;
+            const data = {
+                parentId: currentUser.uid,
+                parentName: currentUser.fullName,
+                companionId: cid, 
+                childName: document.getElementById('bkChildName').value,
+                age: document.getElementById('bkChildAge').value,
+                level: document.getElementById('bkLevel').value,
+                status: document.getElementById('bkStatus').value,
+                type: document.getElementById('bkType').value,
+                reqStatus: 'pending',
+                timestamp: serverTimestamp()
+            };
+            if(!data.childName || !data.age) return Swal.fire('Error', curLang=='ar'?'املأ الحقول':'Fill fields', 'warning');
+            await addDoc(collection(db, "requests"), data);
+            await addDoc(collection(db, "notifications"), { targetId: cid, msg: `New request from ${currentUser.fullName}`, read: false, timestamp: serverTimestamp() });
+            closeModal('bookingModal');
+            Swal.fire(curLang=='ar'?'تم':'Done', curLang=='ar'?'تم الارسال':'Sent', 'success');
+            loadParentReqs();
+        };
+
+        async function loadParentReqs() {
+            const div = document.getElementById('parentReqs');
+            const q = query(collection(db, "requests"), where("parentId", "==", currentUser.uid));
+            const snap = await getDocs(q);
+            div.innerHTML = '';
+            let docs = [];
+            snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
+            docs.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+            
+            if(docs.length === 0) { div.innerHTML = `<p style="text-align:center; color:#999">${curLang=='ar'?'لا يوجد طلبات':'No requests'}</p>`; return; }
+
+            for (const r of docs) {
+                const compSnap = await getDoc(doc(db, "users", r.companionId));
+                const comp = compSnap.exists() ? compSnap.data() : {fullName:'Unknown', phone:'-'};
+                
+                let statusHTML = '';
+                if(r.reqStatus === 'pending') statusHTML = `<span style="color:orange; font-weight:bold;">${i18n[curLang].wait}</span>`;
+                else if(r.reqStatus === 'accepted') {
+                    statusHTML = `<div style="background:#f0fff4; padding:15px; border-radius:12px; border:1px solid #c6f6d5;"><p style="color:green; font-weight:bold; margin-bottom:5px;">${i18n[curLang].acc}!</p><p>Phone: <strong>${comp.phone}</strong></p><hr style="margin:8px 0; border:0; border-top:1px solid #ddd;"><div style="display:flex; gap:10px; margin-top:5px;"><button class="btn" style="padding:5px 10px; font-size:12px;" onclick="openRateModal('${r.id}')">Rate</button></div></div>`;
+                } else if(r.reqStatus === 'completed') {
+                    statusHTML = `<span style="color:blue; font-weight:bold;">${i18n[curLang].comp} (${r.rating}⭐)</span>`;
+                } else {
+                    statusHTML = `<span style="color:red; font-weight:bold;">${i18n[curLang].rej}</span>`;
+                }
+                div.innerHTML += `<div class="req-card"><div class="req-details"><strong style="font-size:1.1rem;">To: ${comp.fullName}</strong><p>${r.childName}</p><small style="color:#888;">${r.timestamp ? r.timestamp.toDate().toLocaleDateString() : ''}</small></div><div style="width:100%; max-width:280px;">${statusHTML}</div></div>`;
+            }
+        }
+
+        window.openRateModal = (rid) => { document.getElementById('rateReqId').value = rid; openModal('ratingModal'); };
+        window.submitRating = async () => {
+            const rid = document.getElementById('rateReqId').value;
+            await updateDoc(doc(db, "requests", rid), { reqStatus: 'completed', rating: document.getElementById('rtScore').value, review: document.getElementById('rtReview').value });
+            closeModal('ratingModal');
+            Swal.fire(curLang=='ar'?'شكرا':'Thanks', '', 'success');
+            loadParentReqs();
+        };
+
+        function initComp() {
+            document.getElementById('cName').innerText = currentUser.fullName;
+            document.getElementById('cSpec').innerText = currentUser.specialty;
+            document.getElementById('cImg').src = currentUser.photoURL || "https://via.placeholder.com/100";
+            document.getElementById('availToggle').checked = currentUser.isAvailable;
+            loadCompReqs();
+            loadNotifications();
+        }
+
+        window.toggleAvail = async () => { await updateDoc(doc(db, "users", currentUser.uid), { isAvailable: document.getElementById('availToggle').checked }); };
+
+        async function loadCompReqs() {
+            const div = document.getElementById('compReqs');
+            const q = query(collection(db, "requests"), where("companionId", "==", currentUser.uid));
+            const snap = await getDocs(q);
+            div.innerHTML = '';
+            let docs = [];
+            snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
+            docs.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+            let total=0, fresh=0, acc=0, rateSum=0, rateCount=0;
+            
+            for(const r of docs) {
+                total++;
+                if(r.reqStatus === 'pending') fresh++;
+                if(r.reqStatus === 'accepted' || r.reqStatus === 'completed') acc++;
+                if(r.reqStatus === 'completed' && r.rating) { rateSum += parseInt(r.rating); rateCount++; }
+                
+                let phoneDisplay = '';
+                if(r.reqStatus === 'accepted' || r.reqStatus === 'completed') {
+                    const parentSnap = await getDoc(doc(db, "users", r.parentId));
+                    const parentData = parentSnap.exists() ? parentSnap.data() : { phone: 'N/A' };
+                    phoneDisplay = `<p style="margin-top:5px; color:var(--primary-color); font-weight:bold;">📞 ${parentData.phone}</p>`;
+                }
+
+                let actions = '';
+                if(r.reqStatus === 'pending') {
+                    actions = `<button class="btn" style="background:green; color:white; font-size:13px; margin-bottom:5px;" onclick="ansReq('${r.id}','accepted','${r.parentId}')">${i18n[curLang].accept}</button><button class="btn btn-red" style="font-size:13px;" onclick="ansReq('${r.id}','rejected','${r.parentId}')">${i18n[curLang].reject}</button>`;
+                } else {
+                    let stTxt = r.reqStatus;
+                    if(stTxt=='accepted') stTxt = i18n[curLang].acc;
+                    if(stTxt=='rejected') stTxt = i18n[curLang].rej;
+                    if(stTxt=='completed') stTxt = i18n[curLang].comp;
+                    actions = `<span style="font-weight:bold; color:${r.reqStatus=='rejected'?'red':'green'}">${stTxt}</span>`;
+                }
+
+                div.innerHTML += `
+                    <div class="req-card">
+                        <div class="req-details">
+                            <strong>From: ${r.parentName}</strong>
+                            <p>${r.childName} (${r.age})</p>
+                            <p>${r.level} | ${r.status} | ${r.type}</p>
+                            ${phoneDisplay}
+                        </div>
+                        <div class="req-actions" style="text-align:center;">${actions}</div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('stTotal').innerText = total;
+            document.getElementById('stNew').innerText = fresh;
+            document.getElementById('stAcc').innerText = acc;
+            let avg = rateCount > 0 ? (rateSum / rateCount).toFixed(1) : 0;
+            document.querySelectorAll('[data-i18n="ratingScore"]').forEach(el => { el.innerHTML = (curLang=='ar'?'التقييم':'Note') + `<br><span style="font-size:1.5rem; color:#333;">${avg}/5</span>`; });
+        }
+
+        window.ansReq = async (rid, st, pid) => {
+            await updateDoc(doc(db, "requests", rid), { reqStatus: st });
+            await addDoc(collection(db, "notifications"), { targetId: pid, msg: `Your request was ${st}`, read: false, timestamp: serverTimestamp() });
+            if(st === 'accepted') await addDoc(collection(db, "logs"), { text: `Success: ${currentUser.fullName} accepted request`, timestamp: serverTimestamp() });
+            loadCompReqs();
+        };
+
+        // --- Notifications ---
+        async function loadNotifications() {
+            const q = query(collection(db, "notifications"), where("targetId", "==", currentUser.uid));
+            const snap = await getDocs(q);
+            const list = document.getElementById('notifList');
+            const badge = document.getElementById('notifBadge');
+            list.innerHTML = '';
+            let docs = [];
+            snap.forEach(d => docs.push(d.data()));
+            docs.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+            let unread = 0;
+            docs.forEach(n => {
+                if(!n.read) unread++;
+                list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; background:${n.read?'#fff':'#f9f9f9'}">${n.msg} <br><small style="color:gray">${n.timestamp?n.timestamp.toDate().toLocaleTimeString():''}</small></div>`;
+            });
+            if(unread > 0) { badge.style.display = 'flex'; badge.innerText = unread; } else { badge.style.display = 'none'; }
+        }
+
+        window.openNotifModal = async () => { openModal('notifModal'); document.getElementById('notifBadge').style.display = 'none'; };
+
+        // --- Footer Actions ---
+        window.openReportModal = async (type) => {
+            if(!currentUser) return Swal.fire('Error', 'Please Login first', 'warning');
+            const { value: text } = await Swal.fire({
+                title: type === 'Report' ? (curLang=='ar'?'ابلاغ':'Report') : (curLang=='ar'?'اتصل بنا':'Contact Us'),
+                input: 'textarea',
+                inputPlaceholder: curLang=='ar'?'اكتب رسالتك هنا...':'Write your message...',
+                showCancelButton: true
+            });
+            if(text) {
+                await addDoc(collection(db, "messages"), { type, text, from: currentUser.fullName, uid: currentUser.uid, timestamp: serverTimestamp() });
+                Swal.fire(curLang=='ar'?'تم':'Sent', '', 'success');
+            }
+        };
+
+        // --- Admin ---
+        function initAdmin() {
+            getDocs(collection(db, "users")).then(snap => document.getElementById('adUsers').innerText = snap.size);
+            loadAdminStats();
+            loadAdminMessages();
+            loadAllTransactions();
+            renderAdmin();
+        }
+
+        async function loadAdminStats() {
+            const reqs = await getDocs(collection(db, "requests"));
+            let total=0, acc=0;
+            reqs.forEach(d => { total++; if(d.data().reqStatus === 'accepted' || d.data().reqStatus === 'completed') acc++; });
+            document.getElementById('adReqsTotal').innerText = total;
+            document.getElementById('adReqsAcc').innerText = acc;
+            
+            const msgs = await getDocs(collection(db, "messages"));
+            document.getElementById('adMsgs').innerText = msgs.size;
+        }
+
+        async function loadAdminMessages() {
+            const snap = await getDocs(query(collection(db, "messages"), orderBy("timestamp", "desc")));
+            const div = document.getElementById('adminMessagesList');
+            div.innerHTML = '';
+            snap.forEach(d => {
+                const m = d.data();
+                div.innerHTML += `<div class="msg-card"><strong>${m.type}</strong> from ${m.from}<p>${m.text}</p><small>${m.timestamp?.toDate().toLocaleString()}</small></div>`;
+            });
+        }
+
+        async function loadAllTransactions() {
+            const snap = await getDocs(query(collection(db, "requests"), orderBy("timestamp", "desc")));
+            const tb = document.querySelector('#adminTransTable tbody');
+            tb.innerHTML = '';
+            
+            for(const d of snap.docs) {
+                const r = d.data();
+                const compSnap = await getDoc(doc(db, "users", r.companionId));
+                const compName = compSnap.exists() ? compSnap.data().fullName : 'Unknown';
+                tb.innerHTML += `<tr><td>${r.timestamp?.toDate().toLocaleDateString()}</td><td>${r.parentName}</td><td>${compName}</td><td>${r.childName}</td><td>${r.reqStatus}</td></tr>`;
+            }
+        }
+
+        window.sendAdminNotif = async () => {
+            const msg = document.getElementById('adminNotifText').value;
+            const target = document.getElementById('adminNotifTarget').value;
+            if(!msg) return;
+
+            let q = collection(db, "users");
+            if(target !== 'all') q = query(collection(db, "users"), where("role", "==", target));
+            
+            const users = await getDocs(q);
+            const batch = [];
+            users.forEach(u => {
+                // In a real app we'd batch write, here we loop addDoc for simplicity
+                addDoc(collection(db, "notifications"), { targetId: u.id, msg: `Admin: ${msg}`, read: false, timestamp: serverTimestamp() });
+            });
+            Swal.fire('Sent', `Sent to ${users.size} users`, 'success');
+        };
+
+        async function renderAdmin() {
+            const tb = document.querySelector('#admTable tbody'); tb.innerHTML = '';
+            const snap = await getDocs(collection(db, "users"));
+            snap.forEach(d => {
+                const u = d.data();
+                tb.innerHTML += `<tr><td style="padding:10px;">${u.fullName}</td><td>${u.role}</td><td>${u.isBlocked?'Blocked':'Active'}</td><td><button onclick="toggleBlock('${d.id}',${u.isBlocked})">${u.isBlocked?'Unblock':'Block'}</button></td></tr>`;
+            });
+        }
+        window.toggleBlock = async(id, st) => { await updateDoc(doc(db, "users", id), { isBlocked: !st }); renderAdmin(); };
+
+        // --- Edit Profile ---
+        window.openEditModal = () => {
+            document.getElementById('edName').value = currentUser.fullName;
+            document.getElementById('edPhone').value = currentUser.phone;
+            populateSelects();
+            document.getElementById('edWilaya').value = currentUser.wilaya;
+            if(currentUser.role === 'companion') document.getElementById('compEditFields').style.display = 'block';
+            openModal('editModal');
+        };
+
+        window.saveProfile = async () => {
+            const name = document.getElementById('edName').value;
+            const phone = document.getElementById('edPhone').value;
+            const wilaya = document.getElementById('edWilaya').value;
+            const pass = document.getElementById('edPass').value;
+            const file = document.getElementById('edImg').files[0];
+            
+            let updates = { fullName: name, phone: phone, wilaya: wilaya };
+            if(pass) { try { await updatePassword(auth.currentUser, pass); updates.password_stored = pass; } catch(e) { return Swal.fire('Error', 'Re-login required', 'error'); } }
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => { updates.photoURL = e.target.result; await finishUpdate(updates); };
+                reader.readAsDataURL(file);
+                return;
+            }
+            await finishUpdate(updates);
+        };
+
+        async function finishUpdate(updates) {
+            await updateDoc(doc(db, "users", currentUser.uid), updates);
+            currentUser = { ...currentUser, ...updates };
+            closeModal('editModal');
+            Swal.fire(curLang=='ar'?'تم':'Updated', '', 'success');
+            if(currentUser.role==='parent') initParent(); else initComp();
+        }
+
+        window.populateSelects();
+    </script>
+</body>
+</html>
