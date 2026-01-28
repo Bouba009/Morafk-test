@@ -40,14 +40,49 @@
         .spinner { width: 50px; height: 50px; border: 5px solid #eee; border-top: 5px solid var(--secondary-color); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Animations */
+        /* Animations General */
         .fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+
+        /* =========================================
+           SWEEP UP ANIMATION STYLES
+           ========================================= */
+        
+        /* حركة خروج الصفحة الحالية للأعلى */
+        .sweep-out {
+            animation: sweepOutAnim 1s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+            position: absolute;
+            width: 100%;
+            top: 0;
+        }
+
+        /* حركة دخول الصفحة الجديدة من الأسفل */
+        .sweep-in {
+            display: block !important;
+            animation: sweepInAnim 1s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+            position: fixed; /* تثبيت مؤقت أثناء الحركة */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1500; /* لتكون فوق كل شيء */
+            overflow-y: auto; /* للسماح بالتمرير داخلها */
+        }
+
+        @keyframes sweepOutAnim {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100vh); opacity: 0; }
+        }
+
+        @keyframes sweepInAnim {
+            0% { transform: translateY(100vh); }
+            100% { transform: translateY(0); }
+        }
 
         /* Inputs */
         input, textarea { 
             width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 0.95rem; margin-bottom: 15px; background: #fff; transition: 0.3s; 
-            text-transform: none; /* Cancel auto caps */
+            text-transform: none; 
         }
         input:focus, textarea:focus { border-color: var(--secondary-color); box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1); }
         
@@ -104,26 +139,37 @@
         section { padding-top: 100px; min-height: 100vh; display: none; padding-bottom: 50px; }
         section.active { display: block; }
 
+        /* HERO & ANIMATION STYLES */
         .hero-section { 
             position: relative; display: flex; align-items: center; justify-content: center; text-align: center; color: white; overflow: hidden;
+            height: 100vh; /* Full viewport height */
         }
         .hero-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* Modified Image Link - Smiling Female Psychologist */
+            /* Smiling Female Psychologist Image */
             background: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
             z-index: -1;
-            /* Added Zoom Animation */
+            /* Zoom Animation */
             animation: heroZoom 20s infinite alternate;
         }
-        /* Keyframes for Zoom Effect */
         @keyframes heroZoom {
             0% { transform: scale(1); }
             100% { transform: scale(1.15); }
         }
 
         .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 0; }
-        .hero-content { position: relative; z-index: 2; padding: 20px; max-width: 800px; }
+        .hero-content { position: relative; z-index: 2; padding: 20px; max-width: 900px; }
         
+        /* Big Centered Title */
+        .big-title {
+            font-size: 4.5rem; 
+            margin-bottom: 30px; 
+            font-weight: 900; 
+            text-shadow: 0 5px 20px rgba(0,0,0,0.6); 
+            line-height: 1.2;
+            text-align: center;
+        }
+
         .dashboard-content { padding: 0 5%; max-width: 1200px; margin: 0 auto; }
         .profile-card { background: white; padding: 30px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); margin-bottom: 30px; flex-wrap: wrap; gap: 20px; border: 1px solid #fff; }
         
@@ -167,6 +213,7 @@
             .stats-grid, .edit-grid { grid-template-columns: 1fr; }
             .full-width { grid-column: span 1; }
             .req-card { flex-direction: column; }
+            .big-title { font-size: 2.5rem; }
         }
     </style>
 </head>
@@ -198,15 +245,19 @@
         <div class="hero-bg"></div>
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1 data-i18n="heroTitle" style="font-size:3rem; margin-bottom:20px;">مرافقة لطفل في المدرسة</h1>
+            <!-- Updated Text -->
+            <h1 class="big-title" data-i18n="heroTitle">مرافقة طفلك بأمان</h1>
             <p data-i18n="heroSub" style="font-size: 1.4rem; margin-bottom: 30px; opacity: 0.9;">نربطك بأفضل المرافقين والأخصائيين النفسيين</p>
-            <button class="btn" style="padding: 15px 40px; font-size: 1.1rem;" onclick="router('register')" data-i18n="startNow">ابدأ الآن</button>
+            <!-- Start Button with SWEEP UP Animation -->
+            <button class="btn" style="padding: 15px 50px; font-size: 1.2rem; border-radius: 50px;" onclick="animateToRegister()" data-i18n="startNow">ابدأ الآن</button>
         </div>
     </section>
 
     <!-- Login -->
-    <section id="login">
-        <div class="modal-content" style="max-width: 400px; margin-top: 80px;">
+    <section id="login" style="position: relative; overflow: hidden; min-height: 100vh;">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="modal-content" style="max-width: 400px; margin-top: 100px; position: relative; z-index: 2;">
             <h2 style="text-align: center; margin-bottom: 30px;" data-i18n="loginTitle">تسجيل الدخول</h2>
             <input type="text" id="loginEmail" data-i18n-ph="emailPh" placeholder="البريد الإلكتروني" autocapitalize="off">
             <input type="password" id="loginPass" data-i18n-ph="passPh" placeholder="كلمة المرور">
@@ -218,8 +269,11 @@
     </section>
 
     <!-- Register -->
-    <section id="register">
-        <div class="modal-content" style="margin-top: 40px;">
+    <section id="register" style="position: relative; overflow: hidden; min-height: 100vh;">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+
+        <div class="modal-content" style="margin-top: 80px; position: relative; z-index: 2;">
             <h2 style="text-align: center; margin-bottom: 25px;" data-i18n="regTitle">إنشاء حساب</h2>
             <div style="display:flex; gap:10px; margin-bottom:20px;">
                 <button class="btn" style="flex:1; background:#eee; color:#333;" id="roleParent" onclick="setRole('parent')" data-i18n="roleParent">ولي</button>
@@ -475,7 +529,7 @@
 
         const i18n = {
             ar: { 
-                logo: "مرافق | Morafik", home: "الرئيسية", login: "دخول", register: "حساب جديد", logout: "خروج", heroTitle: "مرافقة لطفل في المدرسة", heroSub: "نربطك بأفضل المرافقين", startNow: "ابدأ الآن", loginTitle: "تسجيل الدخول", loginBtn: "دخول", noAccount: "ليس لديك حساب؟", createOne: "إنشاء حساب", regTitle: "إنشاء حساب", roleParent: "ولي طفل", roleComp: "مرافق / أخصائي", regBtn: "تسجيل", haveAccount: "لديك حساب بالفعل؟", editProfile: "تعديل الملف", searchTitle: "بحث عن مرافق", searchBtn: "بحث", myRequests: "طلباتي", totalReq: "الطلبات", newReq: "جديدة", accReq: "مقبولة", incomingReq: "الطلبات الواردة", bookTitle: "حجز مرافق", childName: "اسم الطفل", childAge: "السن", eduLevel: "المستوى الدراسي", childStatus: "حالة الطفل", followType: "نوع المتابعة", confirmBook: "تأكيد الحجز", editTitle: "تعديل الملف الشخصي", profilePic: "تحديث الصورة", fullName: "الاسم الكامل", phone: "رقم الهاتف", wilaya: "الولاية", updateCert: "تحديث الشهادة", newPass: "كلمة مرور جديدة", saveChanges: "حفظ التغييرات", rateTitle: "تقييم الخدمة", ratingScore: "التقييم", yourReview: "رأيك", submitRate: "إرسال", notifTitle: "الإشعارات", aboutUs: "من نحن", aboutDesc: "منصة جزائرية للمرافقة المدرسية", impLinks: "روابط هامة", privacy: "سياسة الخصوصية", contact: "اتصل بنا", report: "الابلاغ عن مشكل", certLabel: "الشهادة (PDF)", available: "متاح للعمل", spec1: "مرافق طفل التوحد", spec2: "أخصائي نفساني", emailPh: "البريد الإلكتروني", passPh: "كلمة المرور", namePh: "الاسم الكامل", phonePh: "رقم الهاتف", confPassPh: "تأكيد كلمة المرور", wait: "في الانتظار...", acc: "مقبول", rej: "مرفوض", comp: "مكتمل", accept: "قبول", reject: "رفض", book: "حجز", prim:"ابتدائي",mid:"متوسط",sec:"ثانوي",center:"مركز",none:"لا يدرس",norm:"عادي",aut:"طفل توحد",cont:"مستمرة",sess:"حصص", location: "الرويبة، الجزائر العاصمة",
+                logo: "مرافق | Morafik", home: "الرئيسية", login: "دخول", register: "حساب جديد", logout: "خروج", heroTitle: "مرافقة طفلك بأمان", heroSub: "نربطك بأفضل المرافقين", startNow: "ابدأ الآن", loginTitle: "تسجيل الدخول", loginBtn: "دخول", noAccount: "ليس لديك حساب؟", createOne: "إنشاء حساب", regTitle: "إنشاء حساب", roleParent: "ولي طفل", roleComp: "مرافق / أخصائي", regBtn: "تسجيل", haveAccount: "لديك حساب بالفعل؟", editProfile: "تعديل الملف", searchTitle: "بحث عن مرافق", searchBtn: "بحث", myRequests: "طلباتي", totalReq: "الطلبات", newReq: "جديدة", accReq: "مقبولة", incomingReq: "الطلبات الواردة", bookTitle: "حجز مرافق", childName: "اسم الطفل", childAge: "السن", eduLevel: "المستوى الدراسي", childStatus: "حالة الطفل", followType: "نوع المتابعة", confirmBook: "تأكيد الحجز", editTitle: "تعديل الملف الشخصي", profilePic: "تحديث الصورة", fullName: "الاسم الكامل", phone: "رقم الهاتف", wilaya: "الولاية", updateCert: "تحديث الشهادة", newPass: "كلمة مرور جديدة", saveChanges: "حفظ التغييرات", rateTitle: "تقييم الخدمة", ratingScore: "التقييم", yourReview: "رأيك", submitRate: "إرسال", notifTitle: "الإشعارات", aboutUs: "من نحن", aboutDesc: "منصة جزائرية للمرافقة المدرسية", impLinks: "روابط هامة", privacy: "سياسة الخصوصية", contact: "اتصل بنا", report: "الابلاغ عن مشكل", certLabel: "الشهادة (PDF)", available: "متاح للعمل", spec1: "مرافق طفل التوحد", spec2: "أخصائي نفساني", emailPh: "البريد الإلكتروني", passPh: "كلمة المرور", namePh: "الاسم الكامل", phonePh: "رقم الهاتف", confPassPh: "تأكيد كلمة المرور", wait: "في الانتظار...", acc: "مقبول", rej: "مرفوض", comp: "مكتمل", accept: "قبول", reject: "رفض", book: "حجز", prim:"ابتدائي",mid:"متوسط",sec:"ثانوي",center:"مركز",none:"لا يدرس",norm:"عادي",aut:"طفل توحد",cont:"مستمرة",sess:"حصص", location: "الرويبة، الجزائر العاصمة",
                 lName: "الاسم", lAge: "السن", lLevel: "المستوى", lStatus: "الحالة", lType: "النوع"
             },
             fr: { 
@@ -546,11 +600,40 @@
             if(document.getElementById('searchResults').innerHTML !== '') searchCompanions();
         };
 
+        // --- Router & Custom Animation Logic ---
+        
         window.router = (route) => {
-            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            // Reset any previous animations classes
+            document.querySelectorAll('section').forEach(s => {
+                s.classList.remove('active', 'sweep-out', 'sweep-in');
+                s.style.display = ''; // Reset inline display styles
+            });
+            
             const map = { 'hero':'hero', 'login':'login', 'register':'register', 'parent':'parentDash', 'companion':'companionDash', 'admin':'adminDash' };
             const el = document.getElementById(map[route] || 'hero');
             if(el) setTimeout(() => el.classList.add('active'), 50);
+        };
+
+        // Custom Sweep Up Animation for Start Button
+        window.animateToRegister = () => {
+            const hero = document.getElementById('hero');
+            const reg = document.getElementById('register');
+            
+            // 1. Prepare Register (Start from bottom)
+            reg.classList.add('sweep-in'); // This class handles display and animation
+            
+            // 2. Animate Hero (Go to top)
+            hero.classList.add('sweep-out');
+
+            // 3. Cleanup after animation completes (1s)
+            setTimeout(() => {
+                hero.classList.remove('active', 'sweep-out');
+                reg.classList.remove('sweep-in');
+                reg.classList.add('active'); // Keep it visible as normal
+                
+                // Ensure scroll is reset on the register page
+                window.scrollTo(0, 0);
+            }, 1000);
         };
 
         window.populateSelects = () => {
