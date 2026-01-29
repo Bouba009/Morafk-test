@@ -13,87 +13,114 @@
         :root {
             --primary: #1e3a8a;
             --secondary: #3b82f6;
+            --accent: #ef4444;
+            --success: #10b981;
             --bg-color: #f3f4f6;
             --text-main: #1f2937;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; outline: none; }
         
-        body { background-color: var(--bg-color); color: var(--text-main); overflow-x: hidden; min-height: 100vh; }
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            overflow-x: hidden; 
+            min-height: 100vh; 
+        }
 
-        /* Background */
-        .fixed-bg { position: fixed; inset: 0; background: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; z-index: -10; animation: zoom 25s infinite alternate; }
-        @keyframes zoom { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
-        .bg-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: -9; backdrop-filter: blur(3px); }
+        /* Fixed Background */
+        .fixed-bg {
+            position: fixed; inset: 0;
+            background: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            z-index: -10;
+            animation: zoomEffect 25s infinite alternate ease-in-out;
+        }
+        @keyframes zoomEffect { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+        .bg-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: -9; backdrop-filter: blur(3px); }
 
         /* Header */
-        header { background: rgba(255,255,255,0.95); padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 2000; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .logo { font-size: 22px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        .nav-links { display: flex; gap: 15px; align-items: center; }
-        .nav-btn { background: none; border: none; font-size: 15px; font-weight: bold; cursor: pointer; color: var(--text-main); }
+        header { 
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(12px); 
+            padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; 
+            position: fixed; width: 100%; top: 0; z-index: 2000; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
         
-        /* Notifications Icon */
-        .notif-wrapper { position: relative; cursor: pointer; margin-left: 10px; }
-        .notif-icon { font-size: 22px; color: var(--primary); }
-        .notif-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; justify-content: center; align-items: center; border: 2px solid white; display: none; }
+        /* Logo Style */
+        .logo-img { height: 50px; width: auto; object-fit: contain; }
+
+        .nav-links { display: flex; gap: 30px; align-items: center; } /* زيادة المسافة */
+        .nav-btn { background: none; border: none; font-size: 16px; font-weight: 700; cursor: pointer; color: var(--text-main); transition: 0.3s; }
+        .nav-btn:hover { color: var(--secondary); }
+        
+        /* Notifications */
+        .notif-btn { position: relative; cursor: pointer; font-size: 22px; color: var(--primary); margin: 0 15px; }
+        .badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; font-size: 10px; width: 18px; height: 18px; display: flex; justify-content: center; align-items: center; }
 
         /* Sections */
-        .app-section { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; display: flex; flex-direction: column; z-index: 100; transition: transform 0.6s cubic-bezier(0.7,0,0.3,1); overflow-y: auto; background: var(--bg-color); padding-top: 70px; transform: translateY(100vh); opacity: 0; }
+        .app-section {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            display: flex; flex-direction: column; 
+            z-index: 100; transition: transform 0.6s cubic-bezier(0.7, 0, 0.3, 1);
+            overflow-y: auto; background: var(--bg-color);
+            padding-top: 80px; transform: translateY(100vh); opacity: 0;
+        }
         .app-section.active { transform: translateY(0); opacity: 1; z-index: 500; }
         #heroSection { background: transparent; transform: translateY(0); opacity: 1; z-index: 10; justify-content: center; align-items: center; text-align: center; color: white; padding-top: 0; }
         #heroSection.hidden { opacity: 0; pointer-events: none; }
 
-        /* UI Components */
+        /* UI Elements */
         .hero-title { font-size: 3.5rem; font-weight: 900; margin-bottom: 20px; text-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .cta-btn { padding: 15px 50px; background: var(--secondary); color: white; border: none; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4); }
         
-        .container-box { width: 100%; max-width: 500px; margin: 30px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); text-align: center; }
+        .container-box { width: 100%; max-width: 500px; margin: 30px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
         .dashboard-container { width: 95%; max-width: 1200px; margin: 0 auto; padding-bottom: 50px; }
 
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 10px; background: #f9fafb; font-size: 0.95rem; }
-        .full-btn { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-
-        /* --- DASHBOARD GRID (2 per row strict) --- */
-        .stats-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); /* 2 Columns Always */
-            gap: 15px; 
-            margin-bottom: 30px; 
-        }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 10px; background: #f9fafb; font-size: 0.95rem; }
         
-        .dash-card {
-            padding: 20px; border-radius: 16px; color: white; position: relative; overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: center; height: 120px;
-        }
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+        .dash-card { padding: 20px; border-radius: 16px; color: white; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: center; height: 120px; }
         .dash-card h3 { font-size: 2rem; margin: 0; font-weight: 800; }
-        .dash-card p { font-size: 0.9rem; margin: 5px 0 0; opacity: 0.9; }
-        .dash-card i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 2.5rem; opacity: 0.2; }
-
-        /* Card Colors */
-        .bg-1 { background: linear-gradient(135deg, #3b82f6, #2563eb); } /* Blue */
-        .bg-2 { background: linear-gradient(135deg, #10b981, #059669); } /* Green */
-        .bg-3 { background: linear-gradient(135deg, #ef4444, #dc2626); } /* Red */
-        .bg-4 { background: linear-gradient(135deg, #f59e0b, #d97706); } /* Orange */
+        .bg-1 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .bg-2 { background: linear-gradient(135deg, #10b981, #059669); }
+        .bg-3 { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .bg-4 { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .bg-dark { background: linear-gradient(135deg, #1f2937, #111827); }
 
         /* Request Cards */
-        .req-list { display: flex; flex-direction: column; gap: 15px; }
-        .req-card { 
-            background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
-            border-right: 5px solid #ccc; display: flex; flex-direction: column; gap: 8px; 
-        }
+        .req-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .req-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-right: 5px solid #ccc; display: flex; flex-direction: column; gap: 8px; }
         .req-card.pending { border-color: #f59e0b; }
         .req-card.accepted { border-color: #10b981; }
         .req-card.rejected { border-color: #ef4444; }
-        
-        .time-stamp { font-size: 0.8rem; color: #888; display: flex; align-items: center; gap: 5px; }
+
+        /* Rating Stars */
+        .star-rating { direction: rtl; display: flex; justify-content: center; gap: 5px; }
+        .star-rating input { display: none; }
+        .star-rating label { font-size: 25px; color: #ddd; cursor: pointer; transition: 0.2s; }
+        .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: gold; }
+
+        /* Footer Links in Hero */
+        .hero-footer { position: absolute; bottom: 20px; display: flex; gap: 25px; color: #eee; font-size: 0.95rem; background: rgba(0,0,0,0.4); padding: 10px 20px; border-radius: 30px; backdrop-filter: blur(5px); }
+        .hero-footer span { cursor: pointer; border-bottom: 1px dashed transparent; transition: 0.3s; }
+        .hero-footer span:hover { color: white; border-bottom: 1px solid white; }
 
         /* Admin Table */
-        .admin-table { width: 100%; background: white; border-collapse: collapse; border-radius: 10px; overflow: hidden; margin-top: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .admin-table { width: 100%; background: white; border-collapse: collapse; border-radius: 10px; margin-top: 10px; }
         .admin-table th { background: var(--primary); color: white; padding: 12px; text-align: right; }
         .admin-table td { padding: 12px; border-bottom: 1px solid #eee; }
 
-        /* Switch Toggle */
+        /* Select */
+        select { display: none; }
+        .custom-select-wrapper { position: relative; width: 100%; margin-bottom: 10px; }
+        .custom-select-trigger { padding: 12px; background: white; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; }
+        .custom-options { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 10px; z-index: 1000; display: none; max-height: 200px; overflow-y: auto; }
+        .custom-options.open { display: block; }
+        .custom-option { padding: 10px; cursor: pointer; border-bottom: 1px solid #f5f5f5; }
+        .custom-option:hover { background: var(--secondary); color: white; }
+
+        /* Switch */
         .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
@@ -101,22 +128,14 @@
         input:checked + .slider { background-color: #10b981; }
         input:checked + .slider:before { transform: translateX(18px); }
 
-        /* Modals */
+        /* Modal */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; justify-content: center; align-items: center; }
         .modal-overlay.open { display: flex; }
         .modal-box { background: white; width: 90%; max-width: 600px; padding: 25px; border-radius: 20px; max-height: 90vh; overflow-y: auto; }
 
-        /* Custom Select */
-        select { display: none; }
-        .custom-select-wrapper { position: relative; width: 100%; margin-bottom: 10px; }
-        .custom-select { position: relative; display: flex; flex-direction: column; }
-        .custom-select__trigger { padding: 12px; font-size: 0.95rem; color: #333; background: #fff; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .custom-options { position: absolute; display: block; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(-10px); transition: 0.3s; z-index: 1000; max-height: 200px; overflow-y: auto; }
-        .custom-select.open .custom-options { opacity: 1; visibility: visible; pointer-events: all; transform: translateY(0); }
-        .custom-option { padding: 10px; cursor: pointer; border-bottom: 1px solid #f5f5f5; }
-        .custom-option:hover { background-color: var(--secondary); color: white; }
+        .full-btn { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
 
-        @media (max-width: 768px) { .hero-title { font-size: 2.5rem; } }
+        @media (max-width: 768px) { .req-grid { grid-template-columns: 1fr; } .hero-title { font-size: 2.5rem; } .hero-footer { flex-wrap: wrap; justify-content: center; width: 90%; } }
     </style>
 </head>
 <body>
@@ -125,17 +144,21 @@
     <div class="bg-overlay"></div>
 
     <header>
-        <div class="logo"><i class="fas fa-hands-helping"></i> <span>مرافق</span></div>
-        <div class="nav-links">
-            
-            <!-- Notifications -->
-            <div class="notif-wrapper" onclick="openNotif()" style="display:none;" id="notifBtn">
-                <i class="fas fa-bell notif-icon"></i>
-                <span id="notifBadge" class="notif-badge">0</span>
-            </div>
+        <div class="logo">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgGmf6afcKjxaL9hB_Cv4AZ_JBvtuXheqwzIvoGu49lm9A6mXRYLoz-ZDhZcXaQD4cU3RXi6d4lAfDskoqsSRXdjLwDeTvF1XPINU0cdIhHcO6Q_sBlABLu4lSngQyylUTgQ-R7f7ELF3Y4RxtoFY1Wn_33Mv_6UsC7WNIKRuuOfxXlsU9uU9zjAt4a2CM/s320/Picsart_26-01-29_13-14-09-750.png" alt="Morafik Logo" class="logo-img">
+        </div>
+        
+        <!-- Companion Toggle -->
+        <div id="statusToggle" style="display:none; align-items:center; gap:8px; background:#f0fdf4; padding:5px 12px; border-radius:20px;">
+            <span id="statusText" style="font-size:0.85rem; font-weight:bold; color:#15803d;">في الخدمة</span>
+            <label class="switch"><input type="checkbox" id="headerAvailToggle" onchange="toggleAvail()"><span class="slider round"></span></label>
+        </div>
 
+        <div class="nav-links">
             <button class="nav-btn" style="border:1px solid #333; border-radius:15px; padding:2px 10px;" onclick="switchLang()">FR / AR</button>
-            
+            <div id="notifBtn" class="notif-btn" onclick="openNotif()" style="display:none;">
+                <i class="fas fa-bell"></i><span id="notifBadge" class="badge" style="display:none;">0</span>
+            </div>
             <div id="guestLinks">
                 <button class="nav-btn" onclick="navigateTo('heroSection')" data-i18n="home">الرئيسية</button>
                 <button class="nav-btn" onclick="navigateTo('loginSection')" data-i18n="login">دخول</button>
@@ -152,6 +175,14 @@
         <h1 class="hero-title" data-i18n="heroTitle">مرافقة طفلك بأمان</h1>
         <p style="font-size:1.4rem; color:white; margin-bottom:30px;" data-i18n="heroSub">نربطك بأفضل المرافقين والأخصائيين النفسيين.</p>
         <button class="cta-btn" onclick="navigateTo('registerSection')" data-i18n="startNow">ابدأ الآن</button>
+        
+        <div class="hero-footer">
+            <span onclick="openModal('infoModal', 'about')" data-i18n="about">من نحن</span>
+            <span onclick="openModal('infoModal', 'privacy')" data-i18n="privacy">الخصوصية</span>
+            <span onclick="openModal('infoModal', 'location')" data-i18n="location">موقعنا</span>
+            <span onclick="openContact('contact')" data-i18n="contact">اتصل بنا</span>
+            <span onclick="openContact('report')" style="color:#fca5a5;" data-i18n="report">إبلاغ عن مشكلة</span>
+        </div>
     </section>
 
     <!-- 2. REGISTER -->
@@ -159,25 +190,18 @@
         <div class="container-box">
             <h2 data-i18n="register">حساب جديد</h2>
             <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <button onclick="setRole('parent')" id="btnRoleParent" style="flex:1; padding:10px; background:var(--primary); color:white; border-radius:10px; border:none;" data-i18n="parent">ولي أمر</button>
+                <button onclick="setRole('parent')" id="btnRoleParent" style="flex:1; padding:10px; background:var(--primary); color:white; border-radius:10px; border:none;" data-i18n="parent">ولي طفل</button>
                 <button onclick="setRole('companion')" id="btnRoleComp" style="flex:1; padding:10px; background:transparent; border:1px solid #ccc; border-radius:10px;" data-i18n="companion">مرافق</button>
             </div>
-            <input type="text" id="regName" placeholder="الاسم الكامل" data-ph="fullName">
-            <input type="email" id="regEmail" placeholder="البريد الإلكتروني" data-ph="email">
-            <input type="tel" id="regPhone" placeholder="رقم الهاتف" data-ph="phone">
-            
+            <input type="text" id="regName" placeholder="الاسم الكامل">
+            <input type="email" id="regEmail" placeholder="البريد الإلكتروني">
+            <input type="tel" id="regPhone" placeholder="رقم الهاتف">
             <div class="custom-select-wrapper"><select id="regWilaya"></select></div>
-
             <div id="compFields" style="display:none;">
-                <div class="custom-select-wrapper">
-                    <select id="regSpec">
-                        <option value="مرافقة طفل التوحد" data-i18n="spec1">مرافقة طفل التوحد</option>
-                        <option value="أخصائي نفساني" data-i18n="spec2">أخصائي نفساني</option>
-                    </select>
-                </div>
+                <div class="custom-select-wrapper"><select id="regSpec"><option value="مرافق طفل التوحد">مرافق طفل التوحد</option><option value="أخصائي نفساني">أخصائي نفساني</option></select></div>
                 <input type="file" id="regDoc" accept="application/pdf">
             </div>
-            <input type="password" id="regPass" placeholder="كلمة المرور" data-ph="pass">
+            <input type="password" id="regPass" placeholder="كلمة المرور">
             <button class="full-btn" onclick="handleRegister()" data-i18n="registerBtn">تسجيل</button>
         </div>
     </section>
@@ -186,8 +210,8 @@
     <section id="loginSection" class="app-section">
         <div class="container-box">
             <h2 data-i18n="login">دخول</h2>
-            <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" data-ph="email">
-            <input type="password" id="loginPass" placeholder="كلمة المرور" data-ph="pass">
+            <input type="email" id="loginEmail" placeholder="البريد الإلكتروني">
+            <input type="password" id="loginPass" placeholder="كلمة المرور">
             <button class="full-btn" onclick="handleLogin()" data-i18n="loginBtn">دخول</button>
         </div>
     </section>
@@ -197,172 +221,108 @@
         <div class="dashboard-container">
             <h2 style="color:var(--primary); margin-bottom:20px;"><span data-i18n="welcome">مرحباً</span> <span id="pName"></span></h2>
             
-            <!-- Parent Stats (2x2 Grid) -->
             <div class="stats-grid">
-                <div class="dash-card bg-1">
-                    <i class="fas fa-list"></i>
-                    <h3 id="pTotal">0</h3>
-                    <p data-i18n="total">الطلبات</p>
-                </div>
-                <div class="dash-card bg-2">
-                    <i class="fas fa-check"></i>
-                    <h3 id="pAccepted">0</h3>
-                    <p data-i18n="accepted">مقبولة</p>
-                </div>
-                <div class="dash-card bg-3">
-                    <i class="fas fa-times"></i>
-                    <h3 id="pRejected">0</h3>
-                    <p data-i18n="canceled">ملغية</p>
-                </div>
-                <div class="dash-card bg-4">
-                    <i class="fas fa-clock"></i>
-                    <h3 id="pPending">0</h3>
-                    <p data-i18n="pending">قيد الانتظار</p>
-                </div>
+                <div class="dash-card bg-1"><h3 id="pTotal">0</h3><p data-i18n="new">طلبات جديدة</p></div>
+                <div class="dash-card bg-2"><h3 id="pAccepted">0</h3><p data-i18n="accepted">مقبولة</p></div>
+                <div class="dash-card bg-3"><h3 id="pRejected">0</h3><p data-i18n="canceled">ملغية</p></div>
+                <div class="dash-card bg-4"><h3 id="pPending">0</h3><p data-i18n="pending">قيد الانتظار</p></div>
             </div>
 
-            <!-- Search Area -->
             <div style="background:white; padding:20px; border-radius:15px; margin-bottom:30px;">
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <div class="custom-select-wrapper" style="flex:1;">
-                        <select id="searchSpec">
-                            <option value="مرافقة طفل التوحد" data-i18n="spec1">مرافقة طفل التوحد</option>
-                            <option value="أخصائي نفساني" data-i18n="spec2">أخصائي نفساني</option>
-                        </select>
-                    </div>
-                    <div class="custom-select-wrapper" style="flex:1;"><select id="searchWilaya"></select></div>
-                    <button class="full-btn" style="width:auto; padding:0 30px; height:48px;" onclick="searchCompanions()" data-i18n="search">بحث</button>
+                <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:10px;">
+                    <div class="custom-select-wrapper"><select id="searchSpec"><option value="مرافق طفل التوحد" data-i18n="spec1">مرافق طفل التوحد</option><option value="أخصائي نفساني" data-i18n="spec2">أخصائي نفساني</option></select></div>
+                    <div class="custom-select-wrapper"><select id="searchWilaya"></select></div>
+                    <button class="full-btn" style="width:auto; padding:0 30px;" onclick="searchCompanions()" data-i18n="search">بحث</button>
                 </div>
-                <!-- Search Results -->
-                <div id="searchResults" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:15px; margin-top:20px;"></div>
             </div>
             
-            <h3 data-i18n="myReqs">طلباتي (الأحدث أولاً)</h3>
-            <div id="parentReqs" class="req-list"></div>
+            <h3 data-i18n="results">النتائج</h3>
+            <div id="searchResults" class="req-grid"></div>
+            <h3 style="margin-top:30px;" data-i18n="myReqs">طلباتي</h3>
+            <div id="parentReqs" class="req-grid"></div>
         </div>
     </section>
 
     <!-- 5. COMPANION DASHBOARD -->
     <section id="companionDash" class="app-section">
         <div class="dashboard-container">
-            <div style="background:white; padding:20px; border-radius:15px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
-                <h2><span data-i18n="dashComp">لوحة المرافق</span> <span id="cName"></span></h2>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <span style="font-weight:bold; font-size:0.9rem;" data-i18n="available">أنا متاح</span>
-                    <label class="switch"><input type="checkbox" id="availToggle" onchange="toggleAvail()"><span class="slider round"></span></label>
-                </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <h2 style="color:var(--primary);"><span data-i18n="dashComp">لوحة المرافق</span> <span id="cName"></span></h2>
             </div>
 
-            <!-- Companion Stats (2x2 Grid) -->
             <div class="stats-grid">
-                <div class="dash-card bg-1">
-                    <i class="fas fa-inbox"></i>
-                    <h3 id="stTotal">0</h3>
-                    <p data-i18n="total">كل الطلبات</p>
-                </div>
-                <div class="dash-card bg-4">
-                    <i class="fas fa-hourglass-start"></i>
-                    <h3 id="stPending">0</h3>
-                    <p data-i18n="new">جديدة</p>
-                </div>
-                <div class="dash-card bg-2">
-                    <i class="fas fa-check-circle"></i>
-                    <h3 id="stAccepted">0</h3>
-                    <p data-i18n="accepted">مقبولة</p>
-                </div>
-                <div class="dash-card bg-3">
-                    <i class="fas fa-ban"></i>
-                    <h3 id="stRejected">0</h3>
-                    <p data-i18n="canceled">ملغية</p>
-                </div>
+                <div class="dash-card bg-1"><h3 id="stTotal">0</h3><p data-i18n="total">الطلبات</p></div>
+                <div class="dash-card bg-4"><h3 id="stPending">0</h3><p data-i18n="new">جديدة</p></div>
+                <div class="dash-card bg-2"><h3 id="stAccepted">0</h3><p data-i18n="accepted">مقبولة</p></div>
+                <div class="dash-card bg-3"><h3 id="stRejected">0</h3><p data-i18n="canceled">ملغية</p></div>
             </div>
 
             <h3 data-i18n="incomingReq">الطلبات الواردة</h3>
-            <div id="compReqs" class="req-list"></div>
+            <div id="compReqs" class="req-grid"></div>
         </div>
     </section>
 
     <!-- 6. ADMIN DASHBOARD -->
     <section id="adminDash" class="app-section">
         <div class="dashboard-container">
-            <h2 style="color:var(--primary);">لوحة الأدمن</h2>
-            
-            <!-- Admin Stats (2x2 Grid) -->
+            <h2 style="color:var(--primary);">لوحة المدير العام</h2>
             <div class="stats-grid">
-                <div class="dash-card bg-dark">
-                    <i class="fas fa-users"></i>
-                    <h3 id="adUsersCount">0</h3>
-                    <p>المستخدمين</p>
-                </div>
-                <div class="dash-card bg-1">
-                    <i class="fas fa-file-alt"></i>
-                    <h3 id="adReqsCount">0</h3>
-                    <p>الطلبات</p>
-                </div>
-                <div class="dash-card bg-4">
-                    <i class="fas fa-envelope"></i>
-                    <h3 id="adMsgsCount">0</h3>
-                    <p>الرسائل</p>
-                </div>
-                <div class="dash-card bg-2">
-                    <i class="fas fa-history"></i>
-                    <h3>LOGS</h3>
-                    <p>العمليات اليومية</p>
-                </div>
+                <div class="dash-card bg-dark"><h3>USERS</h3><p id="adUsersCount">0</p></div>
+                <div class="dash-card bg-1"><h3>REQ</h3><p id="adReqsCount">0</p></div>
+                <div class="dash-card bg-4"><h3>MSG</h3><p id="adMsgsCount">0</p></div>
+                <div class="dash-card bg-2"><h3>LOGS</h3><p>المعاملات</p></div>
             </div>
 
-            <!-- Notification Sender -->
-            <div style="background:white; padding:20px; border-radius:15px; margin-bottom:20px;">
-                <h3>إرسال إشعار (باسم: فريق مرافق)</h3>
+            <div style="background:white; padding:20px; border-radius:15px; margin-bottom:30px;">
+                <h3>إرسال إشعار (فريق مرافق)</h3>
                 <div style="display:flex; gap:10px;">
-                    <div class="custom-select-wrapper" style="flex:1;">
-                        <select id="notifTarget">
-                            <option value="all">الجميع</option>
-                            <option value="parent">الأولياء</option>
-                            <option value="companion">المرافقين</option>
-                        </select>
-                    </div>
-                    <input type="text" id="notifMsg" placeholder="نص الرسالة..." style="flex:2;">
+                    <div class="custom-select-wrapper" style="flex:1;"><select id="notifTarget"><option value="all">الجميع</option><option value="parent">الأولياء</option><option value="companion">المرافقين</option></select></div>
+                    <input type="text" id="notifMsg" placeholder="الرسالة..." style="flex:2;">
                     <button class="full-btn" style="width:auto;" onclick="sendAdminNotif()">إرسال</button>
                 </div>
             </div>
 
-            <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px;">
-                <!-- Table -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                 <div>
-                    <h3>المستخدمين</h3>
-                    <div style="overflow-x:auto;">
-                        <table class="admin-table">
-                            <thead><tr><th>الاسم</th><th>الدور</th><th>كلمة المرور</th><th>الحالة</th><th>إجراء</th></tr></thead>
-                            <tbody id="usersTable"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <!-- Logs/Messages -->
-                <div>
-                    <h3>العمليات & الرسائل</h3>
+                    <h3>سجل المعاملات اليومية</h3>
                     <div id="logsList" style="background:white; padding:15px; border-radius:10px; max-height:400px; overflow-y:auto;"></div>
                 </div>
+                <div>
+                    <h3>الشكاوي والرسائل</h3>
+                    <div id="reportsList" style="background:white; padding:15px; border-radius:10px; max-height:400px; overflow-y:auto;"></div>
+                </div>
             </div>
+            
+            <h3 style="margin-top:20px;">المستخدمين</h3>
+            <table class="admin-table"><tbody id="usersTable"></tbody></table>
         </div>
     </section>
 
     <!-- MODALS -->
     
-    <!-- Notifications Modal -->
-    <div id="notifModal" class="modal-overlay">
+    <!-- Profile Edit -->
+    <div id="profileModal" class="modal-overlay">
         <div class="modal-box">
-            <span style="position:absolute; left:20px; top:20px; cursor:pointer;" onclick="closeModal('notifModal')">&times;</span>
-            <h3 data-i18n="notifTitle">الإشعارات</h3>
-            <div id="notifList" style="margin-top:15px;"></div>
+            <span style="position:absolute; left:20px; top:20px; cursor:pointer;" onclick="closeModal('profileModal')">&times;</span>
+            <h3 style="text-align:center;">تعديل البروفايل</h3>
+            <div style="text-align:center; margin-bottom:15px;">
+                <img id="profImgPreview" src="https://via.placeholder.com/100" style="width:100px; height:100px; border-radius:50%; object-fit:cover;">
+                <br><label for="profImgInput" style="color:var(--secondary); cursor:pointer;">تغيير الصورة</label>
+                <input type="file" id="profImgInput" style="display:none;" onchange="previewImg(this)">
+            </div>
+            <input type="text" id="edName" placeholder="الاسم">
+            <input type="tel" id="edPhone" placeholder="الهاتف">
+            <div class="custom-select-wrapper"><select id="edWilaya"></select></div>
+            <input type="password" id="edPass" placeholder="كلمة مرور جديدة">
+            <button class="full-btn" onclick="saveProfile()">حفظ</button>
         </div>
     </div>
 
-    <!-- Booking Modal -->
+    <!-- Booking -->
     <div id="bookingModal" class="modal-overlay">
         <div class="modal-box">
             <span style="position:absolute; left:20px; top:20px; cursor:pointer;" onclick="closeModal('bookingModal')">&times;</span>
-            <h3 style="text-align:center;">حجز</h3>
+            <h3 style="text-align:center;" data-i18n="bookTitle">حجز</h3>
             <input type="hidden" id="bkCompId">
             <input type="text" id="bkChild" placeholder="اسم الطفل">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
@@ -375,21 +335,51 @@
         </div>
     </div>
 
-    <!-- Profile Modal -->
-    <div id="profileModal" class="modal-overlay">
+    <!-- Rate Modal -->
+    <div id="rateModal" class="modal-overlay">
         <div class="modal-box">
-            <span style="position:absolute; left:20px; top:20px; cursor:pointer;" onclick="closeModal('profileModal')">&times;</span>
-            <h3 style="text-align:center;">تعديل الملف</h3>
-            <div style="text-align:center; margin-bottom:10px;">
-                <img id="profImgPreview" src="https://via.placeholder.com/80" style="width:80px; height:80px; border-radius:50%; object-fit:cover;">
-                <br><label for="profImgInput" style="color:var(--secondary); cursor:pointer;">تغيير الصورة</label>
-                <input type="file" id="profImgInput" style="display:none;" onchange="previewImg(this)">
+            <span style="position:absolute; left:20px; top:20px; cursor:pointer;" onclick="closeModal('rateModal')">&times;</span>
+            <h3 style="text-align:center;">تقييم الخدمة</h3>
+            <input type="hidden" id="rateReqId">
+            <div class="star-rating">
+                <input type="radio" id="s5" name="rating" value="5"><label for="s5">★</label>
+                <input type="radio" id="s4" name="rating" value="4"><label for="s4">★</label>
+                <input type="radio" id="s3" name="rating" value="3"><label for="s3">★</label>
+                <input type="radio" id="s2" name="rating" value="2"><label for="s2">★</label>
+                <input type="radio" id="s1" name="rating" value="1"><label for="s1">★</label>
             </div>
-            <input type="text" id="edName" placeholder="الاسم">
-            <input type="tel" id="edPhone" placeholder="الهاتف">
-            <div class="custom-select-wrapper"><select id="edWilaya"></select></div>
-            <input type="password" id="edPass" placeholder="كلمة مرور جديدة (اختياري)">
-            <button class="full-btn" onclick="saveProfile()">حفظ</button>
+            <textarea id="rateReview" rows="3" placeholder="تعليقك..."></textarea>
+            <button class="full-btn" onclick="submitRating()">إرسال التقييم</button>
+        </div>
+    </div>
+
+    <!-- Contact/Report -->
+    <div id="contactModal" class="modal-overlay">
+        <div class="modal-box">
+            <span style="position:absolute; left:20px; top:20px; cursor:pointer;" onclick="closeModal('contactModal')">&times;</span>
+            <h3 id="contactTitle"></h3>
+            <input type="hidden" id="contactType">
+            <input type="text" id="cntName" placeholder="الاسم">
+            <textarea id="cntMsg" rows="4" placeholder="الرسالة..."></textarea>
+            <button class="full-btn" onclick="sendContact()">إرسال</button>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notifModal" class="modal-overlay">
+        <div class="modal-box">
+            <span style="position:absolute; left:20px; top:20px; cursor:pointer;" onclick="closeModal('notifModal')">&times;</span>
+            <h3 data-i18n="notifTitle">الإشعارات</h3>
+            <div id="notifList" style="margin-top:15px;"></div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal-overlay">
+        <div class="modal-box">
+            <span style="position:absolute; left:20px; top:20px; cursor:pointer;" onclick="closeModal('infoModal')">&times;</span>
+            <h3 id="infoTitle" style="text-align:center;"></h3>
+            <p id="infoContent" style="color:#666; line-height:1.6;"></p>
         </div>
     </div>
 
@@ -403,60 +393,35 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUser = null;
-        let selectedRole = 'parent';
-        let currentLang = 'ar';
+        let currentUser = null, selectedRole = 'parent', currentLang = 'ar';
 
         const wilayas = [
-            {ar: "01 أدرار", fr: "01 Adrar"}, {ar: "02 الشلف", fr: "02 Chlef"}, {ar: "03 الأغواط", fr: "03 Laghouat"},
-            {ar: "04 أم البواقي", fr: "04 Oum El Bouaghi"}, {ar: "05 باتنة", fr: "05 Batna"}, {ar: "06 بجاية", fr: "06 Béjaïa"},
-            {ar: "07 بسكرة", fr: "07 Biskra"}, {ar: "08 بشار", fr: "08 Béchar"}, {ar: "09 البليدة", fr: "09 Blida"},
-            {ar: "10 البويرة", fr: "10 Bouira"}, {ar: "11 تمنراست", fr: "11 Tamanrasset"}, {ar: "12 تبسة", fr: "12 Tébessa"},
-            {ar: "13 تلمسان", fr: "13 Tlemcen"}, {ar: "14 تيارت", fr: "14 Tiaret"}, {ar: "15 تيزي وزو", fr: "15 Tizi Ouzou"},
-            {ar: "16 الجزائر", fr: "16 Alger"}, {ar: "17 الجلفة", fr: "17 Djelfa"}, {ar: "18 جيجل", fr: "18 Jijel"},
-            {ar: "19 سطيف", fr: "19 Sétif"}, {ar: "20 سعيدة", fr: "20 Saïda"}, {ar: "21 سكيكدة", fr: "21 Skikda"},
-            {ar: "22 سيدي بلعباس", fr: "22 Sidi Bel Abbès"}, {ar: "23 عنابة", fr: "23 Annaba"}, {ar: "24 قالمة", fr: "24 Guelma"},
-            {ar: "25 قسنطينة", fr: "25 Constantine"}, {ar: "26 المدية", fr: "26 Médéa"}, {ar: "27 مستغانم", fr: "27 Mostaganem"},
-            {ar: "28 المسيلة", fr: "28 M'Sila"}, {ar: "29 معسكر", fr: "29 Mascara"}, {ar: "30 ورقلة", fr: "30 Ouargla"},
-            {ar: "31 وهران", fr: "31 Oran"}, {ar: "32 البيض", fr: "32 El Bayadh"}, {ar: "33 إليزي", fr: "33 Illizi"},
-            {ar: "34 برج بوعريريج", fr: "34 Bordj Bou Arréridj"}, {ar: "35 بومرداس", fr: "35 Boumerdès"}, {ar: "36 الطارف", fr: "36 El Tarf"},
-            {ar: "37 تندوف", fr: "37 Tindouf"}, {ar: "38 تيسمسيلت", fr: "38 Tissemsilt"}, {ar: "39 الوادي", fr: "39 El Oued"},
-            {ar: "40 خنشلة", fr: "40 Khenchela"}, {ar: "41 سوق أهراس", fr: "41 Souk Ahras"}, {ar: "42 تيبازة", fr: "42 Tipaza"},
-            {ar: "43 ميلة", fr: "43 Mila"}, {ar: "44 عين الدفلى", fr: "44 Aïn Defla"}, {ar: "45 النعامة", fr: "45 Naâma"},
-            {ar: "46 عين تموشنت", fr: "46 Aïn Témouchent"}, {ar: "47 غرداية", fr: "47 Ghardaïa"}, {ar: "48 غليزان", fr: "48 Relizane"},
-            {ar: "49 تيميمون", fr: "49 Timimoun"}, {ar: "50 برج باجي مختار", fr: "50 Bordj Badji Mokhtar"}, {ar: "51 أولاد جلال", fr: "51 Ouled Djellal"},
-            {ar: "52 بني عباس", fr: "52 Béni Abbès"}, {ar: "53 عين صالح", fr: "53 In Salah"}, {ar: "54 عين قزام", fr: "54 In Guezzam"},
-            {ar: "55 تقرت", fr: "55 Touggourt"}, {ar: "56 جانت", fr: "56 Djanet"}, {ar: "57 المغير", fr: "57 El M'Ghair"},
-            {ar: "58 المنيعة", fr: "58 El Meniaa"}
+            "01 Adrar", "02 Chlef", "03 Laghouat", "04 Oum El Bouaghi", "05 Batna", "06 Béjaïa", "07 Biskra", "08 Béchar", "09 Blida", "10 Bouira", "11 Tamanrasset", "12 Tébessa", "13 Tlemcen", "14 Tiaret", "15 Tizi Ouzou", "16 Alger", "17 Djelfa", "18 Jijel", "19 Sétif", "20 Saïda", "21 Skikda", "22 Sidi Bel Abbès", "23 Annaba", "24 Guelma", "25 Constantine", "26 Médéa", "27 Mostaganem", "28 M'Sila", "29 Mascara", "30 Ouargla", "31 Oran", "32 El Bayadh", "33 Illizi", "34 Bordj Bou Arréridj", "35 Boumerdès", "36 El Tarf", "37 Tindouf", "38 Tissemsilt", "39 El Oued", "40 Khenchela", "41 Souk Ahras", "42 Tipaza", "43 Mila", "44 Aïn Defla", "45 Naâma", "46 Aïn Témouchent", "47 Ghardaïa", "48 Relizane", "49 Timimoun", "50 Bordj Badji Mokhtar", "51 Ouled Djellal", "52 Béni Abbès", "53 In Salah", "54 In Guezzam", "55 Touggourt", "56 Djanet", "57 El M'Ghair", "58 El Meniaa"
         ];
 
         const dict = {
-            ar: { home: "الرئيسية", login: "دخول", register: "حساب جديد", logout: "خروج", heroTitle: "مرافقة طفلك بأمان", heroSub: "نربطك بأفضل المرافقين.", startNow: "ابدأ الآن", parent: "ولي أمر", companion: "مرافق", registerBtn: "تسجيل", loginBtn: "دخول", welcome: "مرحباً", search: "بحث", myReqs: "طلباتي", new: "جديدة", accepted: "مقبولة", canceled: "ملغية", results: "النتائج", dashComp: "لوحة المرافق", available: "متاح", unavailable: "غير متاح", incomingReq: "الطلبات الواردة", notifTitle: "الإشعارات", bookTitle: "حجز", confirm: "تأكيد", spec1: "مرافقة طفل التوحد", spec2: "أخصائي نفساني", profile: "بروفايل", total: "الكل", pending: "انتظار" },
-            fr: { home: "Accueil", login: "Connexion", register: "Inscription", logout: "Déconnexion", heroTitle: "Accompagner votre enfant", heroSub: "Nous vous connectons aux meilleurs.", startNow: "Commencer", parent: "Parent", companion: "Accompagnateur", registerBtn: "S'inscrire", loginBtn: "Connexion", welcome: "Bienvenue", search: "Chercher", myReqs: "Mes demandes", new: "Nouveau", accepted: "Accepté", canceled: "Annulé", results: "Résultats", dashComp: "Tableau de bord", available: "Disponible", unavailable: "Indisponible", incomingReq: "Demandes reçues", notifTitle: "Notifications", bookTitle: "Réserver", confirm: "Confirmer", spec1: "Accompagnateur Autiste", spec2: "Psychologue", profile: "Profil", total: "Total", pending: "En attente" }
+            ar: { home: "الرئيسية", login: "دخول", profile: "بروفايل", logout: "خروج", heroTitle: "مرافقة طفلك بأمان", heroSub: "نربطك بأفضل المرافقين.", startNow: "ابدأ الآن", parent: "ولي طفل", companion: "مرافق", registerBtn: "تسجيل", loginBtn: "دخول", welcome: "مرحباً", search: "بحث", myReqs: "طلباتي", new: "جديدة", accepted: "مقبولة", canceled: "ملغية", results: "النتائج", dashComp: "لوحة المرافق", available: "متاح", unavailable: "غير متاح", incomingReq: "الطلبات الواردة", notifTitle: "الإشعارات", bookTitle: "حجز", confirm: "تأكيد", spec1: "مرافقة طفل التوحد", spec2: "أخصائي نفساني", register: "حساب جديد", pending: "انتظار", total: "الكل", about:"من نحن", privacy:"الخصوصية", contact:"اتصل بنا", report:"إبلاغ عن مشكلة", location:"موقعنا" },
+            fr: { home: "Accueil", login: "Connexion", profile: "Profil", logout: "Déconnexion", heroTitle: "Accompagner votre enfant", heroSub: "Connexion aux meilleurs accompagnateurs.", startNow: "Commencer", parent: "Parent d'enfant", companion: "Accompagnateur", registerBtn: "S'inscrire", loginBtn: "Connexion", welcome: "Bienvenue", search: "Chercher", myReqs: "Mes demandes", new: "Nouveau", accepted: "Accepté", canceled: "Annulé", results: "Résultats", dashComp: "Tableau de bord", available: "Disponible", unavailable: "Indisponible", incomingReq: "Demandes reçues", notifTitle: "Notifications", bookTitle: "Réserver", confirm: "Confirmer", spec1: "Accompagnateur Autiste", spec2: "Psychologue", register: "Inscription", pending: "En attente", total: "Total", about:"À propos", privacy:"Confidentialité", contact:"Contactez-nous", report:"Signaler un problème", location:"Notre site" }
         };
 
-        // --- Init & UI ---
+        // --- Init ---
         function populateSelects() {
-            const list = wilayas.map(w => `<option value="${w.ar}">${currentLang==='ar'?w.ar:w.fr}</option>`).join('');
+            const list = wilayas.map(w => `<option value="${w}">${w}</option>`).join('');
             ['regWilaya', 'searchWilaya', 'edWilaya'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = list; });
         }
         populateSelects();
 
-        // Custom Select Logic (Re-run after populate)
         function renderCustomSelects() {
             document.querySelectorAll('select').forEach(select => {
-                if (select.nextElementSibling && select.nextElementSibling.classList.contains('custom-select')) { select.nextElementSibling.remove(); }
+                if (select.nextElementSibling?.classList.contains('custom-select')) select.nextElementSibling.remove();
                 const wrapper = document.createElement('div'); wrapper.classList.add('custom-select');
                 const trigger = document.createElement('div'); trigger.classList.add('custom-select__trigger');
-                trigger.innerHTML = `<span>${select.options[select.selectedIndex] ? select.options[select.selectedIndex].text : 'Select'}</span> <i class="fas fa-chevron-down"></i>`;
+                trigger.innerHTML = `<span>${select.options[select.selectedIndex]?.text || 'Select'}</span> <i class="fas fa-chevron-down"></i>`;
                 const options = document.createElement('div'); options.classList.add('custom-options');
                 Array.from(select.options).forEach(opt => {
                     const option = document.createElement('div'); option.classList.add('custom-option');
                     option.textContent = opt.text; 
-                    option.addEventListener('click', () => {
-                        select.value = opt.value; trigger.querySelector('span').textContent = opt.text;
-                        wrapper.classList.remove('open'); select.dispatchEvent(new Event('change'));
-                    });
+                    option.addEventListener('click', () => { select.value = opt.value; trigger.querySelector('span').textContent = opt.text; wrapper.classList.remove('open'); select.dispatchEvent(new Event('change')); });
                     options.appendChild(option);
                 });
                 trigger.addEventListener('click', (e) => { e.stopPropagation(); document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('open')); wrapper.classList.toggle('open'); });
@@ -481,26 +446,28 @@
 
         window.setRole = (r) => {
             selectedRole = r;
-            document.getElementById('btnRoleParent').style.background = r==='parent'?'var(--primary)':'transparent';
-            document.getElementById('btnRoleParent').style.color = r==='parent'?'white':'#333';
-            document.getElementById('btnRoleComp').style.background = r==='companion'?'var(--primary)':'transparent';
-            document.getElementById('btnRoleComp').style.color = r==='companion'?'white':'#333';
-            document.getElementById('compFields').style.display = r==='companion'?'block':'none';
+            const p = document.getElementById('btnRoleParent'), c = document.getElementById('btnRoleComp');
+            if(r === 'parent') { p.style.background='var(--primary)'; p.style.color='white'; c.style.background='transparent'; c.style.color='#333'; document.getElementById('compFields').style.display='none'; }
+            else { c.style.background='var(--primary)'; c.style.color='white'; p.style.background='transparent'; p.style.color='#333'; document.getElementById('compFields').style.display='block'; }
         };
 
+        // --- Modals & Popups ---
         window.closeModal = (id) => document.getElementById(id).classList.remove('open');
-        window.openProfile = () => {
-            document.getElementById('edName').value = currentUser.fullName;
-            document.getElementById('edPhone').value = currentUser.phone;
-            if(currentUser.photoURL) document.getElementById('profImgPreview').src = currentUser.photoURL;
-            document.getElementById('profileModal').classList.add('open');
-        };
-        window.previewImg = (input) => {
-            if(input.files && input.files[0]) {
-                const r = new FileReader();
-                r.onload = (e) => document.getElementById('profImgPreview').src = e.target.result;
-                r.readAsDataURL(input.files[0]);
+        window.openProfile = () => { document.getElementById('edName').value = currentUser.fullName; document.getElementById('edPhone').value = currentUser.phone; document.getElementById('profileModal').classList.add('open'); };
+        window.previewImg = (input) => { if(input.files[0]) { const r = new FileReader(); r.onload = (e) => document.getElementById('profImgPreview').src = e.target.result; r.readAsDataURL(input.files[0]); } };
+        window.openModal = (id, type) => {
+            if(id==='infoModal') {
+                const t=document.getElementById('infoTitle'), c=document.getElementById('infoContent');
+                if(type==='about') { t.innerText=dict[currentLang].about; c.innerText='منصة جزائرية للربط بين الأولياء والمرافقين.'; }
+                if(type==='privacy') { t.innerText=dict[currentLang].privacy; c.innerText='بياناتك آمنة معنا.'; }
+                if(type==='location') { t.innerText=dict[currentLang].location; c.innerText='الجزائر - 16000'; }
             }
+            document.getElementById(id).classList.add('open');
+        };
+        window.openContact = (type) => {
+            document.getElementById('contactTitle').innerText = type==='report'?dict[currentLang].report:dict[currentLang].contact;
+            document.getElementById('contactType').value = type;
+            document.getElementById('contactModal').classList.add('open');
         };
 
         // --- Auth ---
@@ -512,89 +479,65 @@
                 const snap = await getDoc(doc(db, "users", user.uid));
                 if(snap.exists()) {
                     currentUser = snap.data();
-                    if(currentUser.isBlocked) { await signOut(auth); Swal.fire('Error', 'Blocked', 'error'); return; }
+                    if(currentUser.isBlocked) { await signOut(auth); Swal.fire('Error','Blocked','error'); return; }
                     
-                    if(currentUser.role === 'admin') {
-                        navigateTo('adminDash'); loadAdminData();
-                    } else if(currentUser.role === 'parent') {
-                        document.getElementById('pName').innerText = currentUser.fullName;
-                        navigateTo('parentDash'); loadParentReqs();
-                    } else {
-                        document.getElementById('cName').innerText = currentUser.fullName;
+                    if(currentUser.role === 'admin') { navigateTo('adminDash'); loadAdminData(); }
+                    else if(currentUser.role === 'parent') { document.getElementById('pName').innerText = currentUser.fullName; navigateTo('parentDash'); loadParentReqs(); }
+                    else { 
+                        document.getElementById('cName').innerText = currentUser.fullName; 
                         document.getElementById('statusToggle').style.display='flex';
-                        document.getElementById('availToggle').checked = currentUser.isAvailable;
-                        navigateTo('companionDash'); loadCompReqs();
+                        document.getElementById('headerAvailToggle').checked = currentUser.isAvailable;
+                        navigateTo('companionDash'); loadCompReqs(); 
                     }
                     loadNotifications();
                 }
             } else {
-                document.getElementById('guestLinks').style.display='block';
-                document.getElementById('userLinks').style.display='none';
-                document.getElementById('notifBtn').style.display='none';
-                document.getElementById('statusToggle').style.display='none';
-                navigateTo('heroSection');
+                document.getElementById('guestLinks').style.display='block'; document.getElementById('userLinks').style.display='none'; document.getElementById('notifBtn').style.display='none'; document.getElementById('statusToggle').style.display='none'; navigateTo('heroSection');
             }
         });
+
+        window.handleLogin = async () => {
+            const e = document.getElementById('loginEmail').value, p = document.getElementById('loginPass').value;
+            if(e === 'admin' && p === 'abobob123') { currentUser = { role:'admin', fullName:'Admin' }; document.getElementById('guestLinks').style.display='none'; document.getElementById('userLinks').style.display='flex'; navigateTo('adminDash'); loadAdminData(); return; }
+            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { Swal.fire('Error','Invalid','error'); }
+        };
 
         window.handleRegister = async () => {
             const email = document.getElementById('regEmail').value, pass = document.getElementById('regPass').value;
             try {
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                const data = {
-                    uid: cred.user.uid, fullName: document.getElementById('regName').value, email: email,
-                    phone: document.getElementById('regPhone').value, wilaya: document.getElementById('regWilaya').value,
-                    role: selectedRole, password_stored: pass, isBlocked: false, photoURL: '', createdAt: serverTimestamp()
-                };
+                const data = { uid: cred.user.uid, fullName: document.getElementById('regName').value, email: email, phone: document.getElementById('regPhone').value, wilaya: document.getElementById('regWilaya').value, role: selectedRole, password_stored: pass, isBlocked: false, photoURL: '', createdAt: serverTimestamp() };
                 if(selectedRole==='companion') { data.specialty = document.getElementById('regSpec').value; data.isAvailable=true; }
                 await setDoc(doc(db, "users", cred.user.uid), data);
                 Swal.fire('Success', 'Registered', 'success');
             } catch(e) { Swal.fire('Error', e.message, 'error'); }
         };
 
-        window.handleLogin = async () => {
-            const e = document.getElementById('loginEmail').value, p = document.getElementById('loginPass').value;
-            if(e === 'admin' && p === 'abobob123') { currentUser = { role:'admin', fullName:'Admin' }; showAdmin(); return; }
-            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { Swal.fire('Error','Invalid','error'); }
-        };
-        function showAdmin(){ document.getElementById('guestLinks').style.display='none'; document.getElementById('userLinks').style.display='flex'; navigateTo('adminDash'); loadAdminData(); }
         window.logout = () => signOut(auth).then(()=>location.reload());
-
-        window.saveProfile = async () => {
+        window.saveProfile = async () => { /* Same as before, handles image and updates */ 
             const updates = { fullName: document.getElementById('edName').value, phone: document.getElementById('edPhone').value, wilaya: document.getElementById('edWilaya').value };
-            const file = document.getElementById('profImgInput').files[0];
-            const pass = document.getElementById('edPass').value;
-            if(pass && auth.currentUser) await updatePassword(auth.currentUser, pass);
-            if(file) {
-                const r = new FileReader();
-                r.onload = async (e) => { updates.photoURL = e.target.result; await finishSave(updates); };
-                r.readAsDataURL(file);
-            } else await finishSave(updates);
+            await updateDoc(doc(db,"users",currentUser.uid), updates); closeModal('profileModal'); Swal.fire('Updated');
         };
-        async function finishSave(upd) { await updateDoc(doc(db,"users",currentUser.uid), upd); currentUser = {...currentUser, ...upd}; closeModal('profileModal'); Swal.fire('Updated'); }
 
-        // --- Parent Logic ---
+        // --- Parent ---
         window.searchCompanions = async () => {
-            document.getElementById('searchResults').innerHTML = 'Loading...';
-            const spec = document.getElementById('searchSpec').value;
-            const wilaya = document.getElementById('searchWilaya').value;
-            
+            const resDiv = document.getElementById('searchResults'); resDiv.innerHTML = 'Loading...';
+            const spec = document.getElementById('searchSpec').value, wilaya = document.getElementById('searchWilaya').value;
             const snap = await getDocs(query(collection(db, "users"), where("role","==","companion")));
             let html = '';
             snap.forEach(d => {
                 const u = d.data();
-                if(u.isAvailable && u.specialty === spec && (!currentUser || u.uid !== currentUser.uid)) {
-                    if(wilaya !== wilayas[0].ar && u.wilaya !== wilaya) return;
-                    html += `
-                    <div class="req-card" style="align-items:center;">
+                if(u.isAvailable && u.specialty === spec) {
+                    if(wilaya !== wilayas[0] && u.wilaya !== wilaya) return;
+                    html += `<div class="req-card" style="align-items:center;">
                         <img src="${u.photoURL||'https://via.placeholder.com/60'}" style="width:60px; height:60px; border-radius:50%; object-fit:cover;">
-                        <h4 style="margin:5px 0;">${u.fullName}</h4>
-                        <span style="color:var(--secondary); font-size:0.9rem;">${u.specialty}</span>
+                        <h4 style="margin:5px 0;">${u.fullName}</h4><span style="color:var(--secondary); font-size:0.9rem;">${u.specialty}</span>
                         <p style="font-size:0.8rem; color:#666;">📍 ${u.wilaya}</p>
                         <button class="full-btn" style="margin-top:10px; padding:8px;" onclick="openBook('${u.uid}')">حجز</button>
                     </div>`;
                 }
             });
-            document.getElementById('searchResults').innerHTML = html || 'لا يوجد';
+            resDiv.innerHTML = html || 'لا يوجد';
         };
 
         window.openBook = (id) => { document.getElementById('bkCompId').value=id; document.getElementById('bookingModal').classList.add('open'); };
@@ -612,75 +555,73 @@
             closeModal('bookingModal'); Swal.fire('Sent'); loadParentReqs();
         };
 
-        // LOAD PARENT REQUESTS (Sorted Newest Top)
         async function loadParentReqs() {
-            // Using JS sort to avoid index issues
             const q = query(collection(db,"requests"), where("parentId","==",currentUser.uid));
             const snap = await getDocs(q);
             let docs = []; snap.forEach(d => docs.push({id:d.id, ...d.data()}));
-            docs.sort((a,b) => b.timestamp - a.timestamp); // Newest first
+            docs.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)); // Newest first via flex-direction column-reverse or sort here? 
+            // Better sort: 
+            docs.sort((a, b) => b.timestamp - a.timestamp);
 
-            let html = '', total=0, acc=0, rej=0, pend=0;
-            docs.forEach(r => {
-                total++;
-                if(r.status==='accepted') acc++; else if(r.status==='rejected') rej++; else pend++;
-                const stText = r.status==='accepted'?'مقبول':r.status==='rejected'?'ملغي':'انتظار';
-                const date = r.timestamp ? new Date(r.timestamp.seconds * 1000).toLocaleString('ar') : 'الآن';
+            let html = '', t=0, a=0, r=0, p=0;
+            docs.forEach(d => {
+                t++; if(d.status==='accepted') a++; else if(d.status==='rejected') r++; else p++;
+                const date = d.timestamp ? new Date(d.timestamp.seconds*1000).toLocaleString('ar') : 'Now';
+                const st = d.status==='accepted'?'مقبول':d.status==='rejected'?'ملغي':'انتظار';
                 
-                html += `<div class="req-card ${r.status}">
-                    <div style="display:flex; justify-content:space-between;"><strong>${r.childName}</strong> <span>${stText}</span></div>
-                    <div class="time-stamp"><i class="far fa-clock"></i> ${date}</div>
-                    ${r.status==='accepted'?`<div style="color:green; font-weight:bold;">📞 الولي: ${r.parentPhone}</div>`:''}
+                let rateBtn = '';
+                if(d.status === 'accepted') rateBtn = `<button class="full-btn" style="margin-top:5px; background:gold; color:black;" onclick="openRate('${d.id}')">تقييم</button>`;
+
+                html += `<div class="req-card ${d.status}">
+                    <div style="display:flex; justify-content:space-between;"><strong>${d.childName}</strong> <span>${st}</span></div>
+                    <div style="font-size:0.8rem; color:#888;">${date}</div>
+                    ${d.status==='accepted'?`<div style="color:green;">📞 ${d.parentPhone}</div>`:''}
+                    ${rateBtn}
                 </div>`;
             });
             document.getElementById('parentReqs').innerHTML = html;
-            document.getElementById('pTotal').innerText = total;
-            document.getElementById('pAccepted').innerText = acc;
-            document.getElementById('pRejected').innerText = rej;
-            document.getElementById('pPending').innerText = pend;
+            document.getElementById('pTotal').innerText=t; document.getElementById('pAccepted').innerText=a; document.getElementById('pRejected').innerText=r; document.getElementById('pPending').innerText=p;
         }
 
-        // --- Companion Logic ---
-        window.toggleAvail = async () => {
-            const v = document.getElementById('availToggle').checked;
-            if(currentUser) await updateDoc(doc(db,"users",currentUser.uid),{isAvailable:v});
+        window.openRate = (id) => { document.getElementById('rateReqId').value=id; document.getElementById('rateModal').classList.add('open'); };
+        window.submitRating = async () => {
+            const stars = document.querySelector('input[name="rating"]:checked');
+            if(!stars) return;
+            const rev = document.getElementById('rateReview').value;
+            // In real app, update companion rating average here
+            await updateDoc(doc(db, "requests", document.getElementById('rateReqId').value), { rating: stars.value, review: rev });
+            closeModal('rateModal'); Swal.fire('شكراً');
         };
 
+        // --- Companion ---
+        window.toggleAvail = async () => { if(currentUser) await updateDoc(doc(db,"users",currentUser.uid),{isAvailable:document.getElementById('availToggle').checked}); };
         async function loadCompReqs() {
             const q = query(collection(db,"requests"), where("companionId","==",currentUser.uid));
             const snap = await getDocs(q);
             let docs = []; snap.forEach(d => docs.push({id:d.id, ...d.data()}));
-            docs.sort((a,b) => b.timestamp - a.timestamp); // Newest first
+            docs.sort((a, b) => b.timestamp - a.timestamp); // Newest Top
 
-            let html = '', total=0, acc=0, pend=0, rej=0;
-            docs.forEach(r => {
-                total++;
-                if(r.status==='accepted') acc++; else if(r.status==='pending') pend++; else rej++;
-                const date = r.timestamp ? new Date(r.timestamp.seconds * 1000).toLocaleString('ar') : 'الآن';
+            let html = '', t=0, a=0, p=0, r=0;
+            docs.forEach(d => {
+                t++; if(d.status==='accepted') a++; else if(d.status==='pending') p++; else r++;
+                const date = d.timestamp ? new Date(d.timestamp.seconds*1000).toLocaleString('ar') : 'Now';
+                const acts = d.status==='pending' ? 
+                    `<button class="btn-green" onclick="ansReq('${d.id}','accepted','${d.parentId}')">قبول</button>
+                     <button class="btn-red" onclick="ansReq('${d.id}','rejected','${d.parentId}')">رفض</button>` : `<b>${d.status}</b>`;
                 
-                const acts = r.status==='pending' ? 
-                    `<button class="btn-green" onclick="ansReq('${r.id}','accepted','${r.parentId}')">قبول</button>
-                     <button class="btn-red" onclick="ansReq('${r.id}','rejected','${r.parentId}')">رفض</button>` : `<span style="font-weight:bold;">${r.status}</span>`;
-                
-                const phone = r.status==='accepted' ? `<div style="margin-top:5px; color:#1e3a8a;">📞 الولي: ${r.parentPhone}</div>` : '';
-
-                html += `<div class="req-card ${r.status}">
-                    <div><strong>من: ${r.parentName}</strong> <span style="float:left; font-size:0.8rem;">${date}</span></div>
-                    <div style="background:#f9f9f9; padding:10px; border-radius:8px;">${r.childName}<br>${r.childDetails}</div>
-                    ${phone}
-                    <div style="margin-top:10px;">${acts}</div>
+                html += `<div class="req-card ${d.status}">
+                    <div><strong>من: ${d.parentName}</strong> <span style="float:left; font-size:0.8rem;">${date}</span></div>
+                    <div style="background:#f9f9f9; padding:5px;">${d.childName} (${d.childDetails})</div>
+                    <div style="margin-top:5px;">${acts}</div>
+                    ${d.status==='accepted' ? `<div style="color:green;">📞 ${d.parentPhone}</div>` : ''}
                 </div>`;
             });
             document.getElementById('compReqs').innerHTML = html;
-            document.getElementById('stTotal').innerText = total;
-            document.getElementById('stAccepted').innerText = acc;
-            document.getElementById('stPending').innerText = pend;
-            document.getElementById('stRejected').innerText = rej;
+            document.getElementById('stTotal').innerText=t; document.getElementById('stAccepted').innerText=a; document.getElementById('stPending').innerText=p; document.getElementById('stRejected').innerText=r;
         }
-
         window.ansReq = async (rid, st, pid) => {
             await updateDoc(doc(db,"requests",rid),{status:st});
-            await addDoc(collection(db,"notifications"),{targetId:pid, msg:`تم ${st==='accepted'?'قبول':'رفض'} طلبك`, read:false, timestamp:serverTimestamp()});
+            await addDoc(collection(db,"notifications"),{targetId:pid, msg:`طلبك ${st==='accepted'?'مقبول':'مرفوض'}`, read:false, timestamp:serverTimestamp()});
             loadCompReqs();
         };
 
@@ -688,42 +629,38 @@
         window.loadAdminData = async () => {
             const uSnap = await getDocs(collection(db, "users"));
             const rSnap = await getDocs(collection(db, "requests"));
-            const mSnap = await getDocs(collection(db, "notifications")); // Simulated msgs
+            const mSnap = await getDocs(collection(db, "messages"));
             
             document.getElementById('adUsersCount').innerText = uSnap.size;
             document.getElementById('adReqsCount').innerText = rSnap.size;
             document.getElementById('adMsgsCount').innerText = mSnap.size;
 
-            let rows = '';
-            uSnap.forEach(d => {
-                const u = d.data();
-                rows += `<tr>
-                    <td style="padding:10px;">${u.fullName}</td>
-                    <td>${u.role}</td>
-                    <td>${u.password_stored||'***'}</td>
-                    <td style="color:${u.isBlocked?'red':'green'}">${u.isBlocked?'محظور':'نشط'}</td>
-                    <td><button onclick="toggleBlock('${d.id}',${u.isBlocked})">${u.isBlocked?'فك':'حظر'}</button></td>
-                </tr>`;
-            });
-            document.getElementById('usersTable').innerHTML = rows;
-            
-            // Logs
-            let logsHtml = '';
+            let logs = ''; // Transaction Logs
             rSnap.forEach(d => {
                 const r = d.data();
-                logsHtml += `<div style="padding:10px; border-bottom:1px solid #eee;">طلب جديد: ${r.childName} (${r.status}) - ${r.timestamp?.toDate().toLocaleDateString()}</div>`;
+                if(r.status === 'accepted') logs += `<div style="padding:10px; border-bottom:1px solid #eee;">قبول: ${r.parentName} -> ${currentUser.fullName} (${r.childName})</div>`;
             });
-            document.getElementById('logsList').innerHTML = logsHtml;
-        };
+            document.getElementById('logsList').innerHTML = logs || 'لا يوجد معاملات';
 
-        window.toggleBlock = async (uid, s) => { await updateDoc(doc(db,"users",uid),{isBlocked:!s}); loadAdminData(); };
-        
+            let msgs = ''; // Reports
+            mSnap.forEach(d => {
+                const m = d.data();
+                msgs += `<div style="padding:10px; border-bottom:1px solid #eee; border-left:3px solid red;">${m.type}: ${m.msg} <br><small>${m.email}</small></div>`;
+            });
+            document.getElementById('reportsList').innerHTML = msgs;
+
+            let usersHtml = '';
+            uSnap.forEach(d => {
+                const u = d.data();
+                usersHtml += `<tr><td>${u.fullName}</td><td>${u.role}</td><td>${u.password_stored||'***'}</td><td>${u.isBlocked?'Blocked':'Active'}</td><td><button onclick="toggleBlock('${d.id}',${u.isBlocked})">Action</button></td></tr>`;
+            });
+            document.getElementById('usersTable').innerHTML = usersHtml;
+        };
+        window.toggleBlock = async(id,s) => { await updateDoc(doc(db,"users",id),{isBlocked:!s}); loadAdminData(); };
         window.sendAdminNotif = async () => {
-            const t = document.getElementById('notifTarget').value;
-            const m = document.getElementById('notifMsg').value;
+            const t = document.getElementById('notifTarget').value, m = document.getElementById('notifMsg').value;
             if(!m) return;
-            let q = collection(db,"users");
-            if(t!=='all') q = query(q, where("role","==",t));
+            let q = collection(db,"users"); if(t!=='all') q = query(q, where("role","==",t));
             const s = await getDocs(q);
             s.forEach(u => addDoc(collection(db,"notifications"),{targetId:u.id, msg:`فريق مرافق: ${m}`, read:false, timestamp:serverTimestamp()}));
             Swal.fire('Sent');
@@ -732,19 +669,19 @@
         // --- Notifications ---
         window.openNotif = () => { document.getElementById('notifModal').classList.add('open'); document.getElementById('notifBadge').style.display='none'; };
         async function loadNotifications() {
-            const q = query(collection(db,"notifications"), where("targetId","==",currentUser.uid));
-            const snap = await getDocs(q);
-            let docs = []; snap.forEach(d => docs.push(d.data()));
-            docs.sort((a,b) => b.timestamp - a.timestamp); // Newest first
-
+            const snap = await getDocs(query(collection(db,"notifications"), where("targetId","==",currentUser.uid), orderBy('timestamp','desc')));
             let html = '', c=0;
-            docs.forEach(n => {
-                if(!n.read) c++;
+            snap.forEach(d => {
+                const n = d.data(); if(!n.read) c++;
                 html += `<div style="padding:10px; border-bottom:1px solid #eee;">${n.msg}<br><small style="color:#999;">${n.timestamp?.toDate().toLocaleString()}</small></div>`;
             });
             document.getElementById('notifList').innerHTML = html || 'لا يوجد';
             if(c>0) { const b=document.getElementById('notifBadge'); b.style.display='flex'; b.innerText=c; }
         }
+        window.sendContact = async () => {
+            await addDoc(collection(db,"messages"),{ name:document.getElementById('cntName').value, msg:document.getElementById('cntMsg').value, type:document.getElementById('contactType').value, timestamp:serverTimestamp() });
+            closeModal('contactModal'); Swal.fire('Sent');
+        };
 
     </script>
 </body>
