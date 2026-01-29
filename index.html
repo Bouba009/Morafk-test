@@ -108,15 +108,14 @@
 
         /* Admin Specific */
         .admin-section { background: white; padding: 25px; border-radius: 16px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; }
         .admin-table th { background: var(--bg-color); padding: 12px; text-align: right; color: var(--primary); }
         .admin-table td { padding: 12px; border-bottom: 1px solid #eee; }
 
-        /* --- FIXED Custom Select --- */
+        /* FIXED Custom Select */
         select { display: none; }
         .custom-select-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
-        /* When open, bring wrapper to front */
-        .custom-select-wrapper.active-select { z-index: 9999; }
+        .custom-select-wrapper.active-select { z-index: 999; } /* Fix Z-Index issue */
         
         .custom-select-trigger { padding: 14px; background: white; border: 1px solid #ddd; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 1rem; color: #555; }
         .custom-options { position: absolute; top: 105%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 12px; display: none; max-height: 250px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
@@ -149,8 +148,9 @@
             .req-grid { grid-template-columns: 1fr; } 
             .hero-title { font-size: 2.5rem; } 
             .nav-links { gap: 10px; }
-            .nav-item span { display: none; } /* Hide text on mobile for buttons, show icon */
+            .nav-item span { display: none; } 
             .nav-item i { margin: 0; font-size: 1.2rem; }
+            .admin-table { display: block; overflow-x: auto; white-space: nowrap; }
         }
     </style>
 </head>
@@ -345,8 +345,8 @@
                 <table class="admin-table">
                     <thead><tr>
                         <th data-i18n="name">الاسم</th>
+                        <th data-i18n="email">الايميل</th>
                         <th data-i18n="role">الدور</th>
-                        <th data-i18n="pass">كلمة المرور</th>
                         <th data-i18n="status">الحالة</th>
                         <th data-i18n="action">إجراء</th>
                     </tr></thead>
@@ -380,6 +380,7 @@
         <div class="modal-box">
             <h3 style="text-align:center;" data-i18n="bookTitle">حجز</h3>
             <input type="hidden" id="bkCompId">
+            <input type="hidden" id="bkCompName">
             <input type="text" id="bkChild" data-ph="childName">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <input type="number" id="bkAge" data-ph="childAge">
@@ -462,10 +463,10 @@
 
         // --- Core Functions ---
         function populateSelects() {
-            // Clear current options before repopulating
+            const list = wilayas.map(w => `<option value="${w.ar}">${currentLang==='ar'?w.ar:w.fr}</option>`).join('');
             ['regWilaya', 'searchWilaya', 'edWilaya'].forEach(id => { 
                 const el = document.getElementById(id);
-                if(el) { el.innerHTML = ''; el.innerHTML = wilayas.map(w => `<option value="${w.ar}">${currentLang==='ar'?w.ar:w.fr}</option>`).join(''); }
+                if(el) { el.innerHTML = list; }
             });
         }
         
@@ -474,22 +475,25 @@
             document.querySelectorAll('select').forEach(select => {
                 const wrapper = document.createElement('div'); wrapper.classList.add('custom-select-wrapper');
                 
-                // Create custom UI
                 const customSelect = document.createElement('div'); customSelect.classList.add('custom-select');
                 const trigger = document.createElement('div'); trigger.classList.add('custom-select-trigger');
                 
-                // Set initial text correctly based on language/value
-                let initialText = select.options[select.selectedIndex]?.text || (currentLang === 'ar' ? 'اختر' : 'Select');
-                trigger.innerHTML = `<span>${initialText}</span> <i class="fas fa-chevron-down"></i>`;
+                // Translation Handling for Initial Value
+                let txt = select.options[select.selectedIndex]?.text;
+                // If it's a specialty/status, translate it
+                if(dict[currentLang][select.value]) txt = dict[currentLang][select.value]; // Map value to current lang text if exists
+                
+                trigger.innerHTML = `<span>${txt || 'Select'}</span> <i class="fas fa-chevron-down"></i>`;
                 
                 const optionsDiv = document.createElement('div'); optionsDiv.classList.add('custom-options');
                 
                 Array.from(select.options).forEach(opt => {
                     const div = document.createElement('div'); div.classList.add('custom-option');
-                    div.textContent = opt.text;
+                    // Translate option text based on its value key if possible
+                    div.textContent = dict[currentLang][opt.value] || opt.text;
                     div.addEventListener('click', () => {
                         select.value = opt.value; 
-                        trigger.querySelector('span').textContent = opt.text;
+                        trigger.querySelector('span').textContent = div.textContent;
                         optionsDiv.classList.remove('open'); wrapper.classList.remove('active-select');
                         select.dispatchEvent(new Event('change'));
                     });
@@ -498,20 +502,18 @@
 
                 trigger.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    // Close others
                     document.querySelectorAll('.custom-options').forEach(o => o !== optionsDiv ? o.classList.remove('open') : null);
                     document.querySelectorAll('.custom-select-wrapper').forEach(w => w !== wrapper ? w.classList.remove('active-select') : null);
                     
                     optionsDiv.classList.toggle('open');
-                    wrapper.classList.toggle('active-select'); // For Z-Index
+                    wrapper.classList.toggle('active-select');
                 });
 
                 customSelect.appendChild(trigger);
                 customSelect.appendChild(optionsDiv);
                 wrapper.appendChild(customSelect);
                 select.parentNode.insertBefore(wrapper, select.nextSibling);
-                // Hide original select but keep it for value binding
-                select.style.display = 'none';
+                // select.style.display = 'none'; // CSS handles this
             });
         }
 
@@ -524,22 +526,34 @@
             });
         });
 
-        // Initial Setup
+        // Helper to translate DB values (AR -> Current)
+        function translateText(val) {
+            if (currentLang === 'ar') return val;
+            // Check Wilayas
+            const w = wilayas.find(x => x.ar === val);
+            if (w) return w.fr;
+            // Check Dict
+            for (const key in dict.ar) {
+                if (dict.ar[key] === val) return dict.fr[key];
+            }
+            return val;
+        }
+
         populateSelects(); setTimeout(renderCustomSelects, 500);
 
         window.switchLang = () => {
             currentLang = currentLang === 'ar' ? 'fr' : 'ar';
             document.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
             
-            // Text Elements
             document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = dict[currentLang][el.getAttribute('data-i18n')]);
-            
-            // Placeholders
             document.querySelectorAll('[data-ph]').forEach(el => el.placeholder = dict[currentLang][el.getAttribute('data-ph')]);
             
-            // Re-render Selects to update options text
             populateSelects();
             setTimeout(renderCustomSelects, 100);
+            
+            // Refresh Data to apply translation
+            if(currentUser && currentUser.role === 'parent') loadParentReqs();
+            if(currentUser && currentUser.role === 'companion') loadCompReqs();
         };
 
         window.navigateTo = (id) => {
@@ -573,21 +587,20 @@
                 const snap = await getDoc(doc(db, "users", user.uid));
                 if(snap.exists()) {
                     currentUser = snap.data();
-                    if(currentUser.isBlocked) { await signOut(auth); Swal.fire('Error', 'Blocked', 'error'); return; }
+                    if(currentUser.isBlocked) { await signOut(auth); Swal.fire('Error','Blocked','error'); return; }
                     
                     if(currentUser.role === 'admin') { navigateTo('adminDash'); loadAdminData(); }
                     else if(currentUser.role === 'parent') { document.getElementById('pName').innerText = currentUser.fullName; navigateTo('parentDash'); loadParentReqs(); }
                     else { 
                         document.getElementById('cName').innerText = currentUser.fullName; 
-                        document.getElementById('statusToggle').style.display='flex';
-                        document.getElementById('headerAvailToggle').checked = currentUser.isAvailable;
+                        document.getElementById('availToggle').checked = currentUser.isAvailable;
                         updateStatusUI(currentUser.isAvailable);
                         navigateTo('companionDash'); loadCompReqs(); 
                     }
                     loadNotifications();
                 }
             } else {
-                document.getElementById('guestLinks').style.display='flex'; document.getElementById('userLinks').style.display='none'; document.getElementById('notifBtn').style.display='none'; document.getElementById('statusToggle').style.display='none'; navigateTo('heroSection');
+                document.getElementById('guestLinks').style.display='flex'; document.getElementById('userLinks').style.display='none'; document.getElementById('notifBtn').style.display='none'; navigateTo('heroSection');
             }
         });
 
@@ -615,7 +628,6 @@
         // --- Parent ---
         window.searchCompanions = async () => {
             document.getElementById('searchResults').innerHTML = 'Loading...';
-            // IMPORTANT: Getting value from native select which is updated by custom select
             const spec = document.getElementById('searchSpec').value;
             const wilaya = document.getElementById('searchWilaya').value;
             
@@ -624,26 +636,35 @@
             snap.forEach(d => {
                 const u = d.data();
                 if(u.isAvailable && u.specialty === spec && (!currentUser || u.uid !== currentUser.uid)) {
-                    // Check Wilaya (Skip check if default/first option)
-                    if(wilaya && !wilayas[0].ar.includes(wilaya) && !wilayas[0].fr.includes(wilaya) && u.wilaya !== wilaya) return;
-                    
+                    if(wilaya !== wilayas[0].ar && u.wilaya !== wilaya) return;
                     html += `<div class="req-card" style="align-items:center;">
                         <img src="${u.photoURL||'https://via.placeholder.com/60'}" style="width:60px; height:60px; border-radius:50%; object-fit:cover;">
-                        <h4 style="margin:5px 0;">${u.fullName}</h4><span style="color:var(--secondary); font-size:0.9rem;">${u.specialty}</span>
-                        <p style="font-size:0.8rem; color:#666;">📍 ${u.wilaya}</p>
-                        <button class="full-btn" style="margin-top:10px; padding:8px;" onclick="openBook('${u.uid}')">${dict[currentLang].bookTitle}</button>
+                        <h4 style="margin:5px 0;">${u.fullName}</h4><span style="color:var(--secondary); font-size:0.9rem;">${translateText(u.specialty)}</span>
+                        <p style="font-size:0.8rem; color:#666;">📍 ${translateText(u.wilaya)}</p>
+                        <button class="full-btn" style="margin-top:10px; padding:8px;" onclick="openBook('${u.uid}','${u.fullName}')">${dict[currentLang].bookTitle}</button>
                     </div>`;
                 }
             });
             document.getElementById('searchResults').innerHTML = html || (currentLang==='ar'?'لا يوجد نتائج':'Aucun résultat');
         };
 
-        window.openBook = (id) => { document.getElementById('bkCompId').value=id; document.getElementById('bookingModal').classList.add('open'); };
+        window.openBook = (id, name) => { 
+            document.getElementById('bkCompId').value=id; 
+            // We can store name temporarily if needed, but ID is key
+            document.getElementById('bookingModal').classList.add('open'); 
+        };
+        
         window.submitBooking = async () => {
+            // Fetch companion details to store name
+            const compId = document.getElementById('bkCompId').value;
+            const compSnap = await getDoc(doc(db, "users", compId));
+            const compName = compSnap.exists() ? compSnap.data().fullName : "Unknown";
+
             const data = {
                 parentId: currentUser.uid, parentName: currentUser.fullName, parentPhone: currentUser.phone,
-                companionId: document.getElementById('bkCompId').value, childName: document.getElementById('bkChild').value,
-                childDetails: `${document.getElementById('bkAge').value} ${currentLang==='ar'?'سنة':'ans'} - ${document.getElementById('bkStatus').value}`,
+                companionId: compId, companionName: compName, // Stored for Admin Logs
+                childName: document.getElementById('bkChild').value,
+                childDetails: `${document.getElementById('bkAge').value} - ${document.getElementById('bkStatus').value}`,
                 reqType: document.getElementById('bkType').value,
                 status: 'pending', timestamp: serverTimestamp()
             };
@@ -661,10 +682,11 @@
                 const stText = r.status==='accepted' ? dict[currentLang].accepted : r.status==='rejected' ? dict[currentLang].canceled : dict[currentLang].pending;
                 
                 let rateBtn = (r.status === 'accepted' && !r.rating) ? `<button class="full-btn" style="margin-top:5px; background:gold; color:black;" onclick="openRate('${d.id}')">${dict[currentLang].rating}</button>` : '';
-                
+                if(r.rating) rateBtn = `<div style="color:gold;">★ ${r.rating}</div>`;
+
                 html += `<div class="req-card ${r.status}">
                     <div style="display:flex; justify-content:space-between;"><strong>${r.childName}</strong> <span>${stText}</span></div>
-                    <div style="font-size:0.8rem; color:#888;">${r.timestamp?.toDate().toLocaleString(currentLang==='ar'?'ar':'fr')}</div>
+                    <div style="font-size:0.8rem; color:#888;">${translateText(r.reqType)}</div>
                     ${r.status==='accepted'?`<div style="color:green;">📞 ${r.parentPhone}</div>`:''}
                     ${rateBtn}
                 </div>`;
@@ -682,7 +704,7 @@
 
         // --- Companion ---
         window.toggleAvail = async () => {
-            const v = document.getElementById('headerAvailToggle').checked;
+            const v = document.getElementById('availToggle').checked;
             updateStatusUI(v);
             if(currentUser) await updateDoc(doc(db,"users",currentUser.uid),{isAvailable:v});
         };
@@ -697,10 +719,10 @@
             snap.forEach(d => {
                 const r = d.data(); t++; if(r.status==='accepted') a++; else if(r.status==='pending') p++; else r++;
                 const acts = r.status==='pending' ? `<button class="btn-green" style="background:#10b981; color:white; padding:5px 10px; border-radius:5px;" onclick="ansReq('${d.id}','accepted','${r.parentId}')">✓</button><button class="btn-red" style="background:#ef4444; color:white; padding:5px 10px; border-radius:5px;" onclick="ansReq('${d.id}','rejected','${r.parentId}')">✕</button>` : `<b>${r.status}</b>`;
-                html += `<div class="req-card ${r.status}"><div><strong>${r.parentName}</strong></div><div style="background:#f9f9f9; padding:5px;">${r.childName}<br>${r.childDetails}</div><div style="margin-top:5px;">${acts}</div>${r.status==='accepted'?`<div style="color:green;">📞 ${r.parentPhone}</div>`:''}</div>`;
+                html += `<div class="req-card ${r.status}"><div><strong>${r.parentName}</strong></div><div style="background:#f9f9f9; padding:5px;">${r.childName}<br>${translateText(r.childDetails)}</div><div style="margin-top:5px;">${acts}</div>${r.status==='accepted'?`<div style="color:green;">📞 ${r.parentPhone}</div>`:''}</div>`;
             });
             document.getElementById('compReqs').innerHTML = html;
-            document.getElementById('stTotal').innerText=t; document.getElementById('stAccepted').innerText=a; document.getElementById('stPending').innerText=p; document.getElementById('stRejected').innerText=r;
+            document.getElementById('stTotal').innerText=t; document.getElementById('stAccepted').innerText=a; document.getElementById('stRejected').innerText=r;
         }
         window.ansReq = async (rid, st, pid) => { await updateDoc(doc(db,"requests",rid),{status:st}); await addDoc(collection(db,"notifications"),{targetId:pid, msg:`Status: ${st}`, read:false, timestamp:serverTimestamp()}); loadCompReqs(); };
 
@@ -712,14 +734,17 @@
             document.getElementById('adUsersCount').innerText = uSnap.size; document.getElementById('adReqsCount').innerText = rSnap.size; document.getElementById('adMsgsCount').innerText = mSnap.size;
             
             // Logs
-            let logs=''; rSnap.forEach(d => { if(d.data().status==='accepted') logs+=`<div style="padding:10px; border-bottom:1px solid #eee;">Accepted: ${d.data().childName}</div>`; });
+            let logs=''; rSnap.forEach(d => { 
+                const r = d.data();
+                if(r.status==='accepted') logs+=`<div style="padding:10px; border-bottom:1px solid #eee;">Accept: ${r.parentName} -> ${r.companionName || 'Companion'}</div>`; 
+            });
             document.getElementById('reportsList').innerHTML = logs;
 
             // Users Table
             let usersHtml = '';
             uSnap.forEach(d => {
                 const u = d.data();
-                usersHtml += `<tr><td>${u.fullName}</td><td>${u.role}</td><td>${u.password_stored||'***'}</td><td>${u.isBlocked?'Blocked':'Active'}</td><td><button onclick="toggleBlock('${d.id}',${u.isBlocked})">Action</button></td></tr>`;
+                usersHtml += `<tr><td>${u.fullName}</td><td>${u.email}</td><td>${u.role}</td><td>${u.isBlocked?'Blocked':'Active'}</td><td><button onclick="toggleBlock('${d.id}',${u.isBlocked})">Action</button></td></tr>`;
             });
             document.getElementById('usersTable').innerHTML = usersHtml;
         };
