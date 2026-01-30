@@ -687,4 +687,199 @@
                     && (sService === 'الكل' || u.service === sService)
                 ).forEach(c => {
                     const sObj = services.find(s=>s.ar === c.service || s.fr === c.service);
-                    const displayService = sObj ? (curre
+                    const displayService = sObj ? (currentLang==='ar'?sObj.ar:sObj.fr) : c.service;
+                    container.innerHTML += `<div class="col-md-4"><div class="custom-card p-3 text-center h-100"><img src="${c.photo}" class="profile-img-preview mb-2"><h5 class="fw-bold">${c.name}</h5><p class="small text-muted mb-3">${displayService}<br>📍 ${c.wilaya}</p><button class="btn btn-outline-primary w-100 fw-bold mt-auto" onclick="openRequestModal('${c.id}')">${t('request_service')}</button></div></div>`;
+                });
+                if(container.innerHTML === '') container.innerHTML = '<div class="col-12 text-center text-muted">لا توجد نتائج</div>';
+            };
+
+            window.openRequestModal = function(id) {
+                document.getElementById('targetCaregiverId').value = id;
+                new bootstrap.Modal(document.getElementById('requestModal')).show();
+            };
+
+            document.getElementById('sendRequestForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const req = {
+                    id: Date.now(), parentId: currentUser.id, parentName: currentUser.name, parentPhone: currentUser.phone, 
+                    caregiverId: document.getElementById('targetCaregiverId').value,
+                    childName: document.getElementById('reqChildName').value, childAge: document.getElementById('reqChildAge').value,
+                    schoolLevel: document.getElementById('reqSchoolLevel').value, childCondition: document.getElementById('reqChildCondition').value,
+                    duration: document.getElementById('reqDuration').value, days: document.getElementById('reqDays').value, status: 'pending'
+                };
+                DB.saveRequest(req);
+                bootstrap.Modal.getInstance(document.getElementById('requestModal')).hide();
+                Swal.fire({icon:'success', title: t('alert_success')});
+                loadMyRequests(); loadParentStats();
+            });
+
+            window.loadMyRequests = function() {
+                const tbody = document.getElementById('myRequestsTable'); tbody.innerHTML = '';
+                DB.getRequests().filter(r => r.parentId === currentUser.id).forEach(r => {
+                    const cg = DB.getUsers().find(u => u.id == r.caregiverId) || {name:'?'};
+                    let status = r.status === 'pending' ? `<span class="badge bg-warning text-dark">${t('stat_new_req')}</span>` : (r.status === 'accepted' ? `<span class="badge bg-success">${t('stat_accepted')}</span>` : `<span class="badge bg-danger">${t('stat_rejected')}</span>`);
+                    tbody.innerHTML += `<tr><td data-label="${t('th_caregiver')}">${cg.name}</td><td data-label="${t('th_service')}">${r.childName}</td><td data-label="${t('th_status')}">${status}</td><td data-label="${t('th_action')}">${r.status==='accepted'?`<a href="tel:${cg.phone}" class="btn btn-sm btn-success">📞</a>`:'-'}</td></tr>`;
+                });
+            };
+
+            // --- CAREGIVER ---
+            window.loadCaregiverDashboard = function() {
+                document.getElementById('cgNameProfile').innerText = currentUser.name;
+                document.getElementById('dashboardProfileImg').src = currentUser.photo;
+                const toggle = document.getElementById('availabilityToggle');
+                toggle.checked = currentUser.isAvailable;
+                
+                const reqs = DB.getRequests().filter(r => r.caregiverId == currentUser.id);
+                document.getElementById('cgStatTotal').innerText = reqs.length;
+                document.getElementById('cgStatPending').innerText = reqs.filter(r=>r.status==='pending').length;
+                document.getElementById('cgStatAccepted').innerText = reqs.filter(r=>r.status==='accepted').length;
+                document.getElementById('cgStatRejected').innerText = reqs.filter(r=>r.status==='rejected').length;
+                
+                const tbody = document.getElementById('incomingRequestsTable'); tbody.innerHTML = '';
+                reqs.forEach(r => {
+                    let action = r.status === 'pending' ? `<button class="btn btn-sm btn-success ms-1" onclick="handleReq(${r.id},'accepted')">✔</button><button class="btn btn-sm btn-danger" onclick="handleReq(${r.id},'rejected')">✘</button>` : (r.status === 'accepted' ? t('stat_accepted') : t('stat_rejected'));
+                    
+                    // Logic to show Parent phone
+                    let parentInfo = r.parentName;
+                    if(r.status === 'accepted') {
+                        // Find parent user to ensure we have latest phone or use stored one
+                        const pUser = DB.getUsers().find(u => u.id === r.parentId);
+                        const pPhone = pUser ? pUser.phone : r.parentPhone;
+                        parentInfo += `<br><a href="tel:${pPhone}" class="badge bg-success text-decoration-none"><i class="bi bi-telephone-fill"></i> ${pPhone}</a>`;
+                    }
+
+                    let details = `<div class="small">${r.childAge} سنوات | ${r.schoolLevel}<br><span class="text-danger fw-bold">${r.childCondition}</span><br>${r.duration}</div>`;
+                    tbody.innerHTML += `<tr><td data-label="${t('th_parent')}">${parentInfo}</td><td data-label="${t('th_child')}">${r.childName}</td><td data-label="${t('th_details')}">${details}</td><td data-label="${t('th_days')}">${r.days}</td><td data-label="${t('th_action')}">${action}</td></tr>`;
+                });
+            };
+            window.handleReq = function(id, status) { DB.updateRequest(id, status); loadCaregiverDashboard(); };
+            window.toggleAvailability = function() { currentUser.isAvailable = document.getElementById('availabilityToggle').checked; DB.updateUser(currentUser); };
+
+            // --- ADMIN DASHBOARD ---
+            window.loadAdminDashboard = function() {
+                const users = DB.getUsers();
+                const reqs = DB.getRequests();
+                
+                // Stats
+                document.getElementById('statTotalUsers').innerText = users.length;
+                document.getElementById('statCaregivers').innerText = users.filter(u=>u.role==='caregiver').length;
+                document.getElementById('statReportsCount').innerText = 0; // Placeholder
+                document.getElementById('statSuccessOps').innerText = reqs.filter(r=>r.status==='accepted').length;
+
+                // Top Caregivers
+                const successCounts = {};
+                reqs.filter(r => r.status === 'accepted').forEach(r => { successCounts[r.caregiverId] = (successCounts[r.caregiverId] || 0) + 1; });
+                const topCgs = Object.keys(successCounts).map(id => { const u = users.find(x => x.id === id); return u ? { ...u, count: successCounts[id] } : null; }).filter(u => u).sort((a, b) => b.count - a.count).slice(0, 5);
+                
+                const topTable = document.getElementById('adminTopCaregivers'); topTable.innerHTML = '';
+                topCgs.forEach((c, i) => {
+                    topTable.innerHTML += `<tr class="border-bottom"><td style="width:40px"><img src="${c.photo}" width="35" class="rounded-circle"></td><td><div class="fw-bold small">${c.name}</div><small class="text-muted">${c.service}</small></td><td class="text-end"><span class="badge bg-primary rounded-pill">${c.count}</span></td></tr>`;
+                });
+
+                // Daily Transactions
+                const transTable = document.getElementById('adminDailyTrans'); transTable.innerHTML = '';
+                reqs.slice(-5).reverse().forEach(r => {
+                    const cg = users.find(u => u.id === r.caregiverId) || {name: '?'};
+                    const st = r.status === 'accepted' ? '<span class="badge bg-success">✔</span>' : (r.status === 'rejected' ? '<span class="badge bg-danger">✘</span>' : '<span class="badge bg-warning">⏳</span>');
+                    transTable.innerHTML += `<tr><td>${r.parentName}</td><td>${cg.name}</td><td>${st}</td></tr>`;
+                });
+
+                // Users Table with Ban
+                const uTable = document.getElementById('adminUsersTable'); uTable.innerHTML = '';
+                const term = document.getElementById('adminSearch').value.toLowerCase();
+                users.filter(u => u.name.toLowerCase().includes(term) || u.phone.includes(term)).forEach(u => {
+                    const statusBadge = u.isBanned ? '<span class="badge bg-danger">محظور</span>' : '<span class="badge bg-success">نشط</span>';
+                    const actionBtn = u.isBanned ? `<button class="btn btn-sm btn-success" onclick="toggleBan('${u.id}')">فك حظر</button>` : `<button class="btn btn-sm btn-outline-danger" onclick="toggleBan('${u.id}')">حظر</button>`;
+                    uTable.innerHTML += `<tr><td>${u.name}</td><td>${u.role}</td><td>${u.phone}</td><td class="small">${u.email}</td><td class="text-danger font-monospace">${u.pass}</td><td>${statusBadge}</td><td>${actionBtn}</td></tr>`;
+                });
+            };
+
+            window.toggleBan = function(uid) {
+                const users = DB.getUsers();
+                const u = users.find(x => x.id === uid);
+                if(u) { u.isBanned = !u.isBanned; DB.saveAllUsers(users); loadAdminDashboard(); }
+            };
+
+            window.openSendNotifModal = function() { new bootstrap.Modal(document.getElementById('adminSendNotifModal')).show(); };
+            window.sendAdminNotification = function(e) {
+                e.preventDefault();
+                const target = document.getElementById('notifTarget').value;
+                const msg = document.getElementById('notifMsg').value;
+                DB.saveNotif({ target: target, message: msg, date: new Date().toLocaleDateString(), sender: 'فريق مرافق' });
+                bootstrap.Modal.getInstance(document.getElementById('adminSendNotifModal')).hide();
+                Swal.fire('تم الإرسال');
+            };
+
+            // --- EDIT PROFILE ---
+            document.getElementById('editProfilePic').addEventListener('change', function(e) { if (e.target.files[0]) { const r = new FileReader(); r.onload = (ev) => document.getElementById('editImgPreview').src = ev.target.result; r.readAsDataURL(e.target.files[0]); } });
+            
+            window.openEditProfileModal = function() {
+                if(!currentUser) return;
+                document.getElementById('editName').value = currentUser.name;
+                document.getElementById('editPhone').value = currentUser.phone;
+                document.getElementById('editWilaya').value = currentUser.wilaya;
+                document.getElementById('editImgPreview').src = currentUser.photo;
+                if(currentUser.role === 'caregiver') { document.getElementById('caregiverEditFields').classList.remove('d-none'); document.getElementById('editService').value = currentUser.service; } 
+                else { document.getElementById('caregiverEditFields').classList.add('d-none'); }
+                new bootstrap.Modal(document.getElementById('editProfileModal')).show();
+            };
+
+            document.getElementById('editProfileForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                currentUser.name = document.getElementById('editName').value;
+                currentUser.phone = document.getElementById('editPhone').value;
+                currentUser.wilaya = document.getElementById('editWilaya').value;
+                const newPass = document.getElementById('editNewPass').value;
+                if(newPass) currentUser.pass = newPass;
+                const img = document.getElementById('editImgPreview').src;
+                if(img && !img.includes('window.location')) currentUser.photo = img;
+                if(currentUser.role === 'caregiver') currentUser.service = document.getElementById('editService').value;
+
+                DB.updateUser(currentUser);
+                bootstrap.Modal.getInstance(document.getElementById('editProfileModal')).hide();
+                Swal.fire({icon:'success', title: t('save')});
+                document.getElementById('userInfo').innerText = currentUser.name;
+                if(currentUser.role === 'caregiver') loadCaregiverDashboard();
+            });
+
+            // --- UTILS ---
+            window.toggleLanguage = function() {
+                currentLang = currentLang === 'ar' ? 'fr' : 'ar';
+                document.documentElement.lang = currentLang;
+                document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+                document.getElementById('langSwitcher').innerText = currentLang === 'ar' ? 'FR' : 'AR';
+                document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = t(el.getAttribute('data-i18n')));
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = t(el.getAttribute('data-i18n-placeholder')));
+                populateDropdowns();
+            };
+
+            window.selectRole = function(role, elem) {
+                document.querySelectorAll('.role-selector').forEach(el => el.classList.remove('active'));
+                elem.classList.add('active');
+                document.getElementById('regRole').value = role;
+                document.getElementById('caregiverFields').classList.toggle('d-none', role !== 'caregiver');
+            };
+
+            function populateDropdowns() {
+                const wSelects = document.querySelectorAll('.dynamic-wilaya');
+                wSelects.forEach(sel => {
+                    const currentVal = sel.value; const isSearch = sel.id === 'searchWilaya';
+                    let html = isSearch ? `<option value="الكل">${t('all_wilayas')}</option>` : ``;
+                    wilayas.forEach(w => { html += `<option value="${w.ar}">${currentLang === 'ar' ? w.ar : w.fr}</option>`; });
+                    sel.innerHTML = html; if(currentVal && currentVal !== 'الكل') sel.value = currentVal;
+                });
+                const sSelects = document.querySelectorAll('.dynamic-service');
+                sSelects.forEach(sel => {
+                    const currentVal = sel.value; const isSearch = sel.id === 'searchService';
+                    let html = isSearch ? `<option value="الكل">${t('all_services')}</option>` : ``;
+                    services.forEach(s => { html += `<option value="${s.ar}">${currentLang === 'ar' ? s.ar : s.fr}</option>`; });
+                    sel.innerHTML = html; if(currentVal && currentVal !== 'الكل') sel.value = currentVal;
+                });
+            }
+
+            populateDropdowns();
+            switchView('landingView');
+        });
+    </script>
+</body>
+</html>
