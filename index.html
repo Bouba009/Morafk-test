@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مرافق - طفلك في أيادي آمنة</title>
+    <title>مرافق - Morafik</title>
     
     <!-- Bootstrap 5 RTL -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
@@ -14,13 +14,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
             --primary-color: #1e293b;
-            --neon-green: #39ff14;
             --accent-color: #10b981;
             --gold: #f59e0b;
             --bg-light: #f8fafc;
@@ -31,70 +28,70 @@
             background-color: var(--bg-light);
             overflow-x: hidden;
             display: flex; flex-direction: column; min-height: 100vh;
+            opacity: 0; transition: opacity 0.5s ease;
         }
+        body.loaded { opacity: 1; }
         html[lang="fr"] body { font-family: 'Roboto', sans-serif; }
         main { flex: 1; }
 
-        /* --- Landing Page Animation --- */
+        /* Loader */
+        #page-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; z-index: 9999;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--accent-color); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Landing Page */
         .landing-hero {
-            position: relative;
-            height: 90vh; /* تغطي معظم الشاشة */
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-align: center;
+            position: relative; min-height: 90vh;
+            display: flex; align-items: center; justify-content: center;
+            color: white; text-align: center; background-color: #1e293b;
         }
         .landing-bg {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            /* صورة اخصائية/مربية */
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=2070');
-            background-size: cover;
-            background-position: center top;
-            z-index: -1;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            /* صورة أخصائية (امرأة) */
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1551834916-2419f773123c?auto=format&fit=crop&q=80&w=1000');
+            background-size: cover; background-position: center top; z-index: 1;
             animation: zoomMove 20s infinite alternate ease-in-out;
         }
-        @keyframes zoomMove {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.15); }
-        }
-        .landing-content h1 { font-size: 3.5rem; font-weight: 900; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        @keyframes zoomMove { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
+        .landing-content { position: relative; z-index: 2; padding: 20px; }
+        .landing-content h1 { font-size: 2.5rem; font-weight: 900; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .btn-start {
-            background: var(--accent-color); color: white;
-            font-size: 1.5rem; padding: 12px 50px; border-radius: 50px;
-            font-weight: bold; box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+            background: var(--accent-color); color: white; font-size: 1.3rem; padding: 12px 50px;
+            border-radius: 50px; font-weight: bold; box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
             transition: transform 0.3s; text-decoration: none; border: none;
         }
         .btn-start:hover { transform: scale(1.05); background: #059669; color: #fff; }
 
         /* UI Components */
-        .hero-header {
-            background-color: #1e293b; 
-            background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.9)), url('https://images.unsplash.com/photo-1476703993599-0035a21b17a9?auto=format&fit=crop&q=60&w=1000');
-            background-size: cover;
-            background-position: center;
-            padding: 50px 0; text-align: center;
-            border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15); margin-bottom: 30px;
-        }
-        .neon-text {
-            font-size: 3rem; font-weight: 900; color: #fff;
-            text-shadow: 0 0 10px rgba(57, 255, 20, 0.5); margin-bottom: 5px;
-        }
-        .subtitle { color: #cbd5e1; font-size: 1.1rem; letter-spacing: 1px; font-weight: 300; }
         .custom-card {
             background: white; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
-        .role-selector {
-            cursor: pointer; border: 2px solid #e2e8f0; padding: 15px; border-radius: 12px; transition: all 0.2s; background: #fff;
-        }
+        .view-section { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .view-section.active { display: block; opacity: 1; }
+        .role-selector { cursor: pointer; border: 2px solid #e2e8f0; padding: 15px; border-radius: 12px; transition: all 0.2s; background: #fff; }
         .role-selector.active { border-color: var(--accent-color); background-color: #ecfdf5; }
-        .view-section { display: none; animation: fadeIn 0.4s ease-in-out; }
-        .view-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .form-label { font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; color: #475569; }
+        .profile-img-preview { width: 90px; height: 90px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-color); }
+        
+        /* Stats Cards */
+        .stat-box { padding: 20px; border-radius: 12px; color: white; position: relative; overflow: hidden; }
+        .stat-box h3 { font-weight: 900; margin-bottom: 0; font-size: 2.5rem; }
+        .stat-box span { font-size: 0.9rem; opacity: 0.9; }
+        .bg-gradient-primary { background: linear-gradient(45deg, #4e73df, #224abe); }
+        .bg-gradient-success { background: linear-gradient(45deg, #1cc88a, #13855c); }
+        .bg-gradient-warning { background: linear-gradient(45deg, #f6c23e, #dda20a); }
+        .bg-gradient-danger { background: linear-gradient(45deg, #e74a3b, #be2617); }
 
         /* Mobile Table */
         @media (max-width: 768px) {
@@ -104,27 +101,15 @@
             .mobile-table td:last-child { border-bottom: none; }
             .mobile-table td::before { content: attr(data-label); font-weight: bold; color: #64748b; font-size: 0.9rem; }
         }
-
-        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
-        .profile-img-preview { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-color); }
-        .star-rating i { color: #e2e8f0; cursor: pointer; transition: color 0.2s; font-size: 1.5rem; }
-        .star-rating i.active { color: var(--gold); }
-        .app-footer { background-color: #fff; border-top: 1px solid #eee; padding: 30px 0; margin-top: auto; }
-        .footer-link { color: #64748b; text-decoration: none; margin: 0 10px; font-size: 0.9rem; cursor: pointer; }
-        .footer-link:hover { color: var(--primary-color); text-decoration: underline; }
-        .admin-stat-card { border-left: 4px solid var(--primary-color); }
-        .lang-btn { font-weight: bold; border: 2px solid var(--primary-color); color: var(--primary-color); }
-        .lang-btn:hover { background: var(--primary-color); color: #fff; }
-
-        /* Caregiver Stats Cards */
-        .cg-stat-card { border-radius: 12px; padding: 15px; color: white; margin-bottom: 15px; text-align: center; }
-        .cg-stat-total { background: linear-gradient(45deg, #3b82f6, #2563eb); }
-        .cg-stat-pending { background: linear-gradient(45deg, #f59e0b, #d97706); }
-        .cg-stat-accepted { background: linear-gradient(45deg, #10b981, #059669); }
-        .cg-stat-rejected { background: linear-gradient(45deg, #ef4444, #dc2626); }
     </style>
 </head>
 <body>
+
+    <!-- LOADING SCREEN -->
+    <div id="page-loader">
+        <div class="spinner"></div>
+        <h5 class="fw-bold text-muted">جاري التحميل...</h5>
+    </div>
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand bg-white shadow-sm sticky-top">
@@ -134,21 +119,26 @@
             </a>
             
             <div class="d-flex align-items-center gap-2">
-                <!-- القائمة الرئيسية وزر الدخول منفصلين -->
                 <div id="guestNav" class="d-flex gap-2">
                     <button class="btn btn-sm btn-link text-decoration-none text-dark fw-bold" onclick="goHome()" data-i18n="home">الرئيسية</button>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill fw-bold" onclick="goToLogin()" data-i18n="login">تسجيل الدخول</button>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill fw-bold" onclick="goToLogin()" data-i18n="login">دخول</button>
                 </div>
-
-                <button class="btn btn-sm lang-btn rounded-pill ms-2" onclick="toggleLanguage()" id="langSwitcher">FR</button>
                 
-                <!-- أزرار المستخدم المسجل -->
+                <button class="btn btn-sm fw-bold border-2 border-primary text-primary rounded-pill ms-2" onclick="toggleLanguage()" id="langSwitcher">FR</button>
+                
+                <!-- User Nav -->
                 <div id="userNav" class="d-none d-flex align-items-center gap-2">
-                    <button id="editProfileBtn" class="btn btn-outline-primary btn-sm rounded-pill" onclick="openEditProfileModal()">
+                    <!-- Notification Bell -->
+                    <button class="btn btn-light btn-sm position-relative rounded-circle border" onclick="openNotifications()">
+                        <i class="bi bi-bell-fill text-warning"></i>
+                        <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle d-none"></span>
+                    </button>
+                    
+                    <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="openEditProfileModal()">
                         <i class="bi bi-gear-fill"></i> <span class="d-none d-md-inline" data-i18n="settings">إعدادات</span>
                     </button>
                     <span id="userInfo" class="text-secondary small fw-bold d-none d-md-block mx-2"></span>
-                    <button id="logoutBtn" class="btn btn-light btn-sm text-danger border fw-bold rounded-pill" onclick="logout()">
+                    <button class="btn btn-light btn-sm text-danger border fw-bold rounded-pill" onclick="logout()">
                         <i class="bi bi-box-arrow-left"></i> <span class="d-none d-md-inline" data-i18n="logout">خروج</span>
                     </button>
                 </div>
@@ -157,7 +147,7 @@
     </nav>
 
     <main>
-        <!-- 0. LANDING VIEW (New) -->
+        <!-- 0. LANDING VIEW -->
         <section id="landingView" class="view-section active">
             <div class="landing-hero">
                 <div class="landing-bg"></div>
@@ -171,18 +161,12 @@
 
         <!-- 1. AUTH SCREEN -->
         <section id="authView" class="view-section">
-            <header class="hero-header">
-                <div class="container">
-                    <h1 class="neon-text" data-i18n="app_name">مرافق</h1>
-                    <p class="subtitle" data-i18n="slogan">طفلك في أيادي آمنة</p>
-                </div>
-            </header>
-
-            <div class="container pb-5">
+            <div class="container py-5">
                 <div class="row justify-content-center">
                     <div class="col-md-8 col-lg-5">
-                        <div class="custom-card p-4">
-                            <ul class="nav nav-pills mb-4 nav-justified p-1 bg-light rounded-pill" role="tablist">
+                        <div class="custom-card p-4 shadow-lg">
+                            <h3 class="text-center fw-bold mb-4" data-i18n="app_name">مرافق</h3>
+                            <ul class="nav nav-pills mb-4 nav-justified p-1 bg-light rounded-pill">
                                 <li class="nav-item"><button class="nav-link active rounded-pill" id="tab-login" data-bs-toggle="pill" data-bs-target="#login-content" data-i18n="login">دخول</button></li>
                                 <li class="nav-item"><button class="nav-link rounded-pill" id="tab-register" data-bs-toggle="pill" data-bs-target="#register-content" data-i18n="register">حساب جديد</button></li>
                             </ul>
@@ -191,12 +175,18 @@
                                 <!-- Login -->
                                 <div class="tab-pane fade show active" id="login-content">
                                     <form id="loginForm">
-                                        <div class="mb-3"><input type="text" class="form-control" id="loginEmail" required data-i18n-placeholder="email_placeholder" autocapitalize="off" spellcheck="false"></div>
-                                        <div class="mb-2"><input type="password" class="form-control" id="loginPass" required data-i18n-placeholder="password_placeholder" autocapitalize="off"></div>
-                                        <div class="text-end mb-4"><a href="#" class="text-decoration-none small text-muted" onclick="openForgotPassModal()" data-i18n="forgot_password">هل نسيت كلمة المرور؟</a></div>
-                                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 fw-bold shadow-sm" data-i18n="login_btn">تسجيل الدخول</button>
+                                        <div class="mb-3">
+                                            <label class="form-label" data-i18n="email_label">البريد الإلكتروني</label>
+                                            <input type="text" class="form-control" id="loginEmail" required data-i18n-placeholder="email_placeholder">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label" data-i18n="pass_label">كلمة المرور</label>
+                                            <input type="password" class="form-control" id="loginPass" required data-i18n-placeholder="password_placeholder">
+                                        </div>
+                                        <div class="text-end mb-4"><a href="#" class="text-decoration-none small text-muted" onclick="openForgotPassModal()" data-i18n="forgot_password">نسيت كلمة المرور؟</a></div>
+                                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 fw-bold" data-i18n="login_btn">تسجيل الدخول</button>
                                     </form>
-                                    
+                                    <div class="mt-3 text-center small text-muted">للتجربة كمسؤول: admin / abobob123</div>
                                 </div>
                                 <!-- Register -->
                                 <div class="tab-pane fade" id="register-content">
@@ -209,25 +199,35 @@
                                             </div>
                                             <div class="col-6">
                                                 <div class="role-selector text-center" onclick="selectRole('caregiver', this)">
-                                                    <i class="bi bi-heart-pulse-fill fs-3 text-danger"></i> <div class="small fw-bold mt-1" data-i18n="role_caregiver">مرافقة</div>
+                                                    <i class="bi bi-heart-pulse-fill fs-3 text-danger"></i> <div class="small fw-bold mt-1" data-i18n="role_caregiver">مرافقة / مختص</div>
                                                 </div>
                                             </div>
                                         </div>
                                         <input type="hidden" id="regRole" value="parent">
-                                        <div class="mb-2"><input type="text" class="form-control" id="regName" data-i18n-placeholder="fullname" required></div>
-                                        <div class="mb-2"><input type="email" class="form-control" id="regEmail" data-i18n-placeholder="email_placeholder" required autocapitalize="off"></div>
-                                        <div class="mb-2"><input type="tel" class="form-control" id="regPhone" data-i18n-placeholder="phone" required></div>
-                                        <div class="mb-2"><input type="password" class="form-control" id="regPass" data-i18n-placeholder="password_placeholder" required autocapitalize="off"></div>
                                         <div class="mb-2">
-                                            <select class="form-select dynamic-wilaya" id="regWilaya" required>
-                                                <!-- Populated by JS -->
-                                            </select>
+                                            <label class="form-label" data-i18n="fullname">الاسم الكامل</label>
+                                            <input type="text" class="form-control" id="regName" data-i18n-placeholder="fullname" required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label" data-i18n="email_label">البريد الإلكتروني</label>
+                                            <input type="email" class="form-control" id="regEmail" data-i18n-placeholder="email_placeholder" required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label" data-i18n="phone">رقم الهاتف</label>
+                                            <input type="tel" class="form-control" id="regPhone" data-i18n-placeholder="phone" required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label" data-i18n="pass_label">كلمة المرور</label>
+                                            <input type="password" class="form-control" id="regPass" data-i18n-placeholder="password_placeholder" required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label" data-i18n="wilaya">الولاية</label>
+                                            <select class="form-select dynamic-wilaya" id="regWilaya" required></select>
                                         </div>
                                         <div id="caregiverFields" class="d-none mt-3 p-3 bg-light rounded border">
                                             <div class="mb-2">
-                                                <select class="form-select dynamic-service" id="regService">
-                                                    <!-- Populated by JS -->
-                                                </select>
+                                                <label class="form-label" data-i18n="service_type">نوع الخدمة</label>
+                                                <select class="form-select dynamic-service" id="regService"></select>
                                             </div>
                                             <div class="mb-0"><label class="small fw-bold" data-i18n="upload_cert">رفع الشهادة (PDF)</label><input type="file" class="form-control" id="regCert" accept=".pdf"></div>
                                         </div>
@@ -244,56 +244,447 @@
         <!-- 2. PARENT VIEW -->
         <section id="parentView" class="view-section">
             <div class="container py-4">
-                <h4 class="fw-bold text-primary mb-4"><i class="bi bi-search"></i> <span data-i18n="search_title">ابحث عن مرافقة</span></h4>
+                <!-- Parent Simple Dashboard -->
+                <div class="row g-3 mb-4">
+                    <div class="col-4"><div class="stat-box bg-gradient-primary text-center"><h3><i class="bi bi-send"></i></h3><span id="pStatTotal">0</span> <span data-i18n="stat_total_req">الطلبات</span></div></div>
+                    <div class="col-4"><div class="stat-box bg-gradient-success text-center"><h3><i class="bi bi-check-circle"></i></h3><span id="pStatAccepted">0</span> <span data-i18n="stat_accepted">مقبولة</span></div></div>
+                    <div class="col-4"><div class="stat-box bg-gradient-warning text-center"><h3><i class="bi bi-hourglass-split"></i></h3><span id="pStatPending">0</span> <span data-i18n="stat_new_req">انتظار</span></div></div>
+                </div>
+
+                <h4 class="fw-bold text-primary mb-3"><i class="bi bi-search"></i> <span data-i18n="search_title">ابحث عن مختص</span></h4>
                 <div class="custom-card p-3 mb-4">
                     <div class="row g-2">
-                        <div class="col-6 col-md-3"><select class="form-select dynamic-wilaya" id="searchWilaya"><option value="الكل" data-i18n="all_wilayas">كل الولايات</option><!-- JS --></select></div>
-                        <div class="col-6 col-md-3"><select class="form-select dynamic-service" id="searchService"><option value="الكل" data-i18n="all_services">كل الخدمات</option><!-- JS --></select></div>
-                        <div class="col-8 col-md-4"><input type="number" class="form-control" id="searchAge" data-i18n-placeholder="child_age"></div>
-                        <div class="col-4 col-md-2"><button class="btn btn-primary w-100 fw-bold" onclick="performSearch()" data-i18n="search_btn">بحث</button></div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label" data-i18n="wilaya">الولاية</label>
+                            <select class="form-select dynamic-wilaya" id="searchWilaya"><option value="الكل" data-i18n="all_wilayas">كل الولايات</option></select>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label" data-i18n="service_type">الخدمة</label>
+                            <select class="form-select dynamic-service" id="searchService"><option value="الكل" data-i18n="all_services">كل الخدمات</option></select>
+                        </div>
+                        <div class="col-8 col-md-4">
+                            <label class="form-label" data-i18n="child_age">عمر الطفل</label>
+                            <input type="number" class="form-control" id="searchAge">
+                        </div>
+                        <div class="col-4 col-md-2 d-flex align-items-end">
+                            <button class="btn btn-primary w-100 fw-bold" onclick="performSearch()" data-i18n="search_btn">بحث</button>
+                        </div>
                     </div>
                 </div>
                 <div class="row g-3 mb-5" id="resultsArea"></div>
                 <h5 class="fw-bold border-bottom pb-2 mb-3" data-i18n="my_requests">طلباتي السابقة</h5>
-                <div class="custom-card p-0"><table class="table table-hover mb-0 mobile-table"><thead class="table-light"><tr><th data-i18n="th_caregiver">المرافقة</th><th data-i18n="th_service">الطفل</th><th data-i18n="th_status">الحالة</th><th data-i18n="th_action">الإجراء</th></tr></thead><tbody id="myRequestsTable"></tbody></table></div>
+                <div class="custom-card p-0"><table class="table table-hover mb-0 mobile-table"><thead class="table-light"><tr><th data-i18n="th_caregiver">المختص</th><th data-i18n="th_service">الطفل</th><th data-i18n="th_status">الحالة</th><th data-i18n="th_action">الإجراء</th></tr></thead><tbody id="myRequestsTable"></tbody></table></div>
             </div>
         </section>
 
         <!-- 3. CAREGIVER VIEW -->
         <section id="caregiverView" class="view-section">
             <div class="container py-4">
-                <!-- Profile Card & Availability -->
                 <div class="custom-card p-3 mb-4 d-flex align-items-center bg-white border-start border-4 border-success">
-                    <img id="dashboardProfileImg" src="" width="70" height="70" class="rounded-circle bg-light border p-1 me-3 object-fit-cover">
+                    <img id="dashboardProfileImg" src="" class="profile-img-preview me-3">
                     <div class="flex-grow-1">
                         <h5 class="mb-1 fw-bold" id="cgNameProfile"></h5>
-                        <div class="small-stars mb-1" id="cgRatingProfile"></div>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="availabilityToggle" onchange="toggleAvailability()">
                             <label class="form-check-label fw-bold small" for="availabilityToggle" id="availabilityLabel" data-i18n="status_online">أنا في الخدمة</label>
                         </div>
                     </div>
-                    <div><button class="btn btn-outline-dark btn-sm rounded-pill" onclick="openEditProfileModal()"><i class="bi bi-pencil"></i> <span data-i18n="edit">تعديل</span></button></div>
                 </div>
-
-                <!-- Stats Dashboard -->
-                <div class="row mb-3">
-                    <div class="col-6 col-md-3"><div class="cg-stat-card cg-stat-total"><h3 class="fw-bold mb-0" id="cgStatTotal">0</h3><small data-i18n="stat_total_req">الكل</small></div></div>
-                    <div class="col-6 col-md-3"><div class="cg-stat-card cg-stat-pending"><h3 class="fw-bold mb-0" id="cgStatPending">0</h3><small data-i18n="stat_new_req">انتظار</small></div></div>
-                    <div class="col-6 col-md-3"><div class="cg-stat-card cg-stat-accepted"><h3 class="fw-bold mb-0" id="cgStatAccepted">0</h3><small data-i18n="stat_accepted">مقبولة</small></div></div>
-                    <div class="col-6 col-md-3"><div class="cg-stat-card cg-stat-rejected"><h3 class="fw-bold mb-0" id="cgStatRejected">0</h3><small data-i18n="stat_rejected">مرفوضة</small></div></div>
+                <!-- Caregiver Dashboard Stats -->
+                <div class="row mb-4 g-3">
+                    <div class="col-6 col-md-3"><div class="stat-box bg-gradient-primary text-center"><h3 id="cgStatTotal">0</h3><span data-i18n="stat_total_req">الكل</span></div></div>
+                    <div class="col-6 col-md-3"><div class="stat-box bg-gradient-warning text-center"><h3 id="cgStatPending">0</h3><span data-i18n="stat_new_req">انتظار</span></div></div>
+                    <div class="col-6 col-md-3"><div class="stat-box bg-gradient-success text-center"><h3 id="cgStatAccepted">0</h3><span data-i18n="stat_accepted">مقبولة</span></div></div>
+                    <div class="col-6 col-md-3"><div class="stat-box bg-gradient-danger text-center"><h3 id="cgStatRejected">0</h3><span data-i18n="stat_rejected">مرفوضة</span></div></div>
                 </div>
-
                 <h5 class="fw-bold mb-3"><i class="bi bi-inbox-fill text-primary"></i> <span data-i18n="incoming_requests">الطلبات الواردة</span></h5>
                 <div class="custom-card p-0"><table class="table mb-0 mobile-table align-middle"><thead class="table-light"><tr><th data-i18n="th_parent">الولي</th><th data-i18n="th_child">الطفل</th><th data-i18n="th_details">التفاصيل</th><th data-i18n="th_days">الأيام</th><th data-i18n="th_action">الإجراء</th></tr></thead><tbody id="incomingRequestsTable"></tbody></table></div>
             </div>
         </section>
-
-        <!-- 4. ADMIN VIEW -->
+        
+        <!-- 4. ADMIN VIEW (Full Control) -->
         <section id="adminView" class="view-section">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12 py-4">
-                        <h3 class="fw-bold mb-4 text-primary" data-i18n="admin_panel">لوحة التحكم <span class="badge bg-danger fs-6">Admin</span></h3>
-                        
+            <div class="container py-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold text-primary mb-0">لوحة التحكم <span class="badge bg-danger fs-6">Admin</span></h3>
+                    <button class="btn btn-dark btn-sm rounded-pill" onclick="openSendNotifModal()"><i class="bi bi-megaphone-fill"></i> إرسال إشعار</button>
+                </div>
+
+                <!-- Admin Stats -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3"><div class="stat-box bg-gradient-primary"><h3><i class="bi bi-people"></i> <span id="statTotalUsers" class="float-end">0</span></h3><span>المستخدمين</span></div></div>
+                    <div class="col-md-3"><div class="stat-box bg-gradient-success"><h3><i class="bi bi-heart-pulse"></i> <span id="statCaregivers" class="float-end">0</span></h3><span>المرافقات</span></div></div>
+                    <div class="col-md-3"><div class="stat-box bg-gradient-warning"><h3><i class="bi bi-chat-right-text"></i> <span id="statReportsCount" class="float-end">0</span></h3><span>الشكاوى</span></div></div>
+                    <div class="col-md-3"><div class="stat-box bg-gradient-danger"><h3><i class="bi bi-check2-all"></i> <span id="statSuccessOps" class="float-end">0</span></h3><span>عمليات ناجحة</span></div></div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <!-- Top Caregivers -->
+                    <div class="col-lg-5">
+                        <div class="custom-card h-100 p-4">
+                            <h5 class="fw-bold mb-3 text-success"><i class="bi bi-trophy-fill"></i> أنجح المرافقات</h5>
+                            <table class="table table-borderless align-middle mb-0"><tbody id="adminTopCaregivers"></tbody></table>
+                        </div>
+                    </div>
+                    <!-- Transactions -->
+                    <div class="col-lg-7">
+                        <div class="custom-card h-100 p-4">
+                            <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-graph-up-arrow"></i> التعاملات اليومية</h5>
+                            <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-light"><tr><th>الولي</th><th>المرافقة</th><th>الحالة</th></tr></thead><tbody id="adminDailyTrans"></tbody></table></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management -->
+                <div class="custom-card p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-people-fill"></i> إدارة المستخدمين</h5>
+                        <input type="text" class="form-control w-50" id="adminSearch" placeholder="بحث..." onkeyup="loadAdminDashboard()">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle table-bordered">
+                            <thead class="table-light"><tr><th>الاسم</th><th>النوع</th><th>الهاتف</th><th>Email</th><th class="text-danger">Pass</th><th>الحالة</th><th>إجراء</th></tr></thead>
+                            <tbody id="adminUsersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Reports -->
+                <div class="custom-card p-4 mb-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-envelope-exclamation-fill"></i> الشكاوى والرسائل</h5>
+                    <div class="table-responsive"><table class="table table-striped table-sm"><thead class="table-dark"><tr><th>المرسل</th><th>النوع</th><th>الرسالة</th><th>التاريخ</th></tr></thead><tbody id="adminReportsTable"></tbody></table></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ================= MODALS ================= -->
     
+    <!-- Request Modal -->
+    <div class="modal fade" id="requestModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" data-i18n="request_service">تقديم طلب خدمة</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="sendRequestForm">
+                        <input type="hidden" id="targetCaregiverId">
+                        <div class="mb-3"><label class="form-label" data-i18n="child_name">اسم الطفل</label><input type="text" class="form-control" id="reqChildName" required></div>
+                        <div class="row">
+                            <div class="col-6 mb-3"><label class="form-label" data-i18n="child_age">العمر</label><input type="number" class="form-control" id="reqChildAge" required></div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label" data-i18n="school_level">الطور الدراسي</label>
+                                <select class="form-select" id="reqSchoolLevel" required>
+                                    <option value="ابتدائي" data-i18n="lvl_primary">ابتدائي</option>
+                                    <option value="متوسط" data-i18n="lvl_middle">متوسط</option>
+                                    <option value="ثانوي" data-i18n="lvl_secondary">ثانوي</option>
+                                    <option value="غير متمدرس" data-i18n="lvl_none">غير متمدرس</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" data-i18n="child_condition">حالة الطفل</label>
+                            <select class="form-select" id="reqChildCondition" required>
+                                <option value="عادي" data-i18n="cond_normal">عادي</option>
+                                <option value="طيف توحد" data-i18n="cond_autism">طيف توحد</option>
+                                <option value="تأخر نطق" data-i18n="cond_speech">تأخر نطق</option>
+                                <option value="فرط حركة" data-i18n="cond_adhd">فرط حركة</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" data-i18n="duration">المدة</label>
+                            <select class="form-select" id="reqDuration">
+                                <option value="جلسة" data-i18n="dur_session">جلسة واحدة</option>
+                                <option value="شهر" data-i18n="1_month">شهر</option>
+                                <option value="فصل دراسي" data-i18n="dur_term">فصل دراسي</option>
+                                <option value="سنة دراسية" data-i18n="dur_year">طيلة العام الدراسي</option>
+                            </select>
+                        </div>
+                        <div class="mb-3"><label class="form-label" data-i18n="days">الأيام المفضلة</label><input type="text" class="form-control" id="reqDays" required placeholder="مثال: الأحد، الثلاثاء..."></div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold" data-i18n="confirm_send">تأكيد وإرسال</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" data-i18n="edit_profile">تعديل البروفايل</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProfileForm">
+                        <div class="text-center mb-3">
+                            <div class="position-relative d-inline-block">
+                                <img id="editImgPreview" src="" class="profile-img-preview">
+                                <label for="editProfilePic" class="position-absolute bottom-0 start-0 bg-primary text-white p-1 rounded-circle" style="cursor: pointer;"><i class="bi bi-camera-fill small"></i></label>
+                            </div>
+                            <input type="file" id="editProfilePic" class="d-none" accept="image/*">
+                        </div>
+                        <div class="mb-3"><label class="form-label" data-i18n="fullname">الاسم الكامل</label><input type="text" class="form-control" id="editName" required></div>
+                        <div class="mb-3"><label class="form-label" data-i18n="phone">رقم الهاتف</label><input type="tel" class="form-control" id="editPhone" required></div>
+                        <div class="mb-3"><label class="form-label" data-i18n="wilaya">الولاية</label><select class="form-select dynamic-wilaya" id="editWilaya" required></select></div>
+                        <div class="bg-light p-3 rounded mb-3 border">
+                            <h6 class="text-danger small fw-bold mb-2" data-i18n="change_pass">تغيير كلمة المرور</h6>
+                            <input type="text" class="form-control form-control-sm" id="editNewPass">
+                        </div>
+                        <div id="caregiverEditFields" class="d-none pt-2">
+                            <h6 class="text-primary fw-bold mb-2" data-i18n="pro_info">معلومات مهنية</h6>
+                            <div class="mb-2"><select class="form-select dynamic-service" id="editService"></select></div>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 fw-bold mt-2" data-i18n="save">حفظ التغييرات</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Modal -->
+    <div class="modal fade" id="notifModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold">الإشعارات</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="notifList" class="list-group list-group-flush">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Send Notification Modal -->
+    <div class="modal fade" id="adminSendNotifModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">إرسال إشعار عام</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="sendAdminNotification(event)">
+                        <div class="mb-3">
+                            <label class="form-label">الفئة المستهدفة</label>
+                            <select class="form-select" id="notifTarget">
+                                <option value="all">الجميع</option>
+                                <option value="parent">أولياء الأمور</option>
+                                <option value="caregiver">المرافقات/المختصين</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">نص الرسالة</label>
+                            <textarea class="form-control" id="notifMsg" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">إرسال باسم (فريق مرافق)</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(() => { document.getElementById('page-loader').style.display = 'none'; document.body.classList.add('loaded'); }, 800);
+
+            // --- DATA ---
+            const wilayas = [
+                {id:1,ar:"أدرار",fr:"Adrar"},{id:16,ar:"الجزائر",fr:"Alger"},{id:31,ar:"وهران",fr:"Oran"},{id:25,ar:"قسنطينة",fr:"Constantine"},
+                {id:19,ar:"سطيف",fr:"Sétif"},{id:23,ar:"عنابة",fr:"Annaba"},{id:30,ar:"ورقلة",fr:"Ouargla"},{id:8,ar:"بشار",fr:"Béchar"}
+            ];
+
+            const services = [
+                {code:"srv_psych",ar:"استشارة (أخصائي نفساني)",fr:"Consultation (Psychologue)"},
+                {code:"srv_autism",ar:"مرافق طفل التوحد",fr:"Accompagnateur enfant autiste"},
+                {code:"srv_speech",ar:"أرطوفونيا (تصحيح النطق)",fr:"Orthophoniste"},
+                {code:"srv_nurse",ar:"ممرض منزلي",fr:"Infirmier à domicile"}
+            ];
+
+            const translations = {
+                ar: {
+                    app_name:"مرافق", home:"الرئيسية", login:"دخول", register:"حساب جديد", start_now:"ابدأ الآن",
+                    welcome_title:"أهلاً بك في عائلة مرافق", slogan:"طفلك في أيادي آمنة",
+                    role_parent:"ولي أمر", role_caregiver:"مرافقة / مختص",
+                    email_label:"البريد الإلكتروني", email_placeholder:"مثال: user@mail.com",
+                    pass_label:"كلمة المرور", password_placeholder:"******",
+                    fullname:"الاسم الكامل", phone:"رقم الهاتف", wilaya:"الولاية",
+                    search_title:"ابحث عن مختص", all_wilayas:"كل الولايات", all_services:"كل الخدمات",
+                    search_btn:"بحث", service_type:"نوع الخدمة",
+                    child_age:"عمر الطفل", child_name:"اسم الطفل", school_level:"الطور الدراسي",
+                    lvl_primary:"ابتدائي", lvl_middle:"متوسط", lvl_secondary:"ثانوي", lvl_none:"غير متمدرس",
+                    child_condition:"حالة الطفل", cond_normal:"عادي", cond_autism:"طيف توحد", cond_speech:"تأخر نطق", cond_adhd:"فرط حركة",
+                    duration:"المدة", dur_session:"جلسة واحدة", dur_term:"فصل دراسي", dur_year:"سنة دراسية", "1_month":"شهر",
+                    days:"الأيام المفضلة", confirm_send:"تأكيد وإرسال",
+                    edit_profile:"تعديل البروفايل", save:"حفظ التغييرات", change_pass:"تغيير كلمة المرور", pro_info:"معلومات مهنية",
+                    upload_cert:"رفع الشهادة المهنية",
+                    th_caregiver:"المختص", th_service:"الطفل", th_status:"الحالة", th_action:"الإجراء",
+                    status_online:"أنا في الخدمة", incoming_requests:"الطلبات الواردة", th_parent:"الولي", th_child:"الطفل", th_details:"التفاصيل",
+                    stat_total_req:"الكل", stat_new_req:"انتظار", stat_accepted:"مقبولة", stat_rejected:"مرفوضة",
+                    settings:"إعدادات", logout:"خروج", forgot_password:"نسيت كلمة المرور؟", login_btn:"تسجيل الدخول", create_account_btn:"إنشاء حساب",
+                    my_requests:"طلباتي السابقة"
+                },
+                fr: {
+                    app_name:"Morafik", home:"Accueil", login:"Connexion", register:"Inscription", start_now:"Commencer",
+                    welcome_title:"Bienvenue chez Morafik", slogan:"Votre enfant en sécurité",
+                    role_parent:"Parent", role_caregiver:"Spécialiste",
+                    email_label:"Email", email_placeholder:"ex: user@mail.com",
+                    pass_label:"Mot de passe", password_placeholder:"******",
+                    fullname:"Nom complet", phone:"Téléphone", wilaya:"Wilaya",
+                    search_title:"Trouver un spécialiste", all_wilayas:"Toutes Wilayas", all_services:"Tous Services",
+                    search_btn:"Rechercher", service_type:"Service",
+                    child_age:"Âge enfant", child_name:"Nom enfant", school_level:"Niveau scolaire",
+                    lvl_primary:"Primaire", lvl_middle:"Moyen", lvl_secondary:"Lycée", lvl_none:"Aucun",
+                    child_condition:"État de l'enfant", cond_normal:"Normal", cond_autism:"Autiste", cond_speech:"Retard parole", cond_adhd:"TDAH",
+                    duration:"Durée", dur_session:"Séance", dur_term:"Trimestre", dur_year:"Année scolaire", "1_month":"1 Mois",
+                    days:"Jours préférés", confirm_send:"Confirmer",
+                    edit_profile:"Modifier Profil", save:"Enregistrer", change_pass:"Changer mot de passe", pro_info:"Infos pro",
+                    upload_cert:"Diplôme (PDF)",
+                    th_caregiver:"Spécialiste", th_service:"Enfant", th_status:"Statut", th_action:"Action",
+                    status_online:"En Service", incoming_requests:"Demandes reçues", th_parent:"Parent", th_child:"Enfant", th_details:"Détails",
+                    stat_total_req:"Total", stat_new_req:"Attente", stat_accepted:"Accepté", stat_rejected:"Refusé",
+                    settings:"Paramètres", logout:"Déconnexion", forgot_password:"Mot de passe oublié?", login_btn:"Se connecter", create_account_btn:"Créer compte",
+                    my_requests:"Mes demandes"
+                }
+            };
+
+            let currentLang = 'ar';
+            function t(key) { return translations[currentLang][key] || key; }
+
+            // Init DB (Mock Data)
+            const initialUsers = [
+                { id: 'c1', name: 'د. سارة (نفسانية)', email: 'doc@test.com', pass: '123', role: 'caregiver', phone: '0550112233', wilaya: 'الجزائر', service: 'استشارة (أخصائي نفساني)', isAvailable: true, photo: "https://cdn-icons-png.flaticon.com/512/3304/3304567.png", isBanned: false },
+                { id: 'p1', name: 'أحمد الولي', email: 'parent@test.com', pass: '123', role: 'parent', phone: '0555000000', wilaya: 'الجزائر', photo: "https://cdn-icons-png.flaticon.com/512/3011/3011270.png", isBanned: false }
+            ];
+            if (!localStorage.getItem('users')) localStorage.setItem('users', JSON.stringify(initialUsers));
+            if (!localStorage.getItem('requests')) localStorage.setItem('requests', JSON.stringify([]));
+            if (!localStorage.getItem('notifications')) localStorage.setItem('notifications', JSON.stringify([]));
+
+            const DB = {
+                getUsers: () => JSON.parse(localStorage.getItem('users')),
+                saveUser: (u) => { const us = DB.getUsers(); us.push(u); localStorage.setItem('users', JSON.stringify(us)); },
+                saveAllUsers: (us) => localStorage.setItem('users', JSON.stringify(us)),
+                updateUser: (updatedUser) => { const users = DB.getUsers(); const idx = users.findIndex(u => u.id === updatedUser.id); if(idx !== -1) { users[idx] = updatedUser; localStorage.setItem('users', JSON.stringify(users)); return true; } return false; },
+                getRequests: () => JSON.parse(localStorage.getItem('requests')),
+                saveRequest: (r) => { const rs = DB.getRequests(); rs.push(r); localStorage.setItem('requests', JSON.stringify(rs)); },
+                updateRequest: (id, s) => { const rs = DB.getRequests(); const idx = rs.findIndex(r=>r.id==id); if(idx!==-1){rs[idx].status=s; localStorage.setItem('requests', JSON.stringify(rs));} },
+                getNotifs: () => JSON.parse(localStorage.getItem('notifications')),
+                saveNotif: (n) => { const ns = DB.getNotifs(); ns.push(n); localStorage.setItem('notifications', JSON.stringify(ns)); }
+            };
+
+            let currentUser = null;
+
+            // --- NAVIGATION ---
+            window.switchView = function(viewId) {
+                document.querySelectorAll('.view-section').forEach(el => { el.classList.remove('active'); el.style.opacity=0; });
+                const target = document.getElementById(viewId);
+                target.classList.add('active');
+                setTimeout(()=>target.style.opacity=1, 50);
+                window.scrollTo(0,0);
+            };
+
+            window.goHome = function() { if(currentUser) return; switchView('landingView'); };
+            window.goToLogin = function() { switchView('authView'); new bootstrap.Tab(document.querySelector('#tab-login')).show(); };
+            window.startNow = function() { switchView('authView'); new bootstrap.Tab(document.querySelector('#tab-register')).show(); };
+
+            window.logout = function() {
+                currentUser = null;
+                document.getElementById('guestNav').classList.remove('d-none');
+                document.getElementById('userNav').classList.add('d-none');
+                document.getElementById('loginForm').reset();
+                switchView('landingView');
+            };
+
+            // --- AUTH ---
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const pass = document.getElementById('loginPass').value;
+                
+                if(email === 'admin' && pass === 'abobob123') {
+                    currentUser = { name: 'Admin', role: 'admin' };
+                    document.getElementById('guestNav').classList.add('d-none');
+                    document.getElementById('userNav').classList.remove('d-none');
+                    document.getElementById('userInfo').innerText = 'Admin';
+                    loadAdminDashboard();
+                    switchView('adminView'); return;
+                }
+
+                const user = DB.getUsers().find(u => u.email === email && u.pass === pass);
+                if(user) {
+                    if(user.isBanned) { Swal.fire({icon:'error', title:'محظور', text:'تم حظر حسابك من قبل الإدارة'}); return; }
+                    currentUser = user;
+                    document.getElementById('guestNav').classList.add('d-none');
+                    document.getElementById('userNav').classList.remove('d-none');
+                    document.getElementById('userInfo').innerText = user.name;
+                    checkNotifications();
+                    if(user.role === 'parent') { switchView('parentView'); performSearch(); loadMyRequests(); loadParentStats(); }
+                    else { switchView('caregiverView'); loadCaregiverDashboard(); }
+                } else {
+                    Swal.fire({icon:'error', title: t('alert_error'), text:'بيانات غير صحيحة'});
+                }
+            });
+
+            document.getElementById('registerForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const role = document.getElementById('regRole').value;
+                const newUser = { id: 'u' + Date.now(), name: document.getElementById('regName').value, email: document.getElementById('regEmail').value, phone: document.getElementById('regPhone').value, pass: document.getElementById('regPass').value, role: role, wilaya: document.getElementById('regWilaya').value, photo: "https://cdn-icons-png.flaticon.com/512/149/149071.png", isAvailable: true, isBanned: false };
+                if (role === 'caregiver') { newUser.service = document.getElementById('regService').value; }
+                DB.saveUser(newUser); 
+                Swal.fire({icon:'success', title:'تم التسجيل'});
+                new bootstrap.Tab(document.querySelector('#tab-login')).show(); document.getElementById('registerForm').reset();
+            });
+
+            // --- NOTIFICATIONS SYSTEM ---
+            window.checkNotifications = function() {
+                const notifs = DB.getNotifs().filter(n => n.target === 'all' || n.target === currentUser.role);
+                const badge = document.getElementById('notifBadge');
+                if(notifs.length > 0) {
+                    badge.classList.remove('d-none');
+                } else {
+                    badge.classList.add('d-none');
+                }
+            };
+            window.openNotifications = function() {
+                const list = document.getElementById('notifList');
+                list.innerHTML = '';
+                const notifs = DB.getNotifs().filter(n => n.target === 'all' || n.target === currentUser.role).reverse();
+                
+                if(notifs.length === 0) list.innerHTML = '<div class="p-3 text-center text-muted">لا توجد إشعارات</div>';
+                
+                notifs.forEach(n => {
+                    list.innerHTML += `<div class="list-group-item"><div class="d-flex w-100 justify-content-between"><h6 class="mb-1 text-primary fw-bold">${n.sender || 'فريق مرافق'}</h6><small class="text-muted">${n.date}</small></div><p class="mb-1 small">${n.message}</p></div>`;
+                });
+                new bootstrap.Modal(document.getElementById('notifModal')).show();
+                document.getElementById('notifBadge').classList.add('d-none');
+            };
+
+            // --- PARENT ---
+            window.loadParentStats = function() {
+                const reqs = DB.getRequests().filter(r => r.parentId === currentUser.id);
+                document.getElementById('pStatTotal').innerText = reqs.length;
+                document.getElementById('pStatAccepted').innerText = reqs.filter(r=>r.status==='accepted').length;
+                document.getElementById('pStatPending').innerText = reqs.filter(r=>r.status==='pending').length;
+            };
+
+            window.performSearch = function() {
+                const container = document.getElementById('resultsArea');
+                const sWilaya = document.getElementById('searchWilaya').value;
+                const sService = document.getElementById('searchService').value;
+                
+                container.innerHTML = '';
+                DB.getUsers().filter(u => u.role === 'caregiver' && !u.isBanned && u.isAvailable 
+                    && (sWilaya === 'الكل' || u.wilaya === sWilaya)
+                    && (sService === 'الكل' || u.service === sService)
+                ).forEach(c => {
+                    const sObj = services.find(s=>s.ar === c.service || s.fr === c.service);
+                    const displayService = sObj ? (curre
