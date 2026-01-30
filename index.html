@@ -47,27 +47,22 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Landing Page Animation Fix */
+        /* Landing Page Animation */
         .landing-hero {
             position: relative; min-height: 90vh;
             display: flex; align-items: center; justify-content: center;
             color: white; text-align: center; background-color: #1e293b;
-            overflow: hidden; /* Important for zoom containment */
+            overflow: hidden;
         }
         .landing-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* صورة أخصائية (امرأة) عالية الدقة */
             background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1000&auto=format&fit=crop');
             background-size: cover; background-position: center top; z-index: 1;
-            /* Animation Fix */
             transform-origin: center;
             animation: zoomMove 20s infinite alternate ease-in-out; 
             will-change: transform;
         }
-        @keyframes zoomMove { 
-            0% { transform: scale(1); } 
-            100% { transform: scale(1.15); } 
-        }
+        @keyframes zoomMove { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
         
         .landing-content { position: relative; z-index: 2; padding: 20px; }
         .landing-content h1 { font-size: 2.5rem; font-weight: 900; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
@@ -100,6 +95,10 @@
         .bg-gradient-success { background: linear-gradient(45deg, #1cc88a, #13855c); }
         .bg-gradient-warning { background: linear-gradient(45deg, #f6c23e, #dda20a); }
         .bg-gradient-danger { background: linear-gradient(45deg, #e74a3b, #be2617); }
+
+        /* Star Rating Styles */
+        .star-rating i { font-size: 2rem; color: #e2e8f0; cursor: pointer; transition: color 0.2s; }
+        .star-rating i.active { color: var(--gold); }
 
         /* Mobile Table */
         @media (max-width: 768px) {
@@ -413,6 +412,35 @@
         </div>
     </div>
 
+    <!-- Rating Modal -->
+    <div class="modal fade" id="rateModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" data-i18n="rate_caregiver">تقييم المرافقة</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <h6 id="rateCgName" class="mb-3"></h6>
+                    <div class="star-rating mb-3 d-flex justify-content-center gap-2" id="starContainer">
+                        <i class="bi bi-star-fill" data-val="1"></i>
+                        <i class="bi bi-star-fill" data-val="2"></i>
+                        <i class="bi bi-star-fill" data-val="3"></i>
+                        <i class="bi bi-star-fill" data-val="4"></i>
+                        <i class="bi bi-star-fill" data-val="5"></i>
+                    </div>
+                    <input type="hidden" id="ratingValue" value="0">
+                    <input type="hidden" id="rateRequestId">
+                    <input type="hidden" id="rateCaregiverId">
+                    <div class="mb-3">
+                        <textarea id="rateComment" class="form-control" rows="3" data-i18n-placeholder="comment_placeholder" placeholder="اكتب تعليقك هنا..."></textarea>
+                    </div>
+                    <button onclick="submitReview()" class="btn btn-dark w-100" data-i18n="submit_rating">إرسال التقييم</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit Profile Modal -->
     <div class="modal fade" id="editProfileModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -552,7 +580,8 @@
                     successful_ops:"عمليات ناجحة", successful_caregivers:"أنجح المرافقات", daily_transactions:"التعاملات اليومية", manage_users:"إدارة المستخدمين",
                     reports_messages:"الشكاوى والرسائل", sender:"المرسل", type:"النوع", message:"الرسالة", date:"التاريخ",
                     target_audience:"الفئة المستهدفة", all:"الجميع", send:"إرسال", notifications:"الإشعارات", search_placeholder:"بحث...",
-                    th_name:"الاسم", th_role:"النوع", alert_error:"خطأ", alert_sent:"تم الإرسال"
+                    th_name:"الاسم", th_role:"النوع", alert_error:"خطأ", alert_sent:"تم الإرسال",
+                    rate_caregiver:"تقييم المرافقة", comment_placeholder:"اكتب تعليقك هنا...", submit_rating:"إرسال التقييم"
                 },
                 fr: {
                     app_name:"Morafik", home:"Accueil", login:"Connexion", register:"Inscription", start_now:"Commencer",
@@ -579,7 +608,8 @@
                     successful_ops:"Opérations réussies", successful_caregivers:"Top Spécialistes", daily_transactions:"Transactions du jour", manage_users:"Gérer utilisateurs",
                     reports_messages:"Signalements & Messages", sender:"Expéditeur", type:"Type", message:"Message", date:"Date",
                     target_audience:"Cible", all:"Tous", send:"Envoyer", notifications:"Notifications", search_placeholder:"Rechercher...",
-                    th_name:"Nom", th_role:"Rôle", alert_error:"Erreur", alert_sent:"Envoyé"
+                    th_name:"Nom", th_role:"Rôle", alert_error:"Erreur", alert_sent:"Envoyé",
+                    rate_caregiver:"Noter le spécialiste", comment_placeholder:"Votre commentaire...", submit_rating:"Envoyer l'avis"
                 }
             };
 
@@ -594,6 +624,7 @@
             if (!localStorage.getItem('users')) localStorage.setItem('users', JSON.stringify(initialUsers));
             if (!localStorage.getItem('requests')) localStorage.setItem('requests', JSON.stringify([]));
             if (!localStorage.getItem('notifications')) localStorage.setItem('notifications', JSON.stringify([]));
+            if (!localStorage.getItem('reviews')) localStorage.setItem('reviews', JSON.stringify([]));
 
             const DB = {
                 getUsers: () => JSON.parse(localStorage.getItem('users')),
@@ -603,8 +634,11 @@
                 getRequests: () => JSON.parse(localStorage.getItem('requests')),
                 saveRequest: (r) => { const rs = DB.getRequests(); rs.push(r); localStorage.setItem('requests', JSON.stringify(rs)); },
                 updateRequest: (id, s) => { const rs = DB.getRequests(); const idx = rs.findIndex(r=>r.id==id); if(idx!==-1){rs[idx].status=s; localStorage.setItem('requests', JSON.stringify(rs));} },
+                updateRequestRating: (id) => { const rs = DB.getRequests(); const idx = rs.findIndex(r=>r.id==id); if(idx!==-1){rs[idx].isRated=true; localStorage.setItem('requests', JSON.stringify(rs));} },
                 getNotifs: () => JSON.parse(localStorage.getItem('notifications')),
-                saveNotif: (n) => { const ns = DB.getNotifs(); ns.push(n); localStorage.setItem('notifications', JSON.stringify(ns)); }
+                saveNotif: (n) => { const ns = DB.getNotifs(); ns.push(n); localStorage.setItem('notifications', JSON.stringify(ns)); },
+                getReviews: () => JSON.parse(localStorage.getItem('reviews')),
+                saveReview: (rev) => { const rs = DB.getReviews(); rs.push(rev); localStorage.setItem('reviews', JSON.stringify(rs)); }
             };
 
             let currentUser = null;
@@ -719,7 +753,7 @@
                     caregiverId: document.getElementById('targetCaregiverId').value,
                     childName: document.getElementById('reqChildName').value, childAge: document.getElementById('reqChildAge').value,
                     schoolLevel: document.getElementById('reqSchoolLevel').value, childCondition: document.getElementById('reqChildCondition').value,
-                    duration: document.getElementById('reqDuration').value, days: document.getElementById('reqDays').value, status: 'pending'
+                    duration: document.getElementById('reqDuration').value, days: document.getElementById('reqDays').value, status: 'pending', isRated: false
                 };
                 DB.saveRequest(req);
                 bootstrap.Modal.getInstance(document.getElementById('requestModal')).hide();
@@ -732,8 +766,62 @@
                 DB.getRequests().filter(r => r.parentId === currentUser.id).forEach(r => {
                     const cg = DB.getUsers().find(u => u.id == r.caregiverId) || {name:'?'};
                     let status = r.status === 'pending' ? `<span class="badge bg-warning text-dark">${t('stat_new_req')}</span>` : (r.status === 'accepted' ? `<span class="badge bg-success">${t('stat_accepted')}</span>` : `<span class="badge bg-danger">${t('stat_rejected')}</span>`);
-                    tbody.innerHTML += `<tr><td data-label="${t('th_caregiver')}">${cg.name}</td><td data-label="${t('th_service')}">${r.childName}</td><td data-label="${t('th_status')}">${status}</td><td data-label="${t('th_action')}">${r.status==='accepted'?`<a href="tel:${cg.phone}" class="btn btn-sm btn-success">📞</a>`:'-'}</td></tr>`;
+                    
+                    let action = '-';
+                    if(r.status==='accepted') {
+                        action = `<a href="tel:${cg.phone}" class="btn btn-sm btn-success rounded-circle ms-1"><i class="bi bi-telephone-fill"></i></a>`;
+                        if(!r.isRated) {
+                            action += `<button class="btn btn-sm btn-warning rounded-circle text-dark" onclick="openRateModal('${r.id}', '${cg.id}', '${cg.name}')"><i class="bi bi-star-fill"></i></button>`;
+                        }
+                    }
+                    
+                    tbody.innerHTML += `<tr><td data-label="${t('th_caregiver')}">${cg.name}</td><td data-label="${t('th_service')}">${r.childName}</td><td data-label="${t('th_status')}">${status}</td><td data-label="${t('th_action')}">${action}</td></tr>`;
                 });
+            };
+
+            // --- RATING SYSTEM ---
+            window.openRateModal = function(rid, cid, cname) {
+                document.getElementById('rateRequestId').value = rid;
+                document.getElementById('rateCaregiverId').value = cid;
+                document.getElementById('rateCgName').innerText = cname;
+                document.getElementById('ratingValue').value = "0";
+                document.getElementById('rateComment').value = "";
+                document.querySelectorAll('#starContainer i').forEach(s => s.classList.remove('text-warning'));
+                new bootstrap.Modal(document.getElementById('rateModal')).show();
+            };
+
+            document.querySelectorAll('#starContainer i').forEach(star => {
+                star.addEventListener('click', function() {
+                    const val = this.getAttribute('data-val');
+                    document.getElementById('ratingValue').value = val;
+                    document.querySelectorAll('#starContainer i').forEach(s => {
+                        if(s.getAttribute('data-val') <= val) s.classList.add('text-warning');
+                        else s.classList.remove('text-warning');
+                    });
+                });
+            });
+
+            window.submitReview = function() {
+                const rid = document.getElementById('rateRequestId').value;
+                const stars = document.getElementById('ratingValue').value;
+                
+                if(stars == "0") { Swal.fire('الرجاء اختيار عدد النجوم'); return; }
+
+                const review = {
+                    id: Date.now(),
+                    requestId: rid,
+                    caregiverId: document.getElementById('rateCaregiverId').value,
+                    parentId: currentUser.id,
+                    stars: stars,
+                    comment: document.getElementById('rateComment').value,
+                    date: new Date().toLocaleDateString()
+                };
+
+                DB.saveReview(review);
+                DB.updateRequestRating(rid); // Mark request as rated
+                bootstrap.Modal.getInstance(document.getElementById('rateModal')).hide();
+                Swal.fire({icon:'success', title: t('alert_sent')});
+                loadMyRequests(); // Refresh list to remove rate button
             };
 
             // --- CAREGIVER ---
