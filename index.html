@@ -47,20 +47,28 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Landing Page */
+        /* Landing Page Animation Fix */
         .landing-hero {
             position: relative; min-height: 90vh;
             display: flex; align-items: center; justify-content: center;
             color: white; text-align: center; background-color: #1e293b;
+            overflow: hidden; /* Important for zoom containment */
         }
         .landing-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* صورة أخصائية (امرأة) */
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1551834916-2419f773123c?auto=format&fit=crop&q=80&w=1000');
+            /* صورة أخصائية (امرأة) عالية الدقة */
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1000&auto=format&fit=crop');
             background-size: cover; background-position: center top; z-index: 1;
-            animation: zoomMove 20s infinite alternate ease-in-out;
+            /* Animation Fix */
+            transform-origin: center;
+            animation: zoomMove 20s infinite alternate ease-in-out; 
+            will-change: transform;
         }
-        @keyframes zoomMove { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
+        @keyframes zoomMove { 
+            0% { transform: scale(1); } 
+            100% { transform: scale(1.15); } 
+        }
+        
         .landing-content { position: relative; z-index: 2; padding: 20px; }
         .landing-content h1 { font-size: 2.5rem; font-weight: 900; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .btn-start {
@@ -108,7 +116,7 @@
     <!-- LOADING SCREEN -->
     <div id="page-loader">
         <div class="spinner"></div>
-        <h5 class="fw-bold text-muted">جاري التحميل...</h5>
+        <h5 class="fw-bold text-muted">...</h5>
     </div>
 
     <!-- Navbar -->
@@ -128,7 +136,6 @@
                 
                 <!-- User Nav -->
                 <div id="userNav" class="d-none d-flex align-items-center gap-2">
-                    <!-- Notification Bell -->
                     <button class="btn btn-light btn-sm position-relative rounded-circle border" onclick="openNotifications()">
                         <i class="bi bi-bell-fill text-warning"></i>
                         <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle d-none"></span>
@@ -302,57 +309,53 @@
             </div>
         </section>
         
-        <!-- 4. ADMIN VIEW (Full Control) -->
+        <!-- 4. ADMIN VIEW -->
         <section id="adminView" class="view-section">
             <div class="container py-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="fw-bold text-primary mb-0">لوحة التحكم <span class="badge bg-danger fs-6">Admin</span></h3>
-                    <button class="btn btn-dark btn-sm rounded-pill" onclick="openSendNotifModal()"><i class="bi bi-megaphone-fill"></i> إرسال إشعار</button>
+                    <h3 class="fw-bold text-primary mb-0" data-i18n="admin_panel">لوحة التحكم <span class="badge bg-danger fs-6">Admin</span></h3>
+                    <button class="btn btn-dark btn-sm rounded-pill" onclick="openSendNotifModal()"><i class="bi bi-megaphone-fill"></i> <span data-i18n="send_notif">إرسال إشعار</span></button>
                 </div>
 
                 <!-- Admin Stats -->
                 <div class="row g-3 mb-4">
-                    <div class="col-md-3"><div class="stat-box bg-gradient-primary"><h3><i class="bi bi-people"></i> <span id="statTotalUsers" class="float-end">0</span></h3><span>المستخدمين</span></div></div>
-                    <div class="col-md-3"><div class="stat-box bg-gradient-success"><h3><i class="bi bi-heart-pulse"></i> <span id="statCaregivers" class="float-end">0</span></h3><span>المرافقات</span></div></div>
-                    <div class="col-md-3"><div class="stat-box bg-gradient-warning"><h3><i class="bi bi-chat-right-text"></i> <span id="statReportsCount" class="float-end">0</span></h3><span>الشكاوى</span></div></div>
-                    <div class="col-md-3"><div class="stat-box bg-gradient-danger"><h3><i class="bi bi-check2-all"></i> <span id="statSuccessOps" class="float-end">0</span></h3><span>عمليات ناجحة</span></div></div>
+                    <div class="col-md-3"><div class="stat-box bg-gradient-primary"><h3><i class="bi bi-people"></i> <span id="statTotalUsers" class="float-end">0</span></h3><span data-i18n="stat_users">المستخدمين</span></div></div>
+                    <div class="col-md-3"><div class="stat-box bg-gradient-success"><h3><i class="bi bi-heart-pulse"></i> <span id="statCaregivers" class="float-end">0</span></h3><span data-i18n="stat_caregivers">المرافقات</span></div></div>
+                    <div class="col-md-3"><div class="stat-box bg-gradient-warning"><h3><i class="bi bi-chat-right-text"></i> <span id="statReportsCount" class="float-end">0</span></h3><span data-i18n="stat_reports">الشكاوى</span></div></div>
+                    <div class="col-md-3"><div class="stat-box bg-gradient-danger"><h3><i class="bi bi-check2-all"></i> <span id="statSuccessOps" class="float-end">0</span></h3><span data-i18n="successful_ops">عمليات ناجحة</span></div></div>
                 </div>
 
                 <div class="row g-4 mb-4">
-                    <!-- Top Caregivers -->
                     <div class="col-lg-5">
                         <div class="custom-card h-100 p-4">
-                            <h5 class="fw-bold mb-3 text-success"><i class="bi bi-trophy-fill"></i> أنجح المرافقات</h5>
+                            <h5 class="fw-bold mb-3 text-success"><i class="bi bi-trophy-fill"></i> <span data-i18n="successful_caregivers">أنجح المرافقات</span></h5>
                             <table class="table table-borderless align-middle mb-0"><tbody id="adminTopCaregivers"></tbody></table>
                         </div>
                     </div>
-                    <!-- Transactions -->
                     <div class="col-lg-7">
                         <div class="custom-card h-100 p-4">
-                            <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-graph-up-arrow"></i> التعاملات اليومية</h5>
-                            <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-light"><tr><th>الولي</th><th>المرافقة</th><th>الحالة</th></tr></thead><tbody id="adminDailyTrans"></tbody></table></div>
+                            <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-graph-up-arrow"></i> <span data-i18n="daily_transactions">التعاملات اليومية</span></h5>
+                            <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-light"><tr><th data-i18n="th_parent">الولي</th><th data-i18n="th_caregiver">المرافقة</th><th data-i18n="th_status">الحالة</th></tr></thead><tbody id="adminDailyTrans"></tbody></table></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- User Management -->
                 <div class="custom-card p-4 mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="fw-bold mb-0"><i class="bi bi-people-fill"></i> إدارة المستخدمين</h5>
-                        <input type="text" class="form-control w-50" id="adminSearch" placeholder="بحث..." onkeyup="loadAdminDashboard()">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-people-fill"></i> <span data-i18n="manage_users">إدارة المستخدمين</span></h5>
+                        <input type="text" class="form-control w-50" id="adminSearch" data-i18n-placeholder="search_placeholder" onkeyup="loadAdminDashboard()">
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle table-bordered">
-                            <thead class="table-light"><tr><th>الاسم</th><th>النوع</th><th>الهاتف</th><th>Email</th><th class="text-danger">Pass</th><th>الحالة</th><th>إجراء</th></tr></thead>
+                            <thead class="table-light"><tr><th data-i18n="th_name">الاسم</th><th data-i18n="th_role">النوع</th><th data-i18n="phone">الهاتف</th><th>Email</th><th class="text-danger">Pass</th><th data-i18n="th_status">الحالة</th><th data-i18n="th_action">إجراء</th></tr></thead>
                             <tbody id="adminUsersTable"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Reports -->
                 <div class="custom-card p-4 mb-4">
-                    <h5 class="fw-bold mb-3"><i class="bi bi-envelope-exclamation-fill"></i> الشكاوى والرسائل</h5>
-                    <div class="table-responsive"><table class="table table-striped table-sm"><thead class="table-dark"><tr><th>المرسل</th><th>النوع</th><th>الرسالة</th><th>التاريخ</th></tr></thead><tbody id="adminReportsTable"></tbody></table></div>
+                    <h5 class="fw-bold mb-3"><i class="bi bi-envelope-exclamation-fill"></i> <span data-i18n="reports_messages">الشكاوى والرسائل</span></h5>
+                    <div class="table-responsive"><table class="table table-striped table-sm"><thead class="table-dark"><tr><th data-i18n="sender">المرسل</th><th data-i18n="type">النوع</th><th data-i18n="message">الرسالة</th><th data-i18n="date">التاريخ</th></tr></thead><tbody id="adminReportsTable"></tbody></table></div>
                 </div>
             </div>
         </section>
@@ -450,7 +453,7 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header bg-light">
-                    <h5 class="modal-title fw-bold">الإشعارات</h5>
+                    <h5 class="modal-title fw-bold" data-i18n="notifications">الإشعارات</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0">
@@ -467,24 +470,24 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title">إرسال إشعار عام</h5>
+                    <h5 class="modal-title" data-i18n="send_notif">إرسال إشعار عام</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form onsubmit="sendAdminNotification(event)">
                         <div class="mb-3">
-                            <label class="form-label">الفئة المستهدفة</label>
+                            <label class="form-label" data-i18n="target_audience">الفئة المستهدفة</label>
                             <select class="form-select" id="notifTarget">
-                                <option value="all">الجميع</option>
-                                <option value="parent">أولياء الأمور</option>
-                                <option value="caregiver">المرافقات/المختصين</option>
+                                <option value="all" data-i18n="all">الجميع</option>
+                                <option value="parent" data-i18n="role_parent">أولياء الأمور</option>
+                                <option value="caregiver" data-i18n="role_caregiver">المرافقات/المختصين</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">نص الرسالة</label>
+                            <label class="form-label" data-i18n="message">نص الرسالة</label>
                             <textarea class="form-control" id="notifMsg" rows="3" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">إرسال باسم (فريق مرافق)</button>
+                        <button type="submit" class="btn btn-primary w-100" data-i18n="send">إرسال باسم (فريق مرافق)</button>
                     </form>
                 </div>
             </div>
@@ -497,10 +500,23 @@
         document.addEventListener("DOMContentLoaded", function() {
             setTimeout(() => { document.getElementById('page-loader').style.display = 'none'; document.body.classList.add('loaded'); }, 800);
 
-            // --- DATA ---
+            // --- DATA: FULL 58 WILAYAS ---
             const wilayas = [
-                {id:1,ar:"أدرار",fr:"Adrar"},{id:16,ar:"الجزائر",fr:"Alger"},{id:31,ar:"وهران",fr:"Oran"},{id:25,ar:"قسنطينة",fr:"Constantine"},
-                {id:19,ar:"سطيف",fr:"Sétif"},{id:23,ar:"عنابة",fr:"Annaba"},{id:30,ar:"ورقلة",fr:"Ouargla"},{id:8,ar:"بشار",fr:"Béchar"}
+                {id:1,ar:"أدرار",fr:"Adrar"},{id:2,ar:"الشلف",fr:"Chlef"},{id:3,ar:"الأغواط",fr:"Laghouat"},{id:4,ar:"أم البواقي",fr:"Oum El Bouaghi"},
+                {id:5,ar:"باتنة",fr:"Batna"},{id:6,ar:"بجاية",fr:"Béjaïa"},{id:7,ar:"بسكرة",fr:"Biskra"},{id:8,ar:"بشار",fr:"Béchar"},
+                {id:9,ar:"البليدة",fr:"Blida"},{id:10,ar:"البويرة",fr:"Bouira"},{id:11,ar:"تمنراست",fr:"Tamanrasset"},{id:12,ar:"تبسة",fr:"Tébessa"},
+                {id:13,ar:"تلمسان",fr:"Tlemcen"},{id:14,ar:"تيارت",fr:"Tiaret"},{id:15,ar:"تيزي وزو",fr:"Tizi Ouzou"},{id:16,ar:"الجزائر",fr:"Alger"},
+                {id:17,ar:"الجلفة",fr:"Djelfa"},{id:18,ar:"جيجل",fr:"Jijel"},{id:19,ar:"سطيف",fr:"Sétif"},{id:20,ar:"سعيدة",fr:"Saïda"},
+                {id:21,ar:"سكيكدة",fr:"Skikda"},{id:22,ar:"سيدي بلعباس",fr:"Sidi Bel Abbès"},{id:23,ar:"عنابة",fr:"Annaba"},{id:24,ar:"قالمة",fr:"Guelma"},
+                {id:25,ar:"قسنطينة",fr:"Constantine"},{id:26,ar:"المدية",fr:"Médéa"},{id:27,ar:"مستغانم",fr:"Mostaganem"},{id:28,ar:"المسيلة",fr:"M'Sila"},
+                {id:29,ar:"معسكر",fr:"Mascara"},{id:30,ar:"ورقلة",fr:"Ouargla"},{id:31,ar:"وهران",fr:"Oran"},{id:32,ar:"البيض",fr:"El Bayadh"},
+                {id:33,ar:"إليزي",fr:"Illizi"},{id:34,ar:"برج بوعريريج",fr:"Bordj Bou Arreridj"},{id:35,ar:"بومرداس",fr:"Boumerdès"},{id:36,ar:"الطارف",fr:"El Tarf"},
+                {id:37,ar:"تندوف",fr:"Tindouf"},{id:38,ar:"تيسمسيلت",fr:"Tissemsilt"},{id:39,ar:"الوادي",fr:"El Oued"},{id:40,ar:"خنشلة",fr:"Khenchela"},
+                {id:41,ar:"سوق أهراس",fr:"Souk Ahras"},{id:42,ar:"تيبازة",fr:"Tipaza"},{id:43,ar:"ميلة",fr:"Mila"},{id:44,ar:"عين الدفلى",fr:"Aïn Defla"},
+                {id:45,ar:"النعامة",fr:"Naâma"},{id:46,ar:"عين تموشنت",fr:"Aïn Témouchent"},{id:47,ar:"غرداية",fr:"Ghardaïa"},{id:48,ar:"غليزان",fr:"Relizane"},
+                {id:49,ar:"تيميمون",fr:"Timimoun"},{id:50,ar:"برج باجي مختار",fr:"Bordj Badji Mokhtar"},{id:51,ar:"أولاد جلال",fr:"Ouled Djellal"},{id:52,ar:"بني عباس",fr:"Béni Abbès"},
+                {id:53,ar:"إن صالح",fr:"In Salah"},{id:54,ar:"إن قزام",fr:"In Guezzam"},{id:55,ar:"توقرت",fr:"Touggourt"},{id:56,ar:"جانت",fr:"Djanet"},
+                {id:57,ar:"المغير",fr:"El M'Ghair"},{id:58,ar:"المنيعة",fr:"El Meniaa"}
             ];
 
             const services = [
@@ -531,7 +547,12 @@
                     status_online:"أنا في الخدمة", incoming_requests:"الطلبات الواردة", th_parent:"الولي", th_child:"الطفل", th_details:"التفاصيل",
                     stat_total_req:"الكل", stat_new_req:"انتظار", stat_accepted:"مقبولة", stat_rejected:"مرفوضة",
                     settings:"إعدادات", logout:"خروج", forgot_password:"نسيت كلمة المرور؟", login_btn:"تسجيل الدخول", create_account_btn:"إنشاء حساب",
-                    my_requests:"طلباتي السابقة"
+                    my_requests:"طلباتي السابقة",
+                    admin_panel:"لوحة التحكم", send_notif:"إرسال إشعار", stat_users:"المستخدمين", stat_caregivers:"المرافقات", stat_reports:"الشكاوى",
+                    successful_ops:"عمليات ناجحة", successful_caregivers:"أنجح المرافقات", daily_transactions:"التعاملات اليومية", manage_users:"إدارة المستخدمين",
+                    reports_messages:"الشكاوى والرسائل", sender:"المرسل", type:"النوع", message:"الرسالة", date:"التاريخ",
+                    target_audience:"الفئة المستهدفة", all:"الجميع", send:"إرسال", notifications:"الإشعارات", search_placeholder:"بحث...",
+                    th_name:"الاسم", th_role:"النوع", alert_error:"خطأ", alert_sent:"تم الإرسال"
                 },
                 fr: {
                     app_name:"Morafik", home:"Accueil", login:"Connexion", register:"Inscription", start_now:"Commencer",
@@ -553,14 +574,19 @@
                     status_online:"En Service", incoming_requests:"Demandes reçues", th_parent:"Parent", th_child:"Enfant", th_details:"Détails",
                     stat_total_req:"Total", stat_new_req:"Attente", stat_accepted:"Accepté", stat_rejected:"Refusé",
                     settings:"Paramètres", logout:"Déconnexion", forgot_password:"Mot de passe oublié?", login_btn:"Se connecter", create_account_btn:"Créer compte",
-                    my_requests:"Mes demandes"
+                    my_requests:"Mes demandes",
+                    admin_panel:"Panneau Admin", send_notif:"Envoyer Notif", stat_users:"Utilisateurs", stat_caregivers:"Spécialistes", stat_reports:"Signalements",
+                    successful_ops:"Opérations réussies", successful_caregivers:"Top Spécialistes", daily_transactions:"Transactions du jour", manage_users:"Gérer utilisateurs",
+                    reports_messages:"Signalements & Messages", sender:"Expéditeur", type:"Type", message:"Message", date:"Date",
+                    target_audience:"Cible", all:"Tous", send:"Envoyer", notifications:"Notifications", search_placeholder:"Rechercher...",
+                    th_name:"Nom", th_role:"Rôle", alert_error:"Erreur", alert_sent:"Envoyé"
                 }
             };
 
             let currentLang = 'ar';
             function t(key) { return translations[currentLang][key] || key; }
 
-            // Init DB (Mock Data)
+            // Init DB
             const initialUsers = [
                 { id: 'c1', name: 'د. سارة (نفسانية)', email: 'doc@test.com', pass: '123', role: 'caregiver', phone: '0550112233', wilaya: 'الجزائر', service: 'استشارة (أخصائي نفساني)', isAvailable: true, photo: "https://cdn-icons-png.flaticon.com/512/3304/3304567.png", isBanned: false },
                 { id: 'p1', name: 'أحمد الولي', email: 'parent@test.com', pass: '123', role: 'parent', phone: '0555000000', wilaya: 'الجزائر', photo: "https://cdn-icons-png.flaticon.com/512/3011/3011270.png", isBanned: false }
@@ -644,26 +670,17 @@
                 new bootstrap.Tab(document.querySelector('#tab-login')).show(); document.getElementById('registerForm').reset();
             });
 
-            // --- NOTIFICATIONS SYSTEM ---
+            // --- NOTIFICATIONS ---
             window.checkNotifications = function() {
                 const notifs = DB.getNotifs().filter(n => n.target === 'all' || n.target === currentUser.role);
                 const badge = document.getElementById('notifBadge');
-                if(notifs.length > 0) {
-                    badge.classList.remove('d-none');
-                } else {
-                    badge.classList.add('d-none');
-                }
+                if(notifs.length > 0) { badge.classList.remove('d-none'); } else { badge.classList.add('d-none'); }
             };
             window.openNotifications = function() {
-                const list = document.getElementById('notifList');
-                list.innerHTML = '';
+                const list = document.getElementById('notifList'); list.innerHTML = '';
                 const notifs = DB.getNotifs().filter(n => n.target === 'all' || n.target === currentUser.role).reverse();
-                
                 if(notifs.length === 0) list.innerHTML = '<div class="p-3 text-center text-muted">لا توجد إشعارات</div>';
-                
-                notifs.forEach(n => {
-                    list.innerHTML += `<div class="list-group-item"><div class="d-flex w-100 justify-content-between"><h6 class="mb-1 text-primary fw-bold">${n.sender || 'فريق مرافق'}</h6><small class="text-muted">${n.date}</small></div><p class="mb-1 small">${n.message}</p></div>`;
-                });
+                notifs.forEach(n => { list.innerHTML += `<div class="list-group-item"><div class="d-flex w-100 justify-content-between"><h6 class="mb-1 text-primary fw-bold">${n.sender || 'فريق مرافق'}</h6><small class="text-muted">${n.date}</small></div><p class="mb-1 small">${n.message}</p></div>`; });
                 new bootstrap.Modal(document.getElementById('notifModal')).show();
                 document.getElementById('notifBadge').classList.add('d-none');
             };
@@ -693,10 +710,7 @@
                 if(container.innerHTML === '') container.innerHTML = '<div class="col-12 text-center text-muted">لا توجد نتائج</div>';
             };
 
-            window.openRequestModal = function(id) {
-                document.getElementById('targetCaregiverId').value = id;
-                new bootstrap.Modal(document.getElementById('requestModal')).show();
-            };
+            window.openRequestModal = function(id) { document.getElementById('targetCaregiverId').value = id; new bootstrap.Modal(document.getElementById('requestModal')).show(); };
 
             document.getElementById('sendRequestForm').addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -738,45 +752,33 @@
                 const tbody = document.getElementById('incomingRequestsTable'); tbody.innerHTML = '';
                 reqs.forEach(r => {
                     let action = r.status === 'pending' ? `<button class="btn btn-sm btn-success ms-1" onclick="handleReq(${r.id},'accepted')">✔</button><button class="btn btn-sm btn-danger" onclick="handleReq(${r.id},'rejected')">✘</button>` : (r.status === 'accepted' ? t('stat_accepted') : t('stat_rejected'));
-                    
-                    // Logic to show Parent phone
                     let parentInfo = r.parentName;
                     if(r.status === 'accepted') {
-                        // Find parent user to ensure we have latest phone or use stored one
                         const pUser = DB.getUsers().find(u => u.id === r.parentId);
                         const pPhone = pUser ? pUser.phone : r.parentPhone;
                         parentInfo += `<br><a href="tel:${pPhone}" class="badge bg-success text-decoration-none"><i class="bi bi-telephone-fill"></i> ${pPhone}</a>`;
                     }
-
-                    let details = `<div class="small">${r.childAge} سنوات | ${r.schoolLevel}<br><span class="text-danger fw-bold">${r.childCondition}</span><br>${r.duration}</div>`;
+                    let details = `<div class="small">${r.childAge} | ${r.schoolLevel}<br><span class="text-danger fw-bold">${r.childCondition}</span><br>${r.duration}</div>`;
                     tbody.innerHTML += `<tr><td data-label="${t('th_parent')}">${parentInfo}</td><td data-label="${t('th_child')}">${r.childName}</td><td data-label="${t('th_details')}">${details}</td><td data-label="${t('th_days')}">${r.days}</td><td data-label="${t('th_action')}">${action}</td></tr>`;
                 });
             };
             window.handleReq = function(id, status) { DB.updateRequest(id, status); loadCaregiverDashboard(); };
             window.toggleAvailability = function() { currentUser.isAvailable = document.getElementById('availabilityToggle').checked; DB.updateUser(currentUser); };
 
-            // --- ADMIN DASHBOARD ---
+            // --- ADMIN ---
             window.loadAdminDashboard = function() {
-                const users = DB.getUsers();
-                const reqs = DB.getRequests();
-                
-                // Stats
+                const users = DB.getUsers(); const reqs = DB.getRequests();
                 document.getElementById('statTotalUsers').innerText = users.length;
                 document.getElementById('statCaregivers').innerText = users.filter(u=>u.role==='caregiver').length;
-                document.getElementById('statReportsCount').innerText = 0; // Placeholder
+                document.getElementById('statReportsCount').innerText = 0; 
                 document.getElementById('statSuccessOps').innerText = reqs.filter(r=>r.status==='accepted').length;
 
-                // Top Caregivers
                 const successCounts = {};
                 reqs.filter(r => r.status === 'accepted').forEach(r => { successCounts[r.caregiverId] = (successCounts[r.caregiverId] || 0) + 1; });
                 const topCgs = Object.keys(successCounts).map(id => { const u = users.find(x => x.id === id); return u ? { ...u, count: successCounts[id] } : null; }).filter(u => u).sort((a, b) => b.count - a.count).slice(0, 5);
-                
                 const topTable = document.getElementById('adminTopCaregivers'); topTable.innerHTML = '';
-                topCgs.forEach((c, i) => {
-                    topTable.innerHTML += `<tr class="border-bottom"><td style="width:40px"><img src="${c.photo}" width="35" class="rounded-circle"></td><td><div class="fw-bold small">${c.name}</div><small class="text-muted">${c.service}</small></td><td class="text-end"><span class="badge bg-primary rounded-pill">${c.count}</span></td></tr>`;
-                });
+                topCgs.forEach((c, i) => { topTable.innerHTML += `<tr class="border-bottom"><td style="width:40px"><img src="${c.photo}" width="35" class="rounded-circle"></td><td><div class="fw-bold small">${c.name}</div><small class="text-muted">${c.service}</small></td><td class="text-end"><span class="badge bg-primary rounded-pill">${c.count}</span></td></tr>`; });
 
-                // Daily Transactions
                 const transTable = document.getElementById('adminDailyTrans'); transTable.innerHTML = '';
                 reqs.slice(-5).reverse().forEach(r => {
                     const cg = users.find(u => u.id === r.caregiverId) || {name: '?'};
@@ -784,7 +786,6 @@
                     transTable.innerHTML += `<tr><td>${r.parentName}</td><td>${cg.name}</td><td>${st}</td></tr>`;
                 });
 
-                // Users Table with Ban
                 const uTable = document.getElementById('adminUsersTable'); uTable.innerHTML = '';
                 const term = document.getElementById('adminSearch').value.toLowerCase();
                 users.filter(u => u.name.toLowerCase().includes(term) || u.phone.includes(term)).forEach(u => {
@@ -795,8 +796,7 @@
             };
 
             window.toggleBan = function(uid) {
-                const users = DB.getUsers();
-                const u = users.find(x => x.id === uid);
+                const users = DB.getUsers(); const u = users.find(x => x.id === uid);
                 if(u) { u.isBanned = !u.isBanned; DB.saveAllUsers(users); loadAdminDashboard(); }
             };
 
@@ -807,7 +807,7 @@
                 const msg = document.getElementById('notifMsg').value;
                 DB.saveNotif({ target: target, message: msg, date: new Date().toLocaleDateString(), sender: 'فريق مرافق' });
                 bootstrap.Modal.getInstance(document.getElementById('adminSendNotifModal')).hide();
-                Swal.fire('تم الإرسال');
+                Swal.fire(t('alert_sent'));
             };
 
             // --- EDIT PROFILE ---
@@ -851,6 +851,13 @@
                 document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = t(el.getAttribute('data-i18n')));
                 document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = t(el.getAttribute('data-i18n-placeholder')));
                 populateDropdowns();
+                
+                // Refresh dashboards to apply dynamic translations
+                if(currentUser) {
+                    if(currentUser.role === 'parent') { performSearch(); loadMyRequests(); loadParentStats(); }
+                    else if(currentUser.role === 'caregiver') { loadCaregiverDashboard(); }
+                    else if(currentUser.role === 'admin') { loadAdminDashboard(); }
+                }
             };
 
             window.selectRole = function(role, elem) {
