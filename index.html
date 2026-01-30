@@ -65,7 +65,13 @@
         @keyframes zoomMove { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
         
         .landing-content { position: relative; z-index: 2; padding: 20px; }
-        .landing-content h1 { font-size: 2.5rem; font-weight: 900; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        
+        /* GLOWING TEXT EFFECT */
+        .glow-text {
+            font-size: 2.5rem; font-weight: 900; 
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5), 0 0 30px var(--accent-color);
+        }
+
         .btn-start {
             background: var(--accent-color); color: white; font-size: 1.3rem; padding: 12px 50px;
             border-radius: 50px; font-weight: bold; box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
@@ -89,8 +95,10 @@
         
         /* Stats Cards */
         .stat-box { padding: 20px; border-radius: 12px; color: white; position: relative; overflow: hidden; }
-        .stat-box h3 { font-weight: 900; margin-bottom: 0; font-size: 2.5rem; }
+        /* INCREASED FONT SIZE FOR ADMIN DASHBOARD */
+        .stat-box h3 { font-weight: 900; margin-bottom: 0; font-size: 3.5rem; } 
         .stat-box span { font-size: 0.9rem; opacity: 0.9; }
+        
         .bg-gradient-primary { background: linear-gradient(45deg, #4e73df, #224abe); }
         .bg-gradient-success { background: linear-gradient(45deg, #1cc88a, #13855c); }
         .bg-gradient-warning { background: linear-gradient(45deg, #f6c23e, #dda20a); }
@@ -99,6 +107,11 @@
         /* Star Rating Styles */
         .star-rating i { font-size: 2rem; color: #e2e8f0; cursor: pointer; transition: color 0.2s; }
         .star-rating i.active { color: var(--gold); }
+
+        /* Footer Styles */
+        .app-footer { background-color: #fff; border-top: 1px solid #eee; padding: 20px 0; margin-top: auto; }
+        .footer-link { color: #64748b; text-decoration: none; font-size: 0.9rem; cursor: pointer; transition: color 0.2s; }
+        .footer-link:hover { color: var(--primary-color); text-decoration: underline; }
 
         /* Mobile Table */
         @media (max-width: 768px) {
@@ -158,7 +171,8 @@
             <div class="landing-hero">
                 <div class="landing-bg"></div>
                 <div class="landing-content container">
-                    <h1 class="mb-3" data-i18n="welcome_title">أهلاً بك في عائلة مرافق</h1>
+                    <!-- GLOWING TEXT ADDED HERE -->
+                    <h1 class="mb-3 glow-text" data-i18n="welcome_title">أهلاً بك في عائلة مرافق</h1>
                     <p class="subtitle mb-5 text-white fs-4" data-i18n="slogan">طفلك في أيادي آمنة .. ومختصين تثق بهم</p>
                     <button class="btn-start" onclick="startNow()" data-i18n="start_now">ابدأ الآن <i class="bi bi-arrow-left"></i></button>
                 </div>
@@ -316,7 +330,7 @@
                     <button class="btn btn-dark btn-sm rounded-pill" onclick="openSendNotifModal()"><i class="bi bi-megaphone-fill"></i> <span data-i18n="send_notif">إرسال إشعار</span></button>
                 </div>
 
-                <!-- Admin Stats -->
+                <!-- Admin Stats (BIG NUMBERS) -->
                 <div class="row g-3 mb-4">
                     <div class="col-md-3"><div class="stat-box bg-gradient-primary"><h3><i class="bi bi-people"></i> <span id="statTotalUsers" class="float-end">0</span></h3><span data-i18n="stat_users">المستخدمين</span></div></div>
                     <div class="col-md-3"><div class="stat-box bg-gradient-success"><h3><i class="bi bi-heart-pulse"></i> <span id="statCaregivers" class="float-end">0</span></h3><span data-i18n="stat_caregivers">المرافقات</span></div></div>
@@ -360,8 +374,80 @@
         </section>
     </main>
 
+    <!-- FOOTER WITH LINKS -->
+    <footer class="app-footer">
+        <div class="container text-center">
+            <h5 class="fw-bold text-dark mb-3" data-i18n="app_name">مرافق</h5>
+            <div class="d-flex justify-content-center flex-wrap gap-3 mb-3">
+                <span class="footer-link" onclick="openModal('aboutModal')" data-i18n="about_us">من نحن</span>
+                <span class="footer-link" onclick="openModal('privacyModal')" data-i18n="privacy_policy">سياسة الخصوصية</span>
+                <span class="footer-link" onclick="openModal('contactModal')" data-i18n="contact_us">تواصل معنا</span>
+            </div>
+            <div class="mb-3 text-muted small">
+                <i class="bi bi-geo-alt-fill text-danger"></i> <span data-i18n="location_text">رويبة، الجزائر العاصمة</span>
+            </div>
+            <button class="btn btn-sm btn-outline-danger rounded-pill mb-3" onclick="openModal('reportModal')">
+                <i class="bi bi-exclamation-triangle"></i> <span data-i18n="report_issue">الإبلاغ عن مشكلة</span>
+            </button>
+            <p class="small text-muted mb-0" data-i18n="copyright">جميع الحقوق محفوظة &copy; 2024</p>
+        </div>
+    </footer>
+
     <!-- ================= MODALS ================= -->
     
+    <!-- About Modal -->
+    <div class="modal fade" id="aboutModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" data-i18n="about_us">من نحن</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body" data-i18n="about_content">منصة جزائرية مبتكرة تهدف لربط الأولياء بأفضل المختصين. مقرنا في رويبة، الجزائر العاصمة. نسعى لتوفير بيئة آمنة لطفلك.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Modal -->
+    <div class="modal fade" id="privacyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" data-i18n="privacy_policy">سياسة الخصوصية</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body" data-i18n="privacy_content">نحن نلتزم بحماية بياناتك الشخصية. جميع المعلومات تستخدم فقط لغرض تحسين الخدمة ولن يتم مشاركتها مع أطراف ثالثة دون موافقتك.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal fade" id="contactModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" data-i18n="contact_us">تواصل معنا</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <p class="mb-2"><i class="bi bi-geo-alt-fill text-danger"></i> <span data-i18n="location_text">رويبة، الجزائر العاصمة</span></p>
+                    <p class="mb-3"><i class="bi bi-envelope-fill text-primary"></i> contact@morafik.dz</p>
+                    <form onsubmit="submitReport(event, 'رسالة تواصل')">
+                        <div class="mb-3"><input type="text" class="form-control" placeholder="الاسم" required></div>
+                        <div class="mb-3"><textarea class="form-control" rows="3" placeholder="الرسالة" required></textarea></div>
+                        <button type="submit" class="btn btn-primary w-100" data-i18n="send">إرسال</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white"><h5 class="modal-title" data-i18n="report_issue">الإبلاغ عن مشكلة</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <form onsubmit="submitReport(event, 'بلاغ عن مشكلة')">
+                        <div class="mb-3"><textarea class="form-control" rows="4" placeholder="تفاصيل المشكلة..." required></textarea></div>
+                        <button type="submit" class="btn btn-danger w-100" data-i18n="send">إرسال البلاغ</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Request Modal -->
     <div class="modal fade" id="requestModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -522,6 +608,23 @@
         </div>
     </div>
 
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotPassModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" data-i18n="forgot_password">نسيت كلمة المرور؟</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted" data-i18n="recover_hint">أدخل بريدك الإلكتروني لاستعادة كلمة المرور.</p>
+                    <input type="email" class="form-control mb-3" placeholder="user@mail.com">
+                    <button class="btn btn-primary w-100" onclick="bootstrap.Modal.getInstance(document.getElementById('forgotPassModal')).hide();Swal.fire('تم الإرسال')">إرسال</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -581,7 +684,11 @@
                     reports_messages:"الشكاوى والرسائل", sender:"المرسل", type:"النوع", message:"الرسالة", date:"التاريخ",
                     target_audience:"الفئة المستهدفة", all:"الجميع", send:"إرسال", notifications:"الإشعارات", search_placeholder:"بحث...",
                     th_name:"الاسم", th_role:"النوع", alert_error:"خطأ", alert_sent:"تم الإرسال",
-                    rate_caregiver:"تقييم المرافقة", comment_placeholder:"اكتب تعليقك هنا...", submit_rating:"إرسال التقييم"
+                    rate_caregiver:"تقييم المرافقة", comment_placeholder:"اكتب تعليقك هنا...", submit_rating:"إرسال التقييم",
+                    about_us:"من نحن", privacy_policy:"سياسة الخصوصية", contact_us:"تواصل معنا", report_issue:"الإبلاغ عن مشكلة", copyright:"جميع الحقوق محفوظة © 2024",
+                    about_content:"منصة جزائرية مبتكرة تهدف لربط الأولياء بأفضل المختصين. مقرنا في رويبة، الجزائر العاصمة. نسعى لتوفير بيئة آمنة لطفلك.",
+                    privacy_content:"نحن نلتزم بحماية بياناتك الشخصية. جميع المعلومات تستخدم فقط لغرض تحسين الخدمة ولن يتم مشاركتها مع أطراف ثالثة دون موافقتك.",
+                    location_text:"رويبة، الجزائر العاصمة", recover_hint:"أدخل بريدك الإلكتروني لاستعادة كلمة المرور."
                 },
                 fr: {
                     app_name:"Morafik", home:"Accueil", login:"Connexion", register:"Inscription", start_now:"Commencer",
@@ -609,7 +716,11 @@
                     reports_messages:"Signalements & Messages", sender:"Expéditeur", type:"Type", message:"Message", date:"Date",
                     target_audience:"Cible", all:"Tous", send:"Envoyer", notifications:"Notifications", search_placeholder:"Rechercher...",
                     th_name:"Nom", th_role:"Rôle", alert_error:"Erreur", alert_sent:"Envoyé",
-                    rate_caregiver:"Noter le spécialiste", comment_placeholder:"Votre commentaire...", submit_rating:"Envoyer l'avis"
+                    rate_caregiver:"Noter le spécialiste", comment_placeholder:"Votre commentaire...", submit_rating:"Envoyer l'avis",
+                    about_us:"À propos", privacy_policy:"Confidentialité", contact_us:"Contactez-nous", report_issue:"Signaler problème", copyright:"Tous droits réservés © 2024",
+                    about_content:"Plateforme algérienne innovante reliant les parents aux meilleurs spécialistes. Basée à Rouiba, Alger. Nous assurons un environnement sûr.",
+                    privacy_content:"Nous protégeons vos données. Toutes les infos sont utilisées uniquement pour le service et ne seront pas partagées sans accord.",
+                    location_text:"Rouiba, Alger", recover_hint:"Entrez votre email pour récupérer le mot de passe."
                 }
             };
 
@@ -638,7 +749,8 @@
                 getNotifs: () => JSON.parse(localStorage.getItem('notifications')),
                 saveNotif: (n) => { const ns = DB.getNotifs(); ns.push(n); localStorage.setItem('notifications', JSON.stringify(ns)); },
                 getReviews: () => JSON.parse(localStorage.getItem('reviews')),
-                saveReview: (rev) => { const rs = DB.getReviews(); rs.push(rev); localStorage.setItem('reviews', JSON.stringify(rs)); }
+                saveReview: (rev) => { const rs = DB.getReviews(); rs.push(rev); localStorage.setItem('reviews', JSON.stringify(rs)); },
+                saveReport: (rep) => { const r = JSON.parse(localStorage.getItem('reports') || '[]'); r.push(rep); localStorage.setItem('reports', JSON.stringify(r)); }
             };
 
             let currentUser = null;
@@ -655,6 +767,7 @@
             window.goHome = function() { if(currentUser) return; switchView('landingView'); };
             window.goToLogin = function() { switchView('authView'); new bootstrap.Tab(document.querySelector('#tab-login')).show(); };
             window.startNow = function() { switchView('authView'); new bootstrap.Tab(document.querySelector('#tab-register')).show(); };
+            window.openModal = function(id) { new bootstrap.Modal(document.getElementById(id)).show(); };
 
             window.logout = function() {
                 currentUser = null;
@@ -667,7 +780,8 @@
             // --- AUTH ---
             document.getElementById('loginForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-                const email = document.getElementById('loginEmail').value;
+                // ToLowerCase added here for case insensitivity
+                const email = document.getElementById('loginEmail').value.trim().toLowerCase();
                 const pass = document.getElementById('loginPass').value;
                 
                 if(email === 'admin' && pass === 'abobob123') {
@@ -679,7 +793,8 @@
                     switchView('adminView'); return;
                 }
 
-                const user = DB.getUsers().find(u => u.email === email && u.pass === pass);
+                // Check stored email (also lowercased)
+                const user = DB.getUsers().find(u => u.email.toLowerCase() === email && u.pass === pass);
                 if(user) {
                     if(user.isBanned) { Swal.fire({icon:'error', title:'محظور', text:'تم حظر حسابك من قبل الإدارة'}); return; }
                     currentUser = user;
@@ -703,6 +818,22 @@
                 Swal.fire({icon:'success', title:'تم التسجيل'});
                 new bootstrap.Tab(document.querySelector('#tab-login')).show(); document.getElementById('registerForm').reset();
             });
+
+            // --- REPORTING ---
+            window.submitReport = function(e, type) {
+                e.preventDefault();
+                const msg = e.target.querySelector('textarea').value;
+                const rep = {
+                    sender: currentUser ? currentUser.name : 'Visitor',
+                    type: type,
+                    message: msg,
+                    date: new Date().toLocaleDateString()
+                };
+                DB.saveReport(rep);
+                bootstrap.Modal.getInstance(e.target.closest('.modal')).hide();
+                e.target.reset();
+                Swal.fire(t('alert_sent'));
+            };
 
             // --- NOTIFICATIONS ---
             window.checkNotifications = function() {
@@ -818,10 +949,10 @@
                 };
 
                 DB.saveReview(review);
-                DB.updateRequestRating(rid); // Mark request as rated
+                DB.updateRequestRating(rid); 
                 bootstrap.Modal.getInstance(document.getElementById('rateModal')).hide();
                 Swal.fire({icon:'success', title: t('alert_sent')});
-                loadMyRequests(); // Refresh list to remove rate button
+                loadMyRequests(); 
             };
 
             // --- CAREGIVER ---
@@ -856,9 +987,11 @@
             // --- ADMIN ---
             window.loadAdminDashboard = function() {
                 const users = DB.getUsers(); const reqs = DB.getRequests();
+                const reports = JSON.parse(localStorage.getItem('reports') || '[]');
+                
                 document.getElementById('statTotalUsers').innerText = users.length;
                 document.getElementById('statCaregivers').innerText = users.filter(u=>u.role==='caregiver').length;
-                document.getElementById('statReportsCount').innerText = 0; 
+                document.getElementById('statReportsCount').innerText = reports.length; 
                 document.getElementById('statSuccessOps').innerText = reqs.filter(r=>r.status==='accepted').length;
 
                 const successCounts = {};
@@ -880,6 +1013,11 @@
                     const statusBadge = u.isBanned ? '<span class="badge bg-danger">محظور</span>' : '<span class="badge bg-success">نشط</span>';
                     const actionBtn = u.isBanned ? `<button class="btn btn-sm btn-success" onclick="toggleBan('${u.id}')">فك حظر</button>` : `<button class="btn btn-sm btn-outline-danger" onclick="toggleBan('${u.id}')">حظر</button>`;
                     uTable.innerHTML += `<tr><td>${u.name}</td><td>${u.role}</td><td>${u.phone}</td><td class="small">${u.email}</td><td class="text-danger font-monospace">${u.pass}</td><td>${statusBadge}</td><td>${actionBtn}</td></tr>`;
+                });
+
+                const rTable = document.getElementById('adminReportsTable'); rTable.innerHTML = '';
+                reports.reverse().forEach(r => {
+                    rTable.innerHTML += `<tr><td>${r.sender}</td><td>${r.type}</td><td>${r.message}</td><td>${r.date}</td></tr>`;
                 });
             };
 
