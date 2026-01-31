@@ -93,17 +93,11 @@
         .form-label { font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; color: #475569; }
         .profile-img-preview { width: 90px; height: 90px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-color); }
         
-        /* Stats Cards - BIG NUMBERS UPDATE */
-        .stat-box { padding: 30px 20px; border-radius: 16px; color: white; position: relative; overflow: hidden; transition: transform 0.3s; }
-        .stat-box:hover { transform: translateY(-5px); }
-        .stat-box h3 { 
-            font-weight: 900; 
-            margin-bottom: 10px; 
-            font-size: 5.5rem; /* حجم كبير جداً */
-            line-height: 1;
-            text-shadow: 4px 4px 8px rgba(0,0,0,0.3); 
-        } 
-        .stat-box span { font-size: 1.2rem; opacity: 0.95; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        /* Stats Cards */
+        .stat-box { padding: 20px; border-radius: 12px; color: white; position: relative; overflow: hidden; }
+        /* INCREASED FONT SIZE FOR ADMIN DASHBOARD */
+        .stat-box h3 { font-weight: 900; margin-bottom: 0; font-size: 4rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); } 
+        .stat-box span { font-size: 1rem; opacity: 0.9; font-weight: bold; }
         
         .bg-gradient-primary { background: linear-gradient(45deg, #4e73df, #224abe); }
         .bg-gradient-success { background: linear-gradient(45deg, #1cc88a, #13855c); }
@@ -126,7 +120,6 @@
             .mobile-table td { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border: none; border-bottom: 1px dashed #eee; }
             .mobile-table td:last-child { border-bottom: none; }
             .mobile-table td::before { content: attr(data-label); font-weight: bold; color: #64748b; font-size: 0.9rem; }
-            .stat-box h3 { font-size: 4rem; } /* أصغر قليلاً للموبايل */
         }
     </style>
 </head>
@@ -178,6 +171,7 @@
             <div class="landing-hero">
                 <div class="landing-bg"></div>
                 <div class="landing-content container">
+                    <!-- GLOWING TEXT ADDED HERE -->
                     <h1 class="mb-3 glow-text" data-i18n="welcome_title">أهلاً بك في عائلة مرافق</h1>
                     <p class="subtitle mb-5 text-white fs-4" data-i18n="slogan">طفلك في أيادي آمنة .. ومختصين تثق بهم</p>
                     <button class="btn-start" onclick="startNow()" data-i18n="start_now">ابدأ الآن <i class="bi bi-arrow-left"></i></button>
@@ -203,6 +197,7 @@
                                     <form id="loginForm">
                                         <div class="mb-3">
                                             <label class="form-label" data-i18n="email_label">البريد الإلكتروني</label>
+                                            <!-- Added autocapitalize and spellcheck -->
                                             <input type="text" class="form-control" id="loginEmail" required data-i18n-placeholder="email_placeholder" autocapitalize="off" spellcheck="false" autocomplete="off">
                                         </div>
                                         <div class="mb-3">
@@ -328,7 +323,7 @@
             </div>
         </section>
         
-        <!-- 4. ADMIN VIEW (BIG NUMBERS UPDATED) -->
+        <!-- 4. ADMIN VIEW -->
         <section id="adminView" class="view-section">
             <div class="container py-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -430,6 +425,7 @@
                     <p class="mb-2"><i class="bi bi-geo-alt-fill text-danger"></i> <span data-i18n="location_text">رويبة، الجزائر العاصمة</span></p>
                     <p class="mb-3"><i class="bi bi-envelope-fill text-primary"></i> contact@morafik.dz</p>
                     <form onsubmit="submitReport(event, 'رسالة تواصل')">
+                        <!-- ADDED EMAIL INPUT -->
                         <div class="mb-3"><input type="email" class="form-control" placeholder="البريد الإلكتروني" required></div>
                         <div class="mb-3"><input type="text" class="form-control" placeholder="الاسم" required></div>
                         <div class="mb-3"><textarea class="form-control" rows="3" placeholder="الرسالة" required></textarea></div>
@@ -447,6 +443,7 @@
                 <div class="modal-header bg-danger text-white"><h5 class="modal-title" data-i18n="report_issue">الإبلاغ عن مشكلة</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <form onsubmit="submitReport(event, 'بلاغ عن مشكلة')">
+                        <!-- ADDED EMAIL INPUT -->
                         <div class="mb-3"><input type="email" class="form-control" placeholder="البريد الإلكتروني" required></div>
                         <div class="mb-3"><textarea class="form-control" rows="4" placeholder="تفاصيل المشكلة..." required></textarea></div>
                         <button type="submit" class="btn btn-danger w-100" data-i18n="send">إرسال البلاغ</button>
@@ -822,18 +819,7 @@
                 const role = document.getElementById('regRole').value;
                 const newUser = { id: 'u' + Date.now(), name: document.getElementById('regName').value, email: document.getElementById('regEmail').value, phone: document.getElementById('regPhone').value, pass: document.getElementById('regPass').value, role: role, wilaya: document.getElementById('regWilaya').value, photo: "https://cdn-icons-png.flaticon.com/512/149/149071.png", isAvailable: true, isBanned: false };
                 if (role === 'caregiver') { newUser.service = document.getElementById('regService').value; }
-                DB.saveUser(newUser);
-                
-                // --- SEND EMAIL (Integration Code) ---
-                const formData = new FormData();
-                formData.append('email', newUser.email);
-                formData.append('name', newUser.name);
-                fetch('mail.php', { method: 'POST', body: formData })
-                    .then(response => response.text())
-                    .then(data => console.log(data))
-                    .catch(err => console.error(err));
-                // -------------------------------------
-
+                DB.saveUser(newUser); 
                 Swal.fire({icon:'success', title:'تم التسجيل'});
                 new bootstrap.Tab(document.querySelector('#tab-login')).show(); document.getElementById('registerForm').reset();
             });
