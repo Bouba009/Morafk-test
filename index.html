@@ -54,14 +54,16 @@
             color: white; text-align: center; background-color: #1e293b;
             overflow: hidden;
         }
+        /* START CHANGE: Background Image Updated */
         .landing-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1000&auto=format&fit=crop');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQdqyaE5lfB0aq2Lh2NEtZ9RsZhjLSu7-7WpFh9jSbCZTddgHeXDcDnoUleSwnmO_i6hjNwsA_OcSVdqZoSBzUqPJvwAy-TPXy5oEICtGhXknABuFinIswpQBGJV52bTdlccbFB6CEHJeo6z11DK5y1uXcdWQJOXuhRVzngah-7Nm5BBkBhRSLCYDawvE/s1536/file_00000000623871f7950ad8ca1455d536.png');
             background-size: cover; background-position: center top; z-index: 1;
             transform-origin: center;
             animation: zoomMove 20s infinite alternate ease-in-out; 
             will-change: transform;
         }
+        /* END CHANGE */
         @keyframes zoomMove { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
         
         .landing-content { position: relative; z-index: 2; padding: 20px; }
@@ -135,7 +137,10 @@
     <nav class="navbar navbar-expand bg-white shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold text-dark d-flex align-items-center" href="#" onclick="goHome()">
-                <i class="bi bi-balloon-heart-fill text-success me-2 fs-4"></i> <span data-i18n="app_name">مرافق</span>
+                <!-- START CHANGE: Added Logo Image -->
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgSZfGEtI86QBwgGUyWALRzooflVAaPkSFJAUan2IFU5vY6IkbKE0PPu2QWuDphfbujw7OZAV7hEPP9IrCQ_HT_UW6NyZkD-JDzzmyRmRxfAb85YqtiHjJ9y4Q1rXpBtetXOE9VHgfnyN7iIhuIe2JTRBGMjC0aAqCZNZRLeIvf0OTp94tQQ_Fny5eguJs/s320/Picsart_26-01-31_16-19-13-033.png" alt="Logo" style="height: 50px;" class="me-2">
+                <!-- END CHANGE -->
+                <span data-i18n="app_name">مرافق</span>
             </a>
             
             <div class="d-flex align-items-center gap-2">
