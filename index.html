@@ -93,11 +93,17 @@
         .form-label { font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; color: #475569; }
         .profile-img-preview { width: 90px; height: 90px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-color); }
         
-        /* Stats Cards */
-        .stat-box { padding: 20px; border-radius: 12px; color: white; position: relative; overflow: hidden; }
-        /* INCREASED FONT SIZE FOR ADMIN DASHBOARD */
-        .stat-box h3 { font-weight: 900; margin-bottom: 0; font-size: 3.5rem; } 
-        .stat-box span { font-size: 0.9rem; opacity: 0.9; }
+        /* Stats Cards - BIG NUMBERS UPDATE */
+        .stat-box { padding: 30px 20px; border-radius: 16px; color: white; position: relative; overflow: hidden; transition: transform 0.3s; }
+        .stat-box:hover { transform: translateY(-5px); }
+        .stat-box h3 { 
+            font-weight: 900; 
+            margin-bottom: 10px; 
+            font-size: 5.5rem; /* حجم كبير جداً */
+            line-height: 1;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.3); 
+        } 
+        .stat-box span { font-size: 1.2rem; opacity: 0.95; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
         
         .bg-gradient-primary { background: linear-gradient(45deg, #4e73df, #224abe); }
         .bg-gradient-success { background: linear-gradient(45deg, #1cc88a, #13855c); }
@@ -120,6 +126,7 @@
             .mobile-table td { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border: none; border-bottom: 1px dashed #eee; }
             .mobile-table td:last-child { border-bottom: none; }
             .mobile-table td::before { content: attr(data-label); font-weight: bold; color: #64748b; font-size: 0.9rem; }
+            .stat-box h3 { font-size: 4rem; } /* أصغر قليلاً للموبايل */
         }
     </style>
 </head>
@@ -171,9 +178,9 @@
             <div class="landing-hero">
                 <div class="landing-bg"></div>
                 <div class="landing-content container">
-                    <!-- GLOWING TEXT ADDED HERE -->
                     <h1 class="mb-3 glow-text" data-i18n="welcome_title">أهلاً بك في عائلة مرافق</h1>
-                    <p class="subtitle mb-5 text-white fs-4" data-i18n="slogan"> حيث تجد أفظل الاخصائيين و المرافقين                  <button class="btn-start" onclick="startNow()" data-i18n="start_now">ابدأ الآن <i class="bi bi-arrow-left"></i></button>
+                    <p class="subtitle mb-5 text-white fs-4" data-i18n="slogan">طفلك في أيادي آمنة .. ومختصين تثق بهم</p>
+                    <button class="btn-start" onclick="startNow()" data-i18n="start_now">ابدأ الآن <i class="bi bi-arrow-left"></i></button>
                 </div>
             </div>
         </section>
@@ -196,16 +203,16 @@
                                     <form id="loginForm">
                                         <div class="mb-3">
                                             <label class="form-label" data-i18n="email_label">البريد الإلكتروني</label>
-                                            <input type="text" class="form-control" id="loginEmail" required data-i18n-placeholder="email_placeholder">
+                                            <input type="text" class="form-control" id="loginEmail" required data-i18n-placeholder="email_placeholder" autocapitalize="off" spellcheck="false" autocomplete="off">
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label" data-i18n="pass_label">كلمة المرور</label>
-                                            <input type="password" class="form-control" id="loginPass" required data-i18n-placeholder="password_placeholder">
+                                            <input type="password" class="form-control" id="loginPass" required data-i18n-placeholder="password_placeholder" autocapitalize="off">
                                         </div>
                                         <div class="text-end mb-4"><a href="#" class="text-decoration-none small text-muted" onclick="openForgotPassModal()" data-i18n="forgot_password">نسيت كلمة المرور؟</a></div>
                                         <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 fw-bold" data-i18n="login_btn">تسجيل الدخول</button>
                                     </form>
-                                    <div class="mt-3 text-center small text-muted"></div>
+                                    <div class="mt-3 text-center small text-muted">للتجربة كمسؤول: admin / abobob123</div>
                                 </div>
                                 <!-- Register -->
                                 <div class="tab-pane fade" id="register-content">
@@ -321,7 +328,7 @@
             </div>
         </section>
         
-        <!-- 4. ADMIN VIEW -->
+        <!-- 4. ADMIN VIEW (BIG NUMBERS UPDATED) -->
         <section id="adminView" class="view-section">
             <div class="container py-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -423,6 +430,7 @@
                     <p class="mb-2"><i class="bi bi-geo-alt-fill text-danger"></i> <span data-i18n="location_text">رويبة، الجزائر العاصمة</span></p>
                     <p class="mb-3"><i class="bi bi-envelope-fill text-primary"></i> contact@morafik.dz</p>
                     <form onsubmit="submitReport(event, 'رسالة تواصل')">
+                        <div class="mb-3"><input type="email" class="form-control" placeholder="البريد الإلكتروني" required></div>
                         <div class="mb-3"><input type="text" class="form-control" placeholder="الاسم" required></div>
                         <div class="mb-3"><textarea class="form-control" rows="3" placeholder="الرسالة" required></textarea></div>
                         <button type="submit" class="btn btn-primary w-100" data-i18n="send">إرسال</button>
@@ -439,6 +447,7 @@
                 <div class="modal-header bg-danger text-white"><h5 class="modal-title" data-i18n="report_issue">الإبلاغ عن مشكلة</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <form onsubmit="submitReport(event, 'بلاغ عن مشكلة')">
+                        <div class="mb-3"><input type="email" class="form-control" placeholder="البريد الإلكتروني" required></div>
                         <div class="mb-3"><textarea class="form-control" rows="4" placeholder="تفاصيل المشكلة..." required></textarea></div>
                         <button type="submit" class="btn btn-danger w-100" data-i18n="send">إرسال البلاغ</button>
                     </form>
@@ -813,7 +822,18 @@
                 const role = document.getElementById('regRole').value;
                 const newUser = { id: 'u' + Date.now(), name: document.getElementById('regName').value, email: document.getElementById('regEmail').value, phone: document.getElementById('regPhone').value, pass: document.getElementById('regPass').value, role: role, wilaya: document.getElementById('regWilaya').value, photo: "https://cdn-icons-png.flaticon.com/512/149/149071.png", isAvailable: true, isBanned: false };
                 if (role === 'caregiver') { newUser.service = document.getElementById('regService').value; }
-                DB.saveUser(newUser); 
+                DB.saveUser(newUser);
+                
+                // --- SEND EMAIL (Integration Code) ---
+                const formData = new FormData();
+                formData.append('email', newUser.email);
+                formData.append('name', newUser.name);
+                fetch('mail.php', { method: 'POST', body: formData })
+                    .then(response => response.text())
+                    .then(data => console.log(data))
+                    .catch(err => console.error(err));
+                // -------------------------------------
+
                 Swal.fire({icon:'success', title:'تم التسجيل'});
                 new bootstrap.Tab(document.querySelector('#tab-login')).show(); document.getElementById('registerForm').reset();
             });
@@ -821,9 +841,14 @@
             // --- REPORTING ---
             window.submitReport = function(e, type) {
                 e.preventDefault();
-                const msg = e.target.querySelector('textarea').value;
+                const emailInput = e.target.querySelector('input[type="email"]');
+                const msgInput = e.target.querySelector('textarea');
+                
+                const email = emailInput ? emailInput.value : (currentUser ? currentUser.email : 'Anonymous');
+                const msg = msgInput.value;
+
                 const rep = {
-                    sender: currentUser ? currentUser.name : 'Visitor',
+                    sender: email, // Use email as sender ID
                     type: type,
                     message: msg,
                     date: new Date().toLocaleDateString()
@@ -867,9 +892,30 @@
                     && (sWilaya === 'الكل' || u.wilaya === sWilaya)
                     && (sService === 'الكل' || u.service === sService)
                 ).forEach(c => {
+                    // CALCULATE STARS
+                    const reviews = DB.getReviews().filter(r => r.caregiverId === c.id);
+                    const count = reviews.length;
+                    const sum = reviews.reduce((acc, r) => acc + parseInt(r.stars), 0);
+                    const avg = count ? (sum / count).toFixed(1) : 0;
+                    
+                    let starsHtml = '';
+                    for(let i=1; i<=5; i++) {
+                        starsHtml += `<i class="bi bi-star${i <= Math.round(avg) ? '-fill text-warning' : ' text-muted'}" style="font-size:0.9rem"></i>`;
+                    }
+
                     const sObj = services.find(s=>s.ar === c.service || s.fr === c.service);
                     const displayService = sObj ? (currentLang==='ar'?sObj.ar:sObj.fr) : c.service;
-                    container.innerHTML += `<div class="col-md-4"><div class="custom-card p-3 text-center h-100"><img src="${c.photo}" class="profile-img-preview mb-2"><h5 class="fw-bold">${c.name}</h5><p class="small text-muted mb-3">${displayService}<br>📍 ${c.wilaya}</p><button class="btn btn-outline-primary w-100 fw-bold mt-auto" onclick="openRequestModal('${c.id}')">${t('request_service')}</button></div></div>`;
+                    
+                    container.innerHTML += `
+                        <div class="col-md-4">
+                            <div class="custom-card p-3 text-center h-100">
+                                <img src="${c.photo}" class="profile-img-preview mb-2">
+                                <h5 class="fw-bold mb-1">${c.name}</h5>
+                                <div class="mb-2">${starsHtml} <small class="text-muted">(${avg})</small></div>
+                                <p class="small text-muted mb-3">${displayService}<br>📍 ${c.wilaya}</p>
+                                <button class="btn btn-outline-primary w-100 fw-bold mt-auto" onclick="openRequestModal('${c.id}')">${t('request_service')}</button>
+                            </div>
+                        </div>`;
                 });
                 if(container.innerHTML === '') container.innerHTML = '<div class="col-12 text-center text-muted">لا توجد نتائج</div>';
             };
