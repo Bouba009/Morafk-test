@@ -1,647 +1,128 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مرافق - Morafik</title>
-    
-    <!-- Bootstrap 5 RTL -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Firebase SDKs + Application Logic -->
+    <script type="module">
+        // 1. استيراد مكتبات Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    <style>
-        :root {
-            --primary-color: #1e293b;
-            --accent-color: #10b981;
-            --gold: #f59e0b;
-            --bg-light: #f8fafc;
-        }
+        // 2. إعدادات مشروعك (تمت إضافتها)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAaXp-gUOQ_G2s-kM8JhaqW8TJcJ4Nqcuo",
+            authDomain: "comondi-fae4b.firebaseapp.com",
+            // 🔴 تم إضافة هذا الرابط تلقائياً، إذا لم يعمل تأكد منه في Realtime Database في الموقع
+            databaseURL: "https://comondi-fae4b-default-rtdb.firebaseio.com", 
+            projectId: "comondi-fae4b",
+            storageBucket: "comondi-fae4b.firebasestorage.app",
+            messagingSenderId: "932777870241",
+            appId: "1:932777870241:web:78b0cf3a3cf14046be01e0",
+            measurementId: "G-M09RX0V18S"
+        };
 
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: var(--bg-light);
-            overflow-x: hidden;
-            display: flex; flex-direction: column; min-height: 100vh;
-            opacity: 0; transition: opacity 0.5s ease;
-        }
-        body.loaded { opacity: 1; }
-        html[lang="fr"] body { font-family: 'Roboto', sans-serif; }
-        main { flex: 1; }
+        // تهيئة Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-        /* Loader */
-        #page-loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #fff; z-index: 9999;
-            display: flex; justify-content: center; align-items: center; flex-direction: column;
-        }
-        .spinner {
-            width: 50px; height: 50px; border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--accent-color); border-radius: 50%;
-            animation: spin 1s linear infinite; margin-bottom: 15px;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        // متغيرات محلية متزامنة
+        let localUsers = [];
+        let localRequests = [];
+        let localNotifs = [];
+        let localReviews = [];
+        let localReports = [];
+        let currentUser = null; 
+        let dataLoaded = false;
 
-        /* Landing Page Animation */
-        .landing-hero {
-            position: relative; min-height: 90vh;
-            display: flex; align-items: center; justify-content: center;
-            color: white; text-align: center; background-color: #1e293b;
-            overflow: hidden;
-        }
-        /* START CHANGE: Background Image Updated */
-        .landing-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQdqyaE5lfB0aq2Lh2NEtZ9RsZhjLSu7-7WpFh9jSbCZTddgHeXDcDnoUleSwnmO_i6hjNwsA_OcSVdqZoSBzUqPJvwAy-TPXy5oEICtGhXknABuFinIswpQBGJV52bTdlccbFB6CEHJeo6z11DK5y1uXcdWQJOXuhRVzngah-7Nm5BBkBhRSLCYDawvE/s1536/file_00000000623871f7950ad8ca1455d536.png');
-            background-size: cover; background-position: center top; z-index: 1;
-            transform-origin: center;
-            animation: zoomMove 20s infinite alternate ease-in-out; 
-            will-change: transform;
-        }
-        /* END CHANGE */
-        @keyframes zoomMove { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
-        
-        .landing-content { position: relative; z-index: 2; padding: 20px; }
-        
-        /* GLOWING TEXT EFFECT */
-        .glow-text {
-            font-size: 2.5rem; font-weight: 900; 
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5), 0 0 30px var(--accent-color);
-        }
+        // --- المزامنة الفورية (Realtime Sync) ---
+        function initListeners() {
+            // جلب المستخدمين
+            onValue(ref(db, 'users'), (snapshot) => {
+                const data = snapshot.val();
+                localUsers = data ? Object.values(data) : [];
+                if(localUsers.length === 0) seedDatabase();
+                checkDataLoaded();
+                refreshUI(); 
+            });
 
-        .btn-start {
-            background: var(--accent-color); color: white; font-size: 1.3rem; padding: 12px 50px;
-            border-radius: 50px; font-weight: bold; box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-            transition: transform 0.3s; text-decoration: none; border: none;
-        }
-        .btn-start:hover { transform: scale(1.05); background: #059669; color: #fff; }
+            // جلب الطلبات
+            onValue(ref(db, 'requests'), (snapshot) => {
+                const data = snapshot.val();
+                localRequests = data ? Object.values(data) : [];
+                refreshUI();
+            });
 
-        /* UI Components */
-        .custom-card {
-            background: white; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        .view-section { display: none; opacity: 0; transition: opacity 0.3s ease; }
-        .view-section.active { display: block; opacity: 1; }
-        .role-selector { cursor: pointer; border: 2px solid #e2e8f0; padding: 15px; border-radius: 12px; transition: all 0.2s; background: #fff; }
-        .role-selector.active { border-color: var(--accent-color); background-color: #ecfdf5; }
-        
-        .form-label { font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; color: #475569; }
-        .profile-img-preview { width: 90px; height: 90px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-color); }
-        
-        /* Stats Cards */
-        .stat-box { padding: 20px; border-radius: 12px; color: white; position: relative; overflow: hidden; }
-        /* INCREASED FONT SIZE FOR ADMIN DASHBOARD */
-        .stat-box h3 { font-weight: 900; margin-bottom: 0; font-size: 4rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); } 
-        .stat-box span { font-size: 1rem; opacity: 0.9; font-weight: bold; }
-        
-        .bg-gradient-primary { background: linear-gradient(45deg, #4e73df, #224abe); }
-        .bg-gradient-success { background: linear-gradient(45deg, #1cc88a, #13855c); }
-        .bg-gradient-warning { background: linear-gradient(45deg, #f6c23e, #dda20a); }
-        .bg-gradient-danger { background: linear-gradient(45deg, #e74a3b, #be2617); }
+            // جلب الإشعارات
+            onValue(ref(db, 'notifications'), (snapshot) => {
+                const data = snapshot.val();
+                localNotifs = data ? Object.values(data) : [];
+                checkNotifications(); 
+            });
 
-        /* Star Rating Styles */
-        .star-rating i { font-size: 2rem; color: #e2e8f0; cursor: pointer; transition: color 0.2s; }
-        .star-rating i.active { color: var(--gold); }
-
-        /* Footer Styles */
-        .app-footer { background-color: #fff; border-top: 1px solid #eee; padding: 20px 0; margin-top: auto; }
-        .footer-link { color: #64748b; text-decoration: none; font-size: 0.9rem; cursor: pointer; transition: color 0.2s; }
-        .footer-link:hover { color: var(--primary-color); text-decoration: underline; }
-
-        /* Mobile Table */
-        @media (max-width: 768px) {
-            .mobile-table thead { display: none; }
-            .mobile-table tbody tr { display: block; background: white; margin-bottom: 15px; border-radius: 12px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eee; }
-            .mobile-table td { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border: none; border-bottom: 1px dashed #eee; }
-            .mobile-table td:last-child { border-bottom: none; }
-            .mobile-table td::before { content: attr(data-label); font-weight: bold; color: #64748b; font-size: 0.9rem; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- LOADING SCREEN -->
-    <div id="page-loader">
-        <div class="spinner"></div>
-        <h5 class="fw-bold text-muted">...</h5>
-    </div>
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand bg-white shadow-sm sticky-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-dark d-flex align-items-center" href="#" onclick="goHome()">
-                <!-- START CHANGE: Added Logo Image -->
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgSZfGEtI86QBwgGUyWALRzooflVAaPkSFJAUan2IFU5vY6IkbKE0PPu2QWuDphfbujw7OZAV7hEPP9IrCQ_HT_UW6NyZkD-JDzzmyRmRxfAb85YqtiHjJ9y4Q1rXpBtetXOE9VHgfnyN7iIhuIe2JTRBGMjC0aAqCZNZRLeIvf0OTp94tQQ_Fny5eguJs/s320/Picsart_26-01-31_16-19-13-033.png" alt="Logo" style="height: 50px;" class="me-2">
-                <!-- END CHANGE -->
-                <span data-i18n="app_name">مرافق</span>
-            </a>
+            // جلب التقييمات
+            onValue(ref(db, 'reviews'), (snapshot) => {
+                const data = snapshot.val();
+                localReviews = data ? Object.values(data) : [];
+            });
             
-            <div class="d-flex align-items-center gap-2">
-                <div id="guestNav" class="d-flex gap-2">
-                    <button class="btn btn-sm btn-link text-decoration-none text-dark fw-bold" onclick="goHome()" data-i18n="home">الرئيسية</button>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill fw-bold" onclick="goToLogin()" data-i18n="login">دخول</button>
-                </div>
-                
-                <button class="btn btn-sm fw-bold border-2 border-primary text-primary rounded-pill ms-2" onclick="toggleLanguage()" id="langSwitcher">FR</button>
-                
-                <!-- User Nav -->
-                <div id="userNav" class="d-none d-flex align-items-center gap-2">
-                    <button class="btn btn-light btn-sm position-relative rounded-circle border" onclick="openNotifications()">
-                        <i class="bi bi-bell-fill text-warning"></i>
-                        <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle d-none"></span>
-                    </button>
-                    
-                    <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="openEditProfileModal()">
-                        <i class="bi bi-gear-fill"></i> <span class="d-none d-md-inline" data-i18n="settings">إعدادات</span>
-                    </button>
-                    <span id="userInfo" class="text-secondary small fw-bold d-none d-md-block mx-2"></span>
-                    <button class="btn btn-light btn-sm text-danger border fw-bold rounded-pill" onclick="logout()">
-                        <i class="bi bi-box-arrow-left"></i> <span class="d-none d-md-inline" data-i18n="logout">خروج</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
+             // جلب التقارير
+            onValue(ref(db, 'reports'), (snapshot) => {
+                const data = snapshot.val();
+                localReports = data ? Object.values(data) : [];
+                if(currentUser && currentUser.role === 'admin') loadAdminDashboard();
+            });
+        }
 
-    <main>
-        <!-- 0. LANDING VIEW -->
-        <section id="landingView" class="view-section active">
-            <div class="landing-hero">
-                <div class="landing-bg"></div>
-                <div class="landing-content container">
-                    <!-- GLOWING TEXT ADDED HERE -->
-                    <h2 class="mb-3 glow-text" data-i18n="welcome_title">أهلاً بك في عائلة مرافق</h2>
-                    <p class="subtitle mb-5 text-white fs-4" data-i18n="slogan">طفلك في أيادي آمنة</p>
-                    <button class="btn-start" onclick="startNow()" data-i18n="start_now">ابدأ الآن <i class="bi bi-arrow-left"></i></button>
-                </div>
-            </div>
-        </section>
+        function checkDataLoaded() {
+            if(!dataLoaded) {
+                dataLoaded = true;
+                const loader = document.getElementById('page-loader');
+                if(loader) loader.style.display = 'none';
+                document.body.classList.add('loaded');
+            }
+        }
 
-        <!-- 1. AUTH SCREEN -->
-        <section id="authView" class="view-section">
-            <div class="container py-5">
-                <div class="row justify-content-center">
-                    <div class="col-md-8 col-lg-5">
-                        <div class="custom-card p-4 shadow-lg">
-                            <h3 class="text-center fw-bold mb-4" data-i18n="app_name">مرافق</h3>
-                            <ul class="nav nav-pills mb-4 nav-justified p-1 bg-light rounded-pill">
-                                <li class="nav-item"><button class="nav-link active rounded-pill" id="tab-login" data-bs-toggle="pill" data-bs-target="#login-content" data-i18n="login">دخول</button></li>
-                                <li class="nav-item"><button class="nav-link rounded-pill" id="tab-register" data-bs-toggle="pill" data-bs-target="#register-content" data-i18n="register">حساب جديد</button></li>
-                            </ul>
-                            
-                            <div class="tab-content">
-                                <!-- Login -->
-                                <div class="tab-pane fade show active" id="login-content">
-                                    <form id="loginForm">
-                                        <div class="mb-3">
-                                            <label class="form-label" data-i18n="email_label">البريد الإلكتروني</label>
-                                            <!-- Added autocapitalize and spellcheck -->
-                                            <input type="text" class="form-control" id="loginEmail" required data-i18n-placeholder="email_placeholder" autocapitalize="off" spellcheck="false" autocomplete="off">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label" data-i18n="pass_label">كلمة المرور</label>
-                                            <input type="password" class="form-control" id="loginPass" required data-i18n-placeholder="password_placeholder" autocapitalize="off">
-                                        </div>
-                                        <div class="text-end mb-4"><a href="#" class="text-decoration-none small text-muted" onclick="openForgotPassModal()" data-i18n="forgot_password">نسيت كلمة المرور؟</a></div>
-                                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 fw-bold" data-i18n="login_btn">تسجيل الدخول</button>
-                                    </form>
-                                    <div class="mt-3 text-center small text-muted"></div>
-                                </div>
-                                <!-- Register -->
-                                <div class="tab-pane fade" id="register-content">
-                                    <form id="registerForm">
-                                        <div class="row g-2 mb-3">
-                                            <div class="col-6">
-                                                <div class="role-selector text-center active" onclick="selectRole('parent', this)">
-                                                    <i class="bi bi-person-fill fs-3 text-primary"></i> <div class="small fw-bold mt-1" data-i18n="role_parent">ولي أمر</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="role-selector text-center" onclick="selectRole('caregiver', this)">
-                                                    <i class="bi bi-heart-pulse-fill fs-3 text-danger"></i> <div class="small fw-bold mt-1" data-i18n="role_caregiver">مرافقة / مختص</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" id="regRole" value="parent">
-                                        <div class="mb-2">
-                                            <label class="form-label" data-i18n="fullname">الاسم الكامل</label>
-                                            <input type="text" class="form-control" id="regName" data-i18n-placeholder="fullname" required>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label" data-i18n="email_label">البريد الإلكتروني</label>
-                                            <input type="email" class="form-control" id="regEmail" data-i18n-placeholder="email_placeholder" required>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label" data-i18n="phone">رقم الهاتف</label>
-                                            <input type="tel" class="form-control" id="regPhone" data-i18n-placeholder="phone" required>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label" data-i18n="pass_label">كلمة المرور</label>
-                                            <input type="password" class="form-control" id="regPass" data-i18n-placeholder="password_placeholder" required>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label" data-i18n="wilaya">الولاية</label>
-                                            <select class="form-select dynamic-wilaya" id="regWilaya" required></select>
-                                        </div>
-                                        <div id="caregiverFields" class="d-none mt-3 p-3 bg-light rounded border">
-                                            <div class="mb-2">
-                                                <label class="form-label" data-i18n="service_type">نوع الخدمة</label>
-                                                <select class="form-select dynamic-service" id="regService"></select>
-                                            </div>
-                                            <div class="mb-0"><label class="small fw-bold" data-i18n="upload_cert">رفع الشهادة (PDF)</label><input type="file" class="form-control" id="regCert" accept=".pdf"></div>
-                                        </div>
-                                        <button type="submit" class="btn btn-success w-100 mt-3 py-2 fw-bold" data-i18n="create_account_btn">إنشاء حساب</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        function refreshUI() {
+            if(!currentUser) return;
+            if(currentUser.role === 'parent') {
+                loadParentStats();
+                loadMyRequests();
+                if(document.getElementById('resultsArea').innerHTML !== '') performSearch();
+            } else if (currentUser.role === 'caregiver') {
+                loadCaregiverDashboard();
+            } else if (currentUser.role === 'admin') {
+                loadAdminDashboard();
+            }
+        }
 
-        <!-- 2. PARENT VIEW -->
-        <section id="parentView" class="view-section">
-            <div class="container py-4">
-                <!-- Parent Simple Dashboard -->
-                <div class="row g-3 mb-4">
-                    <div class="col-4"><div class="stat-box bg-gradient-primary text-center"><h3><i class="bi bi-send"></i></h3><span id="pStatTotal">0</span> <span data-i18n="stat_total_req">الطلبات</span></div></div>
-                    <div class="col-4"><div class="stat-box bg-gradient-success text-center"><h3><i class="bi bi-check-circle"></i></h3><span id="pStatAccepted">0</span> <span data-i18n="stat_accepted">مقبولة</span></div></div>
-                    <div class="col-4"><div class="stat-box bg-gradient-warning text-center"><h3><i class="bi bi-hourglass-split"></i></h3><span id="pStatPending">0</span> <span data-i18n="stat_new_req">انتظار</span></div></div>
-                </div>
+        // إضافة مستخدمين افتراضيين عند التشغيل لأول مرة
+        function seedDatabase() {
+            const initialUsers = [
+                { id: 'c1', name: 'د. سارة (نفسانية)', email: 'doc@test.com', pass: '123', role: 'caregiver', phone: '0550112233', wilaya: 'الجزائر', service: 'استشارة (أخصائي نفساني)', isAvailable: true, photo: "https://cdn-icons-png.flaticon.com/512/3304/3304567.png", isBanned: false },
+                { id: 'p1', name: 'أحمد الولي', email: 'parent@test.com', pass: '123', role: 'parent', phone: '0555000000', wilaya: 'الجزائر', photo: "https://cdn-icons-png.flaticon.com/512/3011/3011270.png", isBanned: false }
+            ];
+            // نقوم بالحفظ واحداً تلو الآخر
+            initialUsers.forEach(u => set(ref(db, 'users/' + u.id), u));
+        }
 
-                <h4 class="fw-bold text-primary mb-3"><i class="bi bi-search"></i> <span data-i18n="search_title">ابحث عن مختص</span></h4>
-                <div class="custom-card p-3 mb-4">
-                    <div class="row g-2">
-                        <div class="col-6 col-md-3">
-                            <label class="form-label" data-i18n="wilaya">الولاية</label>
-                            <select class="form-select dynamic-wilaya" id="searchWilaya"><option value="الكل" data-i18n="all_wilayas">كل الولايات</option></select>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <label class="form-label" data-i18n="service_type">الخدمة</label>
-                            <select class="form-select dynamic-service" id="searchService"><option value="الكل" data-i18n="all_services">كل الخدمات</option></select>
-                        </div>
-                        <div class="col-8 col-md-4">
-                            <label class="form-label" data-i18n="child_age">عمر الطفل</label>
-                            <input type="number" class="form-control" id="searchAge">
-                        </div>
-                        <div class="col-4 col-md-2 d-flex align-items-end">
-                            <button class="btn btn-primary w-100 fw-bold" onclick="performSearch()" data-i18n="search_btn">بحث</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="row g-3 mb-5" id="resultsArea"></div>
-                <h5 class="fw-bold border-bottom pb-2 mb-3" data-i18n="my_requests">طلباتي السابقة</h5>
-                <div class="custom-card p-0"><table class="table table-hover mb-0 mobile-table"><thead class="table-light"><tr><th data-i18n="th_caregiver">المختص</th><th data-i18n="th_service">الطفل</th><th data-i18n="th_status">الحالة</th><th data-i18n="th_action">الإجراء</th></tr></thead><tbody id="myRequestsTable"></tbody></table></div>
-            </div>
-        </section>
+        // --- واجهة التعامل مع قاعدة البيانات ---
+        const DB = {
+            getUsers: () => localUsers,
+            saveUser: (u) => { set(ref(db, 'users/' + u.id), u).catch((e) => Swal.fire('Error', e.message, 'error')); },
+            updateUser: (updatedUser) => { update(ref(db, 'users/' + updatedUser.id), updatedUser); },
+            getRequests: () => localRequests,
+            saveRequest: (r) => { set(ref(db, 'requests/' + r.id), r); },
+            updateRequest: (id, status) => { update(ref(db, 'requests/' + id), { status: status }); },
+            updateRequestRating: (id) => { update(ref(db, 'requests/' + id), { isRated: true }); },
+            getNotifs: () => localNotifs,
+            saveNotif: (n) => { const newRef = push(ref(db, 'notifications')); set(newRef, n); },
+            getReviews: () => localReviews,
+            saveReview: (rev) => { set(ref(db, 'reviews/' + rev.id), rev); },
+            getReports: () => localReports,
+            saveReport: (rep) => { const newRef = push(ref(db, 'reports')); set(newRef, rep); }
+        };
 
-        <!-- 3. CAREGIVER VIEW -->
-        <section id="caregiverView" class="view-section">
-            <div class="container py-4">
-                <div class="custom-card p-3 mb-4 d-flex align-items-center bg-white border-start border-4 border-success">
-                    <img id="dashboardProfileImg" src="" class="profile-img-preview me-3">
-                    <div class="flex-grow-1">
-                        <h5 class="mb-1 fw-bold" id="cgNameProfile"></h5>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="availabilityToggle" onchange="toggleAvailability()">
-                            <label class="form-check-label fw-bold small" for="availabilityToggle" id="availabilityLabel" data-i18n="status_online">أنا في الخدمة</label>
-                        </div>
-                    </div>
-                </div>
-                <!-- Caregiver Dashboard Stats -->
-                <div class="row mb-4 g-3">
-                    <div class="col-6 col-md-3"><div class="stat-box bg-gradient-primary text-center"><h3 id="cgStatTotal">0</h3><span data-i18n="stat_total_req">الكل</span></div></div>
-                    <div class="col-6 col-md-3"><div class="stat-box bg-gradient-warning text-center"><h3 id="cgStatPending">0</h3><span data-i18n="stat_new_req">انتظار</span></div></div>
-                    <div class="col-6 col-md-3"><div class="stat-box bg-gradient-success text-center"><h3 id="cgStatAccepted">0</h3><span data-i18n="stat_accepted">مقبولة</span></div></div>
-                    <div class="col-6 col-md-3"><div class="stat-box bg-gradient-danger text-center"><h3 id="cgStatRejected">0</h3><span data-i18n="stat_rejected">مرفوضة</span></div></div>
-                </div>
-                <h5 class="fw-bold mb-3"><i class="bi bi-inbox-fill text-primary"></i> <span data-i18n="incoming_requests">الطلبات الواردة</span></h5>
-                <div class="custom-card p-0"><table class="table mb-0 mobile-table align-middle"><thead class="table-light"><tr><th data-i18n="th_parent">الولي</th><th data-i18n="th_child">الطفل</th><th data-i18n="th_details">التفاصيل</th><th data-i18n="th_days">الأيام</th><th data-i18n="th_action">الإجراء</th></tr></thead><tbody id="incomingRequestsTable"></tbody></table></div>
-            </div>
-        </section>
-        
-        <!-- 4. ADMIN VIEW -->
-        <section id="adminView" class="view-section">
-            <div class="container py-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="fw-bold text-primary mb-0" data-i18n="admin_panel">لوحة التحكم <span class="badge bg-danger fs-6">Admin</span></h3>
-                    <button class="btn btn-dark btn-sm rounded-pill" onclick="openSendNotifModal()"><i class="bi bi-megaphone-fill"></i> <span data-i18n="send_notif">إرسال إشعار</span></button>
-                </div>
-
-                <!-- Admin Stats (BIG NUMBERS) -->
-                <div class="row g-3 mb-4">
-                    <div class="col-md-3"><div class="stat-box bg-gradient-primary"><h3><i class="bi bi-people"></i> <span id="statTotalUsers" class="float-end">0</span></h3><span data-i18n="stat_users">المستخدمين</span></div></div>
-                    <div class="col-md-3"><div class="stat-box bg-gradient-success"><h3><i class="bi bi-heart-pulse"></i> <span id="statCaregivers" class="float-end">0</span></h3><span data-i18n="stat_caregivers">المرافقات</span></div></div>
-                    <div class="col-md-3"><div class="stat-box bg-gradient-warning"><h3><i class="bi bi-chat-right-text"></i> <span id="statReportsCount" class="float-end">0</span></h3><span data-i18n="stat_reports">الشكاوى</span></div></div>
-                    <div class="col-md-3"><div class="stat-box bg-gradient-danger"><h3><i class="bi bi-check2-all"></i> <span id="statSuccessOps" class="float-end">0</span></h3><span data-i18n="successful_ops">عمليات ناجحة</span></div></div>
-                </div>
-
-                <div class="row g-4 mb-4">
-                    <div class="col-lg-5">
-                        <div class="custom-card h-100 p-4">
-                            <h5 class="fw-bold mb-3 text-success"><i class="bi bi-trophy-fill"></i> <span data-i18n="successful_caregivers">أنجح المرافقات</span></h5>
-                            <table class="table table-borderless align-middle mb-0"><tbody id="adminTopCaregivers"></tbody></table>
-                        </div>
-                    </div>
-                    <div class="col-lg-7">
-                        <div class="custom-card h-100 p-4">
-                            <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-graph-up-arrow"></i> <span data-i18n="daily_transactions">التعاملات اليومية</span></h5>
-                            <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-light"><tr><th data-i18n="th_parent">الولي</th><th data-i18n="th_caregiver">المرافقة</th><th data-i18n="th_status">الحالة</th></tr></thead><tbody id="adminDailyTrans"></tbody></table></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="custom-card p-4 mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="fw-bold mb-0"><i class="bi bi-people-fill"></i> <span data-i18n="manage_users">إدارة المستخدمين</span></h5>
-                        <input type="text" class="form-control w-50" id="adminSearch" data-i18n-placeholder="search_placeholder" onkeyup="loadAdminDashboard()">
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle table-bordered">
-                            <thead class="table-light"><tr><th data-i18n="th_name">الاسم</th><th data-i18n="th_role">النوع</th><th data-i18n="phone">الهاتف</th><th>Email</th><th class="text-danger">Pass</th><th data-i18n="th_status">الحالة</th><th data-i18n="th_action">إجراء</th></tr></thead>
-                            <tbody id="adminUsersTable"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="custom-card p-4 mb-4">
-                    <h5 class="fw-bold mb-3"><i class="bi bi-envelope-exclamation-fill"></i> <span data-i18n="reports_messages">الشكاوى والرسائل</span></h5>
-                    <div class="table-responsive"><table class="table table-striped table-sm"><thead class="table-dark"><tr><th data-i18n="sender">المرسل</th><th data-i18n="type">النوع</th><th data-i18n="message">الرسالة</th><th data-i18n="date">التاريخ</th></tr></thead><tbody id="adminReportsTable"></tbody></table></div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- FOOTER WITH LINKS -->
-    <footer class="app-footer">
-        <div class="container text-center">
-            <h5 class="fw-bold text-dark mb-3" data-i18n="app_name">مرافق</h5>
-            <div class="d-flex justify-content-center flex-wrap gap-3 mb-3">
-                <span class="footer-link" onclick="openModal('aboutModal')" data-i18n="about_us">من نحن</span>
-                <span class="footer-link" onclick="openModal('privacyModal')" data-i18n="privacy_policy">سياسة الخصوصية</span>
-                <span class="footer-link" onclick="openModal('contactModal')" data-i18n="contact_us">تواصل معنا</span>
-            </div>
-            <div class="mb-3 text-muted small">
-                <i class="bi bi-geo-alt-fill text-danger"></i> <span data-i18n="location_text">رويبة، الجزائر العاصمة</span>
-            </div>
-            <button class="btn btn-sm btn-outline-danger rounded-pill mb-3" onclick="openModal('reportModal')">
-                <i class="bi bi-exclamation-triangle"></i> <span data-i18n="report_issue">الإبلاغ عن مشكلة</span>
-            </button>
-            <p class="small text-muted mb-0" data-i18n="copyright">جميع الحقوق محفوظة &copy; 2024</p>
-        </div>
-    </footer>
-
-    <!-- ================= MODALS ================= -->
-    
-    <!-- About Modal -->
-    <div class="modal fade" id="aboutModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title" data-i18n="about_us">من نحن</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                <div class="modal-body" data-i18n="about_content">منصة جزائرية مبتكرة تهدف لربط الأولياء بأفضل المختصين. مقرنا في رويبة، الجزائر العاصمة. نسعى لتوفير بيئة آمنة لطفلك.</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Privacy Modal -->
-    <div class="modal fade" id="privacyModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title" data-i18n="privacy_policy">سياسة الخصوصية</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                <div class="modal-body" data-i18n="privacy_content">نحن نلتزم بحماية بياناتك الشخصية. جميع المعلومات تستخدم فقط لغرض تحسين الخدمة ولن يتم مشاركتها مع أطراف ثالثة دون موافقتك.</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Contact Modal -->
-    <div class="modal fade" id="contactModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title" data-i18n="contact_us">تواصل معنا</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                <div class="modal-body">
-                    <p class="mb-2"><i class="bi bi-geo-alt-fill text-danger"></i> <span data-i18n="location_text">رويبة، الجزائر العاصمة</span></p>
-                    <p class="mb-3"><i class="bi bi-envelope-fill text-primary"></i> contact@morafik.dz</p>
-                    <form onsubmit="submitReport(event, 'رسالة تواصل')">
-                        <!-- ADDED EMAIL INPUT -->
-                        <div class="mb-3"><input type="email" class="form-control" placeholder="البريد الإلكتروني" required></div>
-                        <div class="mb-3"><input type="text" class="form-control" placeholder="الاسم" required></div>
-                        <div class="mb-3"><textarea class="form-control" rows="3" placeholder="الرسالة" required></textarea></div>
-                        <button type="submit" class="btn btn-primary w-100" data-i18n="send">إرسال</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Report Modal -->
-    <div class="modal fade" id="reportModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white"><h5 class="modal-title" data-i18n="report_issue">الإبلاغ عن مشكلة</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-                <div class="modal-body">
-                    <form onsubmit="submitReport(event, 'بلاغ عن مشكلة')">
-                        <!-- ADDED EMAIL INPUT -->
-                        <div class="mb-3"><input type="email" class="form-control" placeholder="البريد الإلكتروني" required></div>
-                        <div class="mb-3"><textarea class="form-control" rows="4" placeholder="تفاصيل المشكلة..." required></textarea></div>
-                        <button type="submit" class="btn btn-danger w-100" data-i18n="send">إرسال البلاغ</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Request Modal -->
-    <div class="modal fade" id="requestModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" data-i18n="request_service">تقديم طلب خدمة</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="sendRequestForm">
-                        <input type="hidden" id="targetCaregiverId">
-                        <div class="mb-3"><label class="form-label" data-i18n="child_name">اسم الطفل</label><input type="text" class="form-control" id="reqChildName" required></div>
-                        <div class="row">
-                            <div class="col-6 mb-3"><label class="form-label" data-i18n="child_age">العمر</label><input type="number" class="form-control" id="reqChildAge" required></div>
-                            <div class="col-6 mb-3">
-                                <label class="form-label" data-i18n="school_level">الطور الدراسي</label>
-                                <select class="form-select" id="reqSchoolLevel" required>
-                                    <option value="ابتدائي" data-i18n="lvl_primary">ابتدائي</option>
-                                    <option value="متوسط" data-i18n="lvl_middle">متوسط</option>
-                                    <option value="ثانوي" data-i18n="lvl_secondary">ثانوي</option>
-                                    <option value="غير متمدرس" data-i18n="lvl_none">غير متمدرس</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" data-i18n="child_condition">حالة الطفل</label>
-                            <select class="form-select" id="reqChildCondition" required>
-                                <option value="عادي" data-i18n="cond_normal">عادي</option>
-                                <option value="طيف توحد" data-i18n="cond_autism">طيف توحد</option>
-                                <option value="تأخر نطق" data-i18n="cond_speech">تأخر نطق</option>
-                                <option value="فرط حركة" data-i18n="cond_adhd">فرط حركة</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" data-i18n="duration">المدة</label>
-                            <select class="form-select" id="reqDuration">
-                                <option value="جلسة" data-i18n="dur_session">جلسة واحدة</option>
-                                <option value="شهر" data-i18n="1_month">شهر</option>
-                                <option value="فصل دراسي" data-i18n="dur_term">فصل دراسي</option>
-                                <option value="سنة دراسية" data-i18n="dur_year">طيلة العام الدراسي</option>
-                            </select>
-                        </div>
-                        <div class="mb-3"><label class="form-label" data-i18n="days">الأيام المفضلة</label><input type="text" class="form-control" id="reqDays" required placeholder="مثال: الأحد، الثلاثاء..."></div>
-                        <button type="submit" class="btn btn-primary w-100 fw-bold" data-i18n="confirm_send">تأكيد وإرسال</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Rating Modal -->
-    <div class="modal fade" id="rateModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title" data-i18n="rate_caregiver">تقييم المرافقة</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <h6 id="rateCgName" class="mb-3"></h6>
-                    <div class="star-rating mb-3 d-flex justify-content-center gap-2" id="starContainer">
-                        <i class="bi bi-star-fill" data-val="1"></i>
-                        <i class="bi bi-star-fill" data-val="2"></i>
-                        <i class="bi bi-star-fill" data-val="3"></i>
-                        <i class="bi bi-star-fill" data-val="4"></i>
-                        <i class="bi bi-star-fill" data-val="5"></i>
-                    </div>
-                    <input type="hidden" id="ratingValue" value="0">
-                    <input type="hidden" id="rateRequestId">
-                    <input type="hidden" id="rateCaregiverId">
-                    <div class="mb-3">
-                        <textarea id="rateComment" class="form-control" rows="3" data-i18n-placeholder="comment_placeholder" placeholder="اكتب تعليقك هنا..."></textarea>
-                    </div>
-                    <button onclick="submitReview()" class="btn btn-dark w-100" data-i18n="submit_rating">إرسال التقييم</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Profile Modal -->
-    <div class="modal fade" id="editProfileModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title" data-i18n="edit_profile">تعديل البروفايل</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editProfileForm">
-                        <div class="text-center mb-3">
-                            <div class="position-relative d-inline-block">
-                                <img id="editImgPreview" src="" class="profile-img-preview">
-                                <label for="editProfilePic" class="position-absolute bottom-0 start-0 bg-primary text-white p-1 rounded-circle" style="cursor: pointer;"><i class="bi bi-camera-fill small"></i></label>
-                            </div>
-                            <input type="file" id="editProfilePic" class="d-none" accept="image/*">
-                        </div>
-                        <div class="mb-3"><label class="form-label" data-i18n="fullname">الاسم الكامل</label><input type="text" class="form-control" id="editName" required></div>
-                        <div class="mb-3"><label class="form-label" data-i18n="phone">رقم الهاتف</label><input type="tel" class="form-control" id="editPhone" required></div>
-                        <div class="mb-3"><label class="form-label" data-i18n="wilaya">الولاية</label><select class="form-select dynamic-wilaya" id="editWilaya" required></select></div>
-                        <div class="bg-light p-3 rounded mb-3 border">
-                            <h6 class="text-danger small fw-bold mb-2" data-i18n="change_pass">تغيير كلمة المرور</h6>
-                            <input type="text" class="form-control form-control-sm" id="editNewPass">
-                        </div>
-                        <div id="caregiverEditFields" class="d-none pt-2">
-                            <h6 class="text-primary fw-bold mb-2" data-i18n="pro_info">معلومات مهنية</h6>
-                            <div class="mb-2"><select class="form-select dynamic-service" id="editService"></select></div>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100 fw-bold mt-2" data-i18n="save">حفظ التغييرات</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Notification Modal -->
-    <div class="modal fade" id="notifModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title fw-bold" data-i18n="notifications">الإشعارات</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <div id="notifList" class="list-group list-group-flush">
-                        <!-- Filled by JS -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Admin Send Notification Modal -->
-    <div class="modal fade" id="adminSendNotifModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title" data-i18n="send_notif">إرسال إشعار عام</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form onsubmit="sendAdminNotification(event)">
-                        <div class="mb-3">
-                            <label class="form-label" data-i18n="target_audience">الفئة المستهدفة</label>
-                            <select class="form-select" id="notifTarget">
-                                <option value="all" data-i18n="all">الجميع</option>
-                                <option value="parent" data-i18n="role_parent">أولياء الأمور</option>
-                                <option value="caregiver" data-i18n="role_caregiver">المرافقات/المختصين</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" data-i18n="message">نص الرسالة</label>
-                            <textarea class="form-control" id="notifMsg" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100" data-i18n="send">إرسال باسم (فريق مرافق)</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Forgot Password Modal -->
-    <div class="modal fade" id="forgotPassModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" data-i18n="forgot_password">نسيت كلمة المرور؟</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-muted" data-i18n="recover_hint">أدخل بريدك الإلكتروني لاستعادة كلمة المرور.</p>
-                    <input type="email" class="form-control mb-3" placeholder="user@mail.com">
-                    <button class="btn btn-primary w-100" onclick="bootstrap.Modal.getInstance(document.getElementById('forgotPassModal')).hide();Swal.fire('تم الإرسال')">إرسال</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+        // --- بدء التطبيق ---
         document.addEventListener("DOMContentLoaded", function() {
-            setTimeout(() => { document.getElementById('page-loader').style.display = 'none'; document.body.classList.add('loaded'); }, 800);
-
-            // --- DATA: FULL 58 WILAYAS ---
+            initListeners(); 
+            
+            // البيانات الثابتة (الولايات والخدمات)
             const wilayas = [
                 {id:1,ar:"أدرار",fr:"Adrar"},{id:2,ar:"الشلف",fr:"Chlef"},{id:3,ar:"الأغواط",fr:"Laghouat"},{id:4,ar:"أم البواقي",fr:"Oum El Bouaghi"},
                 {id:5,ar:"باتنة",fr:"Batna"},{id:6,ar:"بجاية",fr:"Béjaïa"},{id:7,ar:"بسكرة",fr:"Biskra"},{id:8,ar:"بشار",fr:"Béchar"},
@@ -664,10 +145,9 @@
                 {code:"srv_psych",ar:"استشارة (أخصائي نفساني)",fr:"Consultation (Psychologue)"},
                 {code:"srv_autism",ar:"مرافق طفل التوحد",fr:"Accompagnateur enfant autiste"},
                 {code:"srv_speech",ar:"أرطوفونيا (تصحيح النطق)",fr:"Orthophoniste"},
-                
             ];
 
-            const translations = {
+             const translations = {
                 ar: {
                     app_name:"مرافق", home:"الرئيسية", login:"دخول", register:"حساب جديد", start_now:"ابدأ الآن",
                     welcome_title:"أهلاً بك في عائلة مرافق", slogan:"طفلك في أيادي آمنة",
@@ -737,34 +217,6 @@
             let currentLang = 'ar';
             function t(key) { return translations[currentLang][key] || key; }
 
-            // Init DB
-            const initialUsers = [
-                { id: 'c1', name: 'د. سارة (نفسانية)', email: 'doc@test.com', pass: '123', role: 'caregiver', phone: '0550112233', wilaya: 'الجزائر', service: 'استشارة (أخصائي نفساني)', isAvailable: true, photo: "https://cdn-icons-png.flaticon.com/512/3304/3304567.png", isBanned: false },
-                { id: 'p1', name: 'أحمد الولي', email: 'parent@test.com', pass: '123', role: 'parent', phone: '0555000000', wilaya: 'الجزائر', photo: "https://cdn-icons-png.flaticon.com/512/3011/3011270.png", isBanned: false }
-            ];
-            if (!localStorage.getItem('users')) localStorage.setItem('users', JSON.stringify(initialUsers));
-            if (!localStorage.getItem('requests')) localStorage.setItem('requests', JSON.stringify([]));
-            if (!localStorage.getItem('notifications')) localStorage.setItem('notifications', JSON.stringify([]));
-            if (!localStorage.getItem('reviews')) localStorage.setItem('reviews', JSON.stringify([]));
-
-            const DB = {
-                getUsers: () => JSON.parse(localStorage.getItem('users')),
-                saveUser: (u) => { const us = DB.getUsers(); us.push(u); localStorage.setItem('users', JSON.stringify(us)); },
-                saveAllUsers: (us) => localStorage.setItem('users', JSON.stringify(us)),
-                updateUser: (updatedUser) => { const users = DB.getUsers(); const idx = users.findIndex(u => u.id === updatedUser.id); if(idx !== -1) { users[idx] = updatedUser; localStorage.setItem('users', JSON.stringify(users)); return true; } return false; },
-                getRequests: () => JSON.parse(localStorage.getItem('requests')),
-                saveRequest: (r) => { const rs = DB.getRequests(); rs.push(r); localStorage.setItem('requests', JSON.stringify(rs)); },
-                updateRequest: (id, s) => { const rs = DB.getRequests(); const idx = rs.findIndex(r=>r.id==id); if(idx!==-1){rs[idx].status=s; localStorage.setItem('requests', JSON.stringify(rs));} },
-                updateRequestRating: (id) => { const rs = DB.getRequests(); const idx = rs.findIndex(r=>r.id==id); if(idx!==-1){rs[idx].isRated=true; localStorage.setItem('requests', JSON.stringify(rs));} },
-                getNotifs: () => JSON.parse(localStorage.getItem('notifications')),
-                saveNotif: (n) => { const ns = DB.getNotifs(); ns.push(n); localStorage.setItem('notifications', JSON.stringify(ns)); },
-                getReviews: () => JSON.parse(localStorage.getItem('reviews')),
-                saveReview: (rev) => { const rs = DB.getReviews(); rs.push(rev); localStorage.setItem('reviews', JSON.stringify(rs)); },
-                saveReport: (rep) => { const r = JSON.parse(localStorage.getItem('reports') || '[]'); r.push(rep); localStorage.setItem('reports', JSON.stringify(r)); }
-            };
-
-            let currentUser = null;
-
             // --- NAVIGATION ---
             window.switchView = function(viewId) {
                 document.querySelectorAll('.view-section').forEach(el => { el.classList.remove('active'); el.style.opacity=0; });
@@ -790,10 +242,10 @@
             // --- AUTH ---
             document.getElementById('loginForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-                // ToLowerCase added here for case insensitivity
                 const email = document.getElementById('loginEmail').value.trim().toLowerCase();
                 const pass = document.getElementById('loginPass').value;
                 
+                // حساب الأدمن
                 if(email === 'admin' && pass === 'abobob123') {
                     currentUser = { name: 'Admin', role: 'admin' };
                     document.getElementById('guestNav').classList.add('d-none');
@@ -803,7 +255,6 @@
                     switchView('adminView'); return;
                 }
 
-                // Check stored email (also lowercased)
                 const user = DB.getUsers().find(u => u.email.toLowerCase() === email && u.pass === pass);
                 if(user) {
                     if(user.isBanned) { Swal.fire({icon:'error', title:'محظور', text:'تم حظر حسابك من قبل الإدارة'}); return; }
@@ -822,9 +273,23 @@
             document.getElementById('registerForm').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const role = document.getElementById('regRole').value;
-                const newUser = { id: 'u' + Date.now(), name: document.getElementById('regName').value, email: document.getElementById('regEmail').value, phone: document.getElementById('regPhone').value, pass: document.getElementById('regPass').value, role: role, wilaya: document.getElementById('regWilaya').value, photo: "https://cdn-icons-png.flaticon.com/512/149/149071.png", isAvailable: true, isBanned: false };
+                const uid = 'u' + Date.now();
+                const newUser = { 
+                    id: uid, 
+                    name: document.getElementById('regName').value, 
+                    email: document.getElementById('regEmail').value, 
+                    phone: document.getElementById('regPhone').value, 
+                    pass: document.getElementById('regPass').value, 
+                    role: role, 
+                    wilaya: document.getElementById('regWilaya').value, 
+                    photo: "https://cdn-icons-png.flaticon.com/512/149/149071.png", 
+                    isAvailable: true, 
+                    isBanned: false 
+                };
                 if (role === 'caregiver') { newUser.service = document.getElementById('regService').value; }
+                
                 DB.saveUser(newUser); 
+                
                 Swal.fire({icon:'success', title:'تم التسجيل'});
                 new bootstrap.Tab(document.querySelector('#tab-login')).show(); document.getElementById('registerForm').reset();
             });
@@ -839,7 +304,7 @@
                 const msg = msgInput.value;
 
                 const rep = {
-                    sender: email, // Use email as sender ID
+                    sender: email,
                     type: type,
                     message: msg,
                     date: new Date().toLocaleDateString()
@@ -883,7 +348,6 @@
                     && (sWilaya === 'الكل' || u.wilaya === sWilaya)
                     && (sService === 'الكل' || u.service === sService)
                 ).forEach(c => {
-                    // CALCULATE STARS
                     const reviews = DB.getReviews().filter(r => r.caregiverId === c.id);
                     const count = reviews.length;
                     const sum = reviews.reduce((acc, r) => acc + parseInt(r.stars), 0);
@@ -915,8 +379,9 @@
 
             document.getElementById('sendRequestForm').addEventListener('submit', function(e) {
                 e.preventDefault();
+                const rid = Date.now();
                 const req = {
-                    id: Date.now(), parentId: currentUser.id, parentName: currentUser.name, parentPhone: currentUser.phone, 
+                    id: rid, parentId: currentUser.id, parentName: currentUser.name, parentPhone: currentUser.phone, 
                     caregiverId: document.getElementById('targetCaregiverId').value,
                     childName: document.getElementById('reqChildName').value, childAge: document.getElementById('reqChildAge').value,
                     schoolLevel: document.getElementById('reqSchoolLevel').value, childCondition: document.getElementById('reqChildCondition').value,
@@ -925,7 +390,6 @@
                 DB.saveRequest(req);
                 bootstrap.Modal.getInstance(document.getElementById('requestModal')).hide();
                 Swal.fire({icon:'success', title: t('alert_success')});
-                loadMyRequests(); loadParentStats();
             });
 
             window.loadMyRequests = function() {
@@ -988,7 +452,6 @@
                 DB.updateRequestRating(rid); 
                 bootstrap.Modal.getInstance(document.getElementById('rateModal')).hide();
                 Swal.fire({icon:'success', title: t('alert_sent')});
-                loadMyRequests(); 
             };
 
             // --- CAREGIVER ---
@@ -1017,13 +480,16 @@
                     tbody.innerHTML += `<tr><td data-label="${t('th_parent')}">${parentInfo}</td><td data-label="${t('th_child')}">${r.childName}</td><td data-label="${t('th_details')}">${details}</td><td data-label="${t('th_days')}">${r.days}</td><td data-label="${t('th_action')}">${action}</td></tr>`;
                 });
             };
-            window.handleReq = function(id, status) { DB.updateRequest(id, status); loadCaregiverDashboard(); };
-            window.toggleAvailability = function() { currentUser.isAvailable = document.getElementById('availabilityToggle').checked; DB.updateUser(currentUser); };
+            window.handleReq = function(id, status) { DB.updateRequest(id, status); };
+            window.toggleAvailability = function() { 
+                currentUser.isAvailable = document.getElementById('availabilityToggle').checked; 
+                DB.updateUser(currentUser); 
+            };
 
             // --- ADMIN ---
             window.loadAdminDashboard = function() {
                 const users = DB.getUsers(); const reqs = DB.getRequests();
-                const reports = JSON.parse(localStorage.getItem('reports') || '[]');
+                const reports = DB.getReports();
                 
                 document.getElementById('statTotalUsers').innerText = users.length;
                 document.getElementById('statCaregivers').innerText = users.filter(u=>u.role==='caregiver').length;
@@ -1058,8 +524,11 @@
             };
 
             window.toggleBan = function(uid) {
-                const users = DB.getUsers(); const u = users.find(x => x.id === uid);
-                if(u) { u.isBanned = !u.isBanned; DB.saveAllUsers(users); loadAdminDashboard(); }
+                const u = DB.getUsers().find(x => x.id === uid);
+                if(u) { 
+                    u.isBanned = !u.isBanned; 
+                    DB.updateUser(u);
+                }
             };
 
             window.openSendNotifModal = function() { new bootstrap.Modal(document.getElementById('adminSendNotifModal')).show(); };
@@ -1101,7 +570,6 @@
                 bootstrap.Modal.getInstance(document.getElementById('editProfileModal')).hide();
                 Swal.fire({icon:'success', title: t('save')});
                 document.getElementById('userInfo').innerText = currentUser.name;
-                if(currentUser.role === 'caregiver') loadCaregiverDashboard();
             });
 
             // --- UTILS ---
@@ -1113,13 +581,7 @@
                 document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = t(el.getAttribute('data-i18n')));
                 document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = t(el.getAttribute('data-i18n-placeholder')));
                 populateDropdowns();
-                
-                // Refresh dashboards to apply dynamic translations
-                if(currentUser) {
-                    if(currentUser.role === 'parent') { performSearch(); loadMyRequests(); loadParentStats(); }
-                    else if(currentUser.role === 'caregiver') { loadCaregiverDashboard(); }
-                    else if(currentUser.role === 'admin') { loadAdminDashboard(); }
-                }
+                refreshUI();
             };
 
             window.selectRole = function(role, elem) {
@@ -1150,5 +612,3 @@
             switchView('landingView');
         });
     </script>
-</body>
-</html>
